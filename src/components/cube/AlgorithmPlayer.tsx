@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { CubeViewer } from "@/components/cube/CubeViewer";
 import {
   CubeEngine,
@@ -71,12 +71,18 @@ export function AlgorithmPlayer({
 
   const { snapshots, moves } = playback;
 
+  // Tracks whether a stepForward animation is in-flight. Prevents the
+  // auto-play effect from re-triggering the same move when isAnimating flips
+  // false before React has processed the setCurrentStep(s+1) state update.
+  const stepFiredRef = useRef(false);
+
   // Re-build when algorithm or initialState changes
   useEffect(() => {
     const pb = buildPlaybackState(algorithm, initialState);
     setPlayback(pb);
     setCurrentStep(0);
     setIsPlaying(false);
+    stepFiredRef.current = false;
     cubeEngine.setState(pb.snapshots[0]);
     useCubeStore.setState({ faces: pb.snapshots[0] });
   }, [algorithm, initialState]);
@@ -92,8 +98,10 @@ export function AlgorithmPlayer({
   }, [setAnimationSpeed]);
 
   const stepForward = useCallback(async () => {
-    if (isAnimating || currentStep >= moves.length) return;
+    if (isAnimating || currentStep >= moves.length || stepFiredRef.current) return;
+    stepFiredRef.current = true;
     await animateMove(moves[currentStep].notation);
+    stepFiredRef.current = false;
     setCurrentStep((s) => s + 1);
   }, [isAnimating, currentStep, moves, animateMove]);
 
@@ -112,6 +120,7 @@ export function AlgorithmPlayer({
   const reset = useCallback(() => {
     setIsPlaying(false);
     setCurrentStep(0);
+    stepFiredRef.current = false;
     cubeEngine.setState(snapshots[0]);
     useCubeStore.setState({ faces: snapshots[0] });
   }, [snapshots]);
