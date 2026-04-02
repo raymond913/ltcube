@@ -148,3 +148,60 @@ describe("whiteCorners — round-trip", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Second Layer
+// ---------------------------------------------------------------------------
+import { secondLayer } from "../second-layer";
+
+describe("secondLayer — structure", () => {
+  it("has unique non-empty substep IDs", () => {
+    const ids = secondLayer.substeps.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id.length).toBeGreaterThan(0));
+  });
+
+  it("every initialState is a valid algorithm or empty string", () => {
+    secondLayer.substeps.forEach((s) => {
+      if (s.initialState !== "") {
+        expect(isValidAlgorithm(s.initialState)).toBe(true);
+      }
+    });
+  });
+
+  it("every algorithm is a valid non-empty algorithm", () => {
+    secondLayer.substeps.forEach((s) => {
+      if (s.algorithm !== undefined) {
+        expect(isValidAlgorithm(s.algorithm)).toBe(true);
+      }
+    });
+  });
+
+  it("every solutionMoves is a valid non-empty algorithm", () => {
+    secondLayer.substeps.forEach((s) => {
+      if (s.solutionMoves !== undefined) {
+        expect(isValidAlgorithm(s.solutionMoves)).toBe(true);
+      }
+    });
+  });
+
+  it("every highlightPieces is a non-empty array of non-empty strings", () => {
+    secondLayer.substeps.forEach((s) => {
+      expect(s.highlightPieces.length).toBeGreaterThan(0);
+      s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
+    });
+  });
+});
+
+describe("secondLayer — round-trip", () => {
+  secondLayer.substeps.forEach((substep) => {
+    it(`${substep.id}: solutionMoves changes the cube state`, () => {
+      if (!substep.solutionMoves) return;
+      const before = applySetup(substep.initialState);
+      const stateBefore = JSON.stringify(before.getState());
+      before.applyAlgorithm(substep.solutionMoves);
+      const stateAfter = JSON.stringify(before.getState());
+      expect(stateAfter).not.toBe(stateBefore);
+    });
+  });
+});
