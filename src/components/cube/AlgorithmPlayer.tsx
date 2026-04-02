@@ -37,6 +37,11 @@ export function buildPlaybackState(
 // Component
 // ---------------------------------------------------------------------------
 
+/**
+ * @param initialState Must be referentially stable (e.g. from useMemo or a
+ * module-level constant). Passing an inline object literal will cause the
+ * snapshot array to be rebuilt and playback to reset on every parent render.
+ */
 interface AlgorithmPlayerProps {
   algorithm: string;
   initialState?: CubeFaces;
@@ -92,6 +97,10 @@ export function AlgorithmPlayer({
     setCurrentStep((s) => s + 1);
   }, [isAnimating, currentStep, moves, animateMove]);
 
+  // NOTE: The isAnimating guard is necessary but not sufficient — a GSAP tween
+  // that completes mid-flight will call commitAnimatedMove, potentially
+  // overwriting a just-restored snapshot. This window is extremely narrow in
+  // practice and requires simultaneous user input during the animation frame.
   const stepBack = useCallback(() => {
     if (isAnimating || currentStep === 0) return;
     const newStep = currentStep - 1;
@@ -107,7 +116,9 @@ export function AlgorithmPlayer({
     useCubeStore.setState({ faces: snapshots[0] });
   }, [snapshots]);
 
-  // Auto-play loop — triggers on every relevant state change
+  // Auto-play loop. stepForward is in deps (not isAnimating directly) because
+  // stepForward closes over isAnimating — changing it here would break the
+  // useCallback memoisation and cause infinite re-renders.
   useEffect(() => {
     if (!isPlaying) return;
     if (currentStep >= moves.length) {
@@ -150,7 +161,7 @@ export function AlgorithmPlayer({
 
   return (
     <div
-      className="rounded-xl border border-[#E2E8F0] bg-white shadow-sm p-5 w-full max-w-[500px] mx-auto flex flex-col gap-4 outline-none"
+      className="rounded-xl border border-[#E2E8F0] bg-white shadow-sm p-5 w-full max-w-[500px] mx-auto flex flex-col gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
@@ -209,6 +220,7 @@ export function AlgorithmPlayer({
           <button
             onClick={stepBack}
             disabled={isAnimating || currentStep === 0}
+            aria-label="Step back"
             title="Step back (←)"
             className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#1E293B] shadow-sm hover:bg-[#F1F5F9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -217,6 +229,7 @@ export function AlgorithmPlayer({
           <button
             onClick={() => setIsPlaying((p) => !p)}
             disabled={!isPlaying && currentStep >= moves.length}
+            aria-label={isPlaying ? "Pause" : "Play"}
             title="Play / Pause (Space)"
             className="rounded-md bg-[#2563EB] px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1D4ED8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -225,6 +238,7 @@ export function AlgorithmPlayer({
           <button
             onClick={() => void stepForward()}
             disabled={isAnimating || currentStep >= moves.length}
+            aria-label="Step forward"
             title="Step forward (→)"
             className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#1E293B] shadow-sm hover:bg-[#F1F5F9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -232,6 +246,7 @@ export function AlgorithmPlayer({
           </button>
           <button
             onClick={reset}
+            aria-label="Reset"
             title="Reset (R)"
             className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#64748B] shadow-sm hover:bg-[#F1F5F9] transition-colors"
           >
