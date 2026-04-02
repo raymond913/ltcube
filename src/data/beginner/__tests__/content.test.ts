@@ -205,3 +205,70 @@ describe("secondLayer — round-trip", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// 2-Look OLL
+// ---------------------------------------------------------------------------
+import { twoLookOll } from "../two-look-oll";
+
+const OLL_EDGE_IDS = ["oll-dot", "oll-l-shape", "oll-line"];
+const OLL_CORNER_IDS = [
+  "oll-sune", "oll-antisune", "oll-h", "oll-pi", "oll-u", "oll-t", "oll-l",
+];
+
+describe("twoLookOll — structure", () => {
+  it("has exactly 10 substeps", () => {
+    expect(twoLookOll.substeps.length).toBe(10);
+  });
+
+  it("has unique non-empty substep IDs", () => {
+    const ids = twoLookOll.substeps.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id.length).toBeGreaterThan(0));
+  });
+
+  it("every initialState is a valid algorithm or empty string", () => {
+    twoLookOll.substeps.forEach((s) => {
+      if (s.initialState !== "") {
+        expect(isValidAlgorithm(s.initialState)).toBe(true);
+      }
+    });
+  });
+
+  it("every algorithm is a valid non-empty algorithm", () => {
+    twoLookOll.substeps.forEach((s) => {
+      if (s.algorithm !== undefined) {
+        expect(isValidAlgorithm(s.algorithm)).toBe(true);
+      }
+    });
+  });
+
+  it("every highlightPieces is a non-empty array of non-empty strings", () => {
+    twoLookOll.substeps.forEach((s) => {
+      expect(s.highlightPieces.length).toBeGreaterThan(0);
+      s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
+    });
+  });
+});
+
+describe("twoLookOll — edge cases form yellow cross", () => {
+  OLL_EDGE_IDS.forEach((id) => {
+    it(`${id}: initialState → algorithm → yellow cross`, () => {
+      const substep = twoLookOll.substeps.find((s) => s.id === id)!;
+      const engine = applySetup(substep.initialState);
+      engine.applyAlgorithm(substep.algorithm!);
+      expect(hasYellowCross(engine)).toBe(true);
+    });
+  });
+});
+
+describe("twoLookOll — corner cases solve OLL", () => {
+  OLL_CORNER_IDS.forEach((id) => {
+    it(`${id}: initialState → algorithm → full OLL solved`, () => {
+      const substep = twoLookOll.substeps.find((s) => s.id === id)!;
+      const engine = applySetup(substep.initialState);
+      engine.applyAlgorithm(substep.algorithm!);
+      expect(isOllSolved(engine)).toBe(true);
+    });
+  });
+});
