@@ -42,3 +42,52 @@ function isValidAlgorithm(alg: string): boolean {
 describe("beginner tutorial content", () => {
   it.todo("test cases added in subsequent tasks");
 });
+
+// ---------------------------------------------------------------------------
+// White Cross
+// ---------------------------------------------------------------------------
+import { whiteCross } from "../white-cross";
+
+describe("whiteCross — structure", () => {
+  it("has unique non-empty substep IDs", () => {
+    const ids = whiteCross.substeps.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id.length).toBeGreaterThan(0));
+  });
+
+  it("every initialState is a valid algorithm or empty string", () => {
+    whiteCross.substeps.forEach((s) => {
+      if (s.initialState !== "") {
+        expect(isValidAlgorithm(s.initialState)).toBe(true);
+      }
+    });
+  });
+
+  it("every solutionMoves is a valid non-empty algorithm", () => {
+    whiteCross.substeps.forEach((s) => {
+      if (s.solutionMoves !== undefined) {
+        expect(isValidAlgorithm(s.solutionMoves)).toBe(true);
+      }
+    });
+  });
+
+  it("every highlightPieces is a non-empty array of non-empty strings", () => {
+    whiteCross.substeps.forEach((s) => {
+      expect(s.highlightPieces.length).toBeGreaterThan(0);
+      s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
+    });
+  });
+});
+
+describe("whiteCross — round-trip", () => {
+  whiteCross.substeps.forEach((substep) => {
+    it(`${substep.id}: solutionMoves changes the cube state`, () => {
+      if (!substep.solutionMoves) return;
+      const before = applySetup(substep.initialState);
+      const stateBefore = JSON.stringify(before.getState());
+      before.applyAlgorithm(substep.solutionMoves);
+      const stateAfter = JSON.stringify(before.getState());
+      expect(stateAfter).not.toBe(stateBefore);
+    });
+  });
+});
