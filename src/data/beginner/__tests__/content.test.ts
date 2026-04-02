@@ -322,3 +322,33 @@ describe("twoLookPll — each case solves the cube", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Index
+// ---------------------------------------------------------------------------
+import { BEGINNER_STEPS } from "../index";
+
+describe("BEGINNER_STEPS — structure", () => {
+  it("has exactly 5 steps", () => {
+    expect(BEGINNER_STEPS.length).toBe(5);
+  });
+
+  it("step numbers are 1–5 in order", () => {
+    BEGINNER_STEPS.forEach((step, i) => {
+      expect(step.stepNumber).toBe(i + 1);
+    });
+  });
+
+  it("all routes start with /learn/", () => {
+    BEGINNER_STEPS.forEach((step) => {
+      expect(step.route.startsWith("/learn/")).toBe(true);
+    });
+  });
+
+  it("OLL has caseCount 10 and PLL has caseCount 6", () => {
+    const oll = BEGINNER_STEPS.find((s) => s.id === "two-look-oll")!;
+    const pll = BEGINNER_STEPS.find((s) => s.id === "two-look-pll")!;
+    expect(oll.caseCount).toBe(10);
+    expect(pll.caseCount).toBe(6);
+  });
+});
