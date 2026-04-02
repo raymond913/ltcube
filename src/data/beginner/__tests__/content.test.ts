@@ -272,3 +272,53 @@ describe("twoLookOll — corner cases solve OLL", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// 2-Look PLL
+// ---------------------------------------------------------------------------
+import { twoLookPll } from "../two-look-pll";
+
+describe("twoLookPll — structure", () => {
+  it("has exactly 6 substeps", () => {
+    expect(twoLookPll.substeps.length).toBe(6);
+  });
+
+  it("has unique non-empty substep IDs", () => {
+    const ids = twoLookPll.substeps.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id.length).toBeGreaterThan(0));
+  });
+
+  it("every initialState is a valid algorithm or empty string", () => {
+    twoLookPll.substeps.forEach((s) => {
+      if (s.initialState !== "") {
+        expect(isValidAlgorithm(s.initialState)).toBe(true);
+      }
+    });
+  });
+
+  it("every algorithm is a valid non-empty algorithm", () => {
+    twoLookPll.substeps.forEach((s) => {
+      if (s.algorithm !== undefined) {
+        expect(isValidAlgorithm(s.algorithm)).toBe(true);
+      }
+    });
+  });
+
+  it("every highlightPieces is a non-empty array of non-empty strings", () => {
+    twoLookPll.substeps.forEach((s) => {
+      expect(s.highlightPieces.length).toBeGreaterThan(0);
+      s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
+    });
+  });
+});
+
+describe("twoLookPll — each case solves the cube", () => {
+  twoLookPll.substeps.forEach((substep) => {
+    it(`${substep.id}: initialState → algorithm → isSolved()`, () => {
+      const engine = applySetup(substep.initialState);
+      engine.applyAlgorithm(substep.algorithm!);
+      expect(engine.isSolved()).toBe(true);
+    });
+  });
+});
