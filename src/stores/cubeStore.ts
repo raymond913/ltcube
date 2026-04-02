@@ -1,34 +1,77 @@
 import { create } from "zustand";
-import { CubeEngine, type CubeFaces } from "@/lib/cubeEngine";
+import { CubeEngine, type CubeFaces, parseAlgorithm } from "@/lib/cubeEngine";
 import { generateScramble } from "@/lib/scrambleGenerator";
 
 // Singleton engine — lives for the lifetime of the app session.
-// Not stored in Zustand state to avoid serialization issues.
 const _engine = new CubeEngine();
 
-interface CubeStore {
-  /** Snapshot of the engine's face color state — updated after every action. */
-  faces: CubeFaces;
-  /** Cubie IDs to highlight (e.g. ["UFR", "UF"] for a tutorial step). */
-  highlights: string[];
+// ---------------------------------------------------------------------------
+// Animation bridge — module-level, never serialised into Zustand state
+// ---------------------------------------------------------------------------
 
-  /** Apply a single move string, e.g. "R", "U'", "F2". */
-  execute: (move: string) => void;
-  /** Apply a full algorithm string, e.g. "R U R' U'". */
-  applyAlgorithm: (alg: string) => void;
-  /** Return cube to solved state. */
-  reset: () => void;
-  /** Apply a random 20-move scramble. */
-  scramble: () => void;
-  /** Set which cubie IDs are highlighted. */
-  setHighlights: (cubies: string[]) => void;
-  /** Remove all highlights. */
-  clearHighlights: () => void;
+let _animChain: Promise<void> = Promise.resolve();
+let _pendingCount = 0;
+let _animHandler: ((move: string, durationMs: number) => Promise<void>) | null = null;
+
+/** Called by CubeScene on mount — registers the GSAP animation handler. */
+export function registerAnimationHandler(
+  fn: (move: string, durationMs: number) => Promise<void>,
+): void {
+  _animHandler = fn;
 }
 
-export const useCubeStore = create<CubeStore>()((set) => ({
+/** Called by CubeScene on unmount. */
+export function unregisterAnimationHandler(): void {
+  _animHandler = null;
+}
+
+/**
+ * Called by CubeScene after GSAP completes a move.
+ * Applies the move to the engine and pushes the new face state into Zustand.
+ */
+export function commitAnimatedMove(move: string): void {
+  _engine.applyMoveString(move);
+  useCubeStore.setState({ faces: _engine.getState() });
+}
+
+/** Execute one move — via handler if registered, else instant fallback. */
+async function _runSingle(move: string): Promise<void> {
+  const durationMs = 300 / useCubeStore.getState().animationSpeed;
+  if (_animHandler) {
+    await _animHandler(move, durationMs);
+  } else {
+    _engine.applyMoveString(move);
+    useCubeStore.setState({ faces: _engine.getState() });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Store interface
+// ---------------------------------------------------------------------------
+
+interface CubeStore {
+  faces: CubeFaces;
+  highlights: string[];
+  isAnimating: boolean;
+  animationSpeed: number;
+
+  execute: (move: string) => void;
+  applyAlgorithm: (alg: string) => void;
+  reset: () => void;
+  scramble: () => void;
+  setHighlights: (cubies: string[]) => void;
+  clearHighlights: () => void;
+
+  animateMove: (move: string) => Promise<void>;
+  animateAlgorithm: (alg: string) => Promise<void>;
+  setAnimationSpeed: (speed: number) => void;
+}
+
+export const useCubeStore = create<CubeStore>()((set, get) => ({
   faces: _engine.getState(),
   highlights: [],
+  isAnimating: false,
+  animationSpeed: 1,
 
   execute: (move) => {
     _engine.applyMoveString(move);
@@ -46,12 +89,32 @@ export const useCubeStore = create<CubeStore>()((set) => ({
   },
 
   scramble: () => {
-    _engine.applyAlgorithm(generateScramble(20));
-    set({ faces: _engine.getState() });
+    get().animateAlgorithm(generateScramble(20));
   },
 
   setHighlights: (cubies) => set({ highlights: cubies }),
   clearHighlights: () => set({ highlights: [] }),
+
+  setAnimationSpeed: (speed) => set({ animationSpeed: speed }),
+
+  animateMove: (move): Promise<void> => {
+    _pendingCount++;
+    set({ isAnimating: true });
+    const p = _animChain.then(() => _runSingle(move));
+    _animChain = p.catch(() => {});
+    return p.finally(() => {
+      _pendingCount--;
+      if (_pendingCount === 0) set({ isAnimating: false });
+    });
+  },
+
+  animateAlgorithm: (alg): Promise<void> => {
+    const moves = parseAlgorithm(alg);
+    return moves.reduce<Promise<void>>(
+      (chain, m) => chain.then(() => get().animateMove(m.notation)),
+      Promise.resolve(),
+    );
+  },
 }));
 
 /** Imperative access to the engine for non-React code (e.g. algorithm playback). */

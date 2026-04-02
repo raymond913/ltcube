@@ -1,6 +1,7 @@
 "use client";
 
 import { RoundedBox } from "@react-three/drei";
+import * as THREE from "three";
 
 const BODY_SIZE = 0.93;
 const STICKER_SIZE = 0.82;
@@ -65,6 +66,7 @@ export function Cubie({ position, faceColors, highlighted = false, dimmed = fals
               opacity={stickerOpacity}
               emissive={stickerColor}
               emissiveIntensity={emissiveIntensity}
+              side={THREE.DoubleSide}
             />
           </mesh>
         );
