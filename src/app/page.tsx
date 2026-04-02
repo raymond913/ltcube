@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import { CubeViewer } from "@/components/cube/CubeViewer";
-import { useCubeStore } from "@/stores/cubeStore";
+import { AlgorithmPlayer } from "@/components/cube/AlgorithmPlayer";
 
 export default function HomePage() {
-  const { execute, applyAlgorithm, reset, scramble } = useCubeStore();
-
   return (
     <div className="flex flex-col gap-10">
       {/* Hero */}
@@ -43,35 +41,12 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Temporary Phase 2C test controls — remove before Phase 3 */}
-      <div className="flex flex-col gap-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-[#94A3B8]">
-          Phase 2C Test Controls (temporary)
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {(["R", "U", "R'", "U'", "F", "L", "D", "B"] as const).map((move) => (
-            <button
-              key={move}
-              onClick={() => execute(move)}
-              className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-mono font-semibold text-[#1E293B] shadow-sm hover:bg-[#F1F5F9] transition-colors"
-            >
-              {move}
-            </button>
-          ))}
-          <button
-            onClick={scramble}
-            className="rounded-md bg-[#2563EB] px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1D4ED8] transition-colors"
-          >
-            Scramble
-          </button>
-          <button
-            onClick={reset}
-            className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#64748B] shadow-sm hover:bg-[#F1F5F9] transition-colors"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
+      {/* Algorithm Player demo */}
+      <AlgorithmPlayer
+        algorithm="R U R' U'"
+        title="Algorithm Playback"
+        description="Use the controls below to step through moves, or press Space to play."
+      />
 
       {/* Feature grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-[#F1F5F9] pt-8">
