@@ -67,23 +67,23 @@ describe("animateMove with handler", () => {
     const handler = vi.fn(async (_move: string, _ms: number) => {});
     registerAnimationHandler(handler);
     await useCubeStore.getState().animateMove("R");
-    expect(handler).toHaveBeenCalledWith("R", 300);
+    expect(handler).toHaveBeenCalledWith("R", 400);
   });
 
-  it("computes durationMs = 300 / speed (speed 2 → 150ms)", async () => {
+  it("computes durationMs = 400 / speed (speed 2 → 200ms)", async () => {
     const handler = vi.fn(async (_move: string, _ms: number) => {});
     registerAnimationHandler(handler);
     useCubeStore.getState().setAnimationSpeed(2);
     await useCubeStore.getState().animateMove("L");
-    expect(handler).toHaveBeenCalledWith("L", 150);
+    expect(handler).toHaveBeenCalledWith("L", 200);
   });
 
-  it("computes durationMs = 300 / speed (speed 0.5 → 600ms)", async () => {
+  it("computes durationMs = 400 / speed (speed 0.5 → 800ms)", async () => {
     const handler = vi.fn(async (_move: string, _ms: number) => {});
     registerAnimationHandler(handler);
     useCubeStore.getState().setAnimationSpeed(0.5);
     await useCubeStore.getState().animateMove("B");
-    expect(handler).toHaveBeenCalledWith("B", 600);
+    expect(handler).toHaveBeenCalledWith("B", 800);
   });
 });
 
