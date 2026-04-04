@@ -1,34 +1,43 @@
 "use client";
 
-import { useMemo, useRef, useState, useEffect } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useEffect, useRef, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { flushSync } from "react-dom";
 import gsap from "gsap";
 import * as THREE from "three";
-import { Cubie, type FaceColorKey } from "./Cubie";
+import { RoundedBoxGeometry } from "three-stdlib";
 import {
   useCubeStore,
-  cubeEngine,
   registerAnimationHandler,
   unregisterAnimationHandler,
+  registerInstantHandler,
+  unregisterInstantHandler,
   commitAnimatedMove,
 } from "@/stores/cubeStore";
-import { parseAlgorithm } from "@/lib/cubeEngine";
+import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 
 type Vec3 = [number, number, number];
 
-const COLOR_HEX: Record<string, string> = {
-  yellow: "#EAB308",
-  white:  "#FFFFFF",
-  blue:   "#2563EB",
-  green:  "#16A34A",
-  red:    "#DC2626",
-  orange: "#EA580C",
+const BODY_SIZE      = 0.93;
+const STICKER_SIZE   = 0.79;    // ≈ 0.85 × BODY_SIZE
+const STICKER_OFFSET = 0.466;   // BODY_SIZE / 2 + 0.001
+
+/** Solved-state sticker colors keyed by face letter. */
+const FACE_COLORS: Record<string, string> = {
+  R: "#DC2626",
+  L: "#EA580C",
+  U: "#EAB308",
+  D: "#FFFFFF",
+  F: "#2563EB",
+  B: "#16A34A",
 };
 
-// 26 visible cubie positions — all (x,y,z) combos in {-1,0,1}³ except (0,0,0)
+/** All 26 visible cubie positions (every {-1,0,1}³ excluding origin). */
 const CUBIE_POSITIONS: Vec3[] = [];
 for (let x = -1; x <= 1; x++) {
   for (let y = -1; y <= 1; y++) {
@@ -39,104 +48,267 @@ for (let x = -1; x <= 1; x++) {
   }
 }
 
+/**
+ * Axis config per face.
+ * cwAngle is the Three.js rotation angle for a clockwise (viewed from outside) face turn.
+ *
+ * F: −π/2 around Z  (verified: cubie [-1,1,1] → [1,1,1] under F cwAngle)
+ * B: +π/2 around Z
+ *
+ * These are OPPOSITE to the old architecture, which had a compensating flip (+π/2 / −π/2)
+ * for the color-rendering path. The persistent cubie architecture drives objects directly —
+ * no compensation needed.
+ */
 const FACE_ANIM: Record<string, { axisIndex: 0 | 1 | 2; cwAngle: number }> = {
   R: { axisIndex: 0, cwAngle: -Math.PI / 2 },
   L: { axisIndex: 0, cwAngle:  Math.PI / 2 },
   U: { axisIndex: 1, cwAngle: -Math.PI / 2 },
   D: { axisIndex: 1, cwAngle:  Math.PI / 2 },
-  // F and B use +Z/-Z axis. The engine's F/B strip cycle direction is CCW
-  // when viewed from the front, so the animation angle is the mirror of R/L/U/D.
-  F: { axisIndex: 2, cwAngle:  Math.PI / 2 },
-  B: { axisIndex: 2, cwAngle: -Math.PI / 2 },
+  F: { axisIndex: 2, cwAngle: -Math.PI / 2 },
+  B: { axisIndex: 2, cwAngle:  Math.PI / 2 },
 };
 
-function isInFace(face: string | undefined, x: number, y: number, z: number): boolean {
+// ---------------------------------------------------------------------------
+// Move arrow (visual indicator during animation)
+// ---------------------------------------------------------------------------
+
+const ARROW_R    = 0.78;
+const ARROW_TUBE = 0.045;
+const ARROW_ARC  = Math.PI * 1.5;
+
+const FACE_ARROW: Record<string, { pos: Vec3; rot: Vec3 }> = {
+  R: { pos: [ 1.65, 0, 0    ], rot: [0,            -Math.PI / 2, 0] },
+  L: { pos: [-1.65, 0, 0    ], rot: [0,             Math.PI / 2, 0] },
+  U: { pos: [0,  1.65, 0    ], rot: [ Math.PI / 2, 0,            0] },
+  D: { pos: [0, -1.65, 0    ], rot: [-Math.PI / 2, 0,            0] },
+  F: { pos: [0,  0,    1.65 ], rot: [0,             0,            0] },
+  B: { pos: [0,  0,   -1.65 ], rot: [0,             Math.PI,      0] },
+};
+
+function MoveArrow({ face, clockwise }: { face: string; clockwise: boolean }) {
+  const tf = FACE_ARROW[face];
+  if (!tf) return null;
+  const sx = clockwise ? -1 : 1;
+  const coneRotZ = clockwise ? Math.PI / 2 : -Math.PI / 2;
+  return (
+    <group position={tf.pos} rotation={tf.rot as [number, number, number]}>
+      <group scale={[sx, 1, 1]}>
+        <mesh>
+          <torusGeometry args={[ARROW_R, ARROW_TUBE, 8, 64, ARROW_ARC]} />
+          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.92} depthTest={false} depthWrite={false} />
+        </mesh>
+        <mesh position={[0, -ARROW_R, 0]} rotation={[0, 0, coneRotZ]}>
+          <coneGeometry args={[0.13, 0.28, 8]} />
+          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.92} depthTest={false} depthWrite={false} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Imperative helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns true if this cubie's world position places it on the given face.
+ * Uses a 0.1 tolerance to absorb floating-point accumulation across many moves.
+ */
+function isCubieInFace(cubie: THREE.Group, face: string): boolean {
+  const pos = new THREE.Vector3();
+  cubie.getWorldPosition(pos);
+  const EPS = 0.1;
   switch (face) {
-    case "R": return x === 1;
-    case "L": return x === -1;
-    case "U": return y === 1;
-    case "D": return y === -1;
-    case "F": return z === 1;
-    case "B": return z === -1;
+    case "R": return Math.abs(pos.x - 1)  < EPS;
+    case "L": return Math.abs(pos.x + 1)  < EPS;
+    case "U": return Math.abs(pos.y - 1)  < EPS;
+    case "D": return Math.abs(pos.y + 1)  < EPS;
+    case "F": return Math.abs(pos.z - 1)  < EPS;
+    case "B": return Math.abs(pos.z + 1)  < EPS;
     default:  return false;
   }
 }
 
-function computeFaceColors(
-  faces: CubeFaces,
-  x: number,
-  y: number,
-  z: number,
-): Partial<Record<FaceColorKey, string>> {
-  const c: Partial<Record<FaceColorKey, string>> = {};
-  if (x ===  1) c["0_1"]  = COLOR_HEX[faces.R[1 - y][1 - z]];
-  if (x === -1) c["0_-1"] = COLOR_HEX[faces.L[1 - y][z + 1]];
-  if (y ===  1) c["1_1"]  = COLOR_HEX[faces.U[z + 1][x + 1]];
-  if (y === -1) c["1_-1"] = COLOR_HEX[faces.D[1 - z][x + 1]];
-  if (z ===  1) c["2_1"]  = COLOR_HEX[faces.F[1 - y][x + 1]];
-  if (z === -1) c["2_-1"] = COLOR_HEX[faces.B[1 - y][1 - x]];
-  return c;
+/**
+ * Deep equality check on CubeFaces.
+ * Used by the move-log matching logic to identify AlgorithmPlayer's step target.
+ */
+function faceStatesMatch(a: CubeFaces, b: CubeFaces): boolean {
+  const faces = ["U", "D", "F", "B", "R", "L"] as const;
+  for (const face of faces) {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        if (a[face][r][c] !== b[face][r][c]) return false;
+      }
+    }
+  }
+  return true;
 }
 
-interface CurrentAnim {
-  face: string;
-  axisIndex: 0 | 1 | 2;
-  targetAngle: number;
+/**
+ * Create one imperative Three.js Group for a cubie at the given solved-state position.
+ * Colors are baked in permanently — they never change after creation.
+ */
+function createCubieGroup(x: number, y: number, z: number): THREE.Group {
+  const group = new THREE.Group();
+  group.position.set(x, y, z);
+
+  // Body
+  const bodyGeo = new RoundedBoxGeometry(BODY_SIZE, BODY_SIZE, BODY_SIZE, 2, 0.08);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: "#1E1E1E" });
+  group.add(new THREE.Mesh(bodyGeo, bodyMat));
+
+  // Stickers — one per outer face this cubie touches
+  const addSticker = (
+    color: string,
+    px: number, py: number, pz: number,
+    rx: number, ry: number, rz: number,
+  ) => {
+    const geo  = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
+    const mat  = new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(px, py, pz);
+    mesh.rotation.set(rx, ry, rz);
+    group.add(mesh);
+  };
+
+  if (x ===  1) addSticker(FACE_COLORS.R,  STICKER_OFFSET, 0,              0,             0,            Math.PI / 2,  0);
+  if (x === -1) addSticker(FACE_COLORS.L, -STICKER_OFFSET, 0,              0,             0,           -Math.PI / 2,  0);
+  if (y ===  1) addSticker(FACE_COLORS.U,  0,              STICKER_OFFSET,  0,            -Math.PI / 2,  0,            0);
+  if (y === -1) addSticker(FACE_COLORS.D,  0,             -STICKER_OFFSET,  0,             Math.PI / 2,  0,            0);
+  if (z ===  1) addSticker(FACE_COLORS.F,  0,              0,               STICKER_OFFSET, 0,            0,            0);
+  if (z === -1) addSticker(FACE_COLORS.B,  0,              0,              -STICKER_OFFSET, 0,            Math.PI,      0);
+
+  return group;
 }
+
+/**
+ * Reset all 26 cubie groups back to their original solved-state positions and
+ * identity quaternions (no rotation).
+ */
+function resetCubiesToSolved(cubies: THREE.Group[]): void {
+  cubies.forEach((c, idx) => {
+    const [x, y, z] = CUBIE_POSITIONS[idx];
+    c.position.set(x, y, z);
+    c.quaternion.identity();
+  });
+}
+
+/**
+ * Apply a single move to the cubie objects instantly (no animation).
+ * Performs the same reparent → rotate → reparent sequence as the animated handler
+ * but without GSAP — sets the pivot rotation directly and calls updateMatrixWorld.
+ */
+function applyMoveInstant(
+  move: string,
+  cubies: THREE.Group[],
+  scene: THREE.Scene,
+  pivot: THREE.Group,
+): void {
+  const parsed  = parseAlgorithm(move)[0];
+  if (!parsed) return;
+  const animDef = FACE_ANIM[parsed.face];
+  if (!animDef) return;
+
+  let targetAngle = animDef.cwAngle;
+  if (parsed.inverse) targetAngle *= -1;
+  if (parsed.double)  targetAngle *= 2;
+
+  const faceCubies = cubies.filter((c) => isCubieInFace(c, parsed.face));
+  if (faceCubies.length === 0) return;
+
+  const savedPos  = faceCubies.map(() => new THREE.Vector3());
+  const savedQuat = faceCubies.map(() => new THREE.Quaternion());
+
+  // Save world transforms
+  faceCubies.forEach((c, i) => {
+    c.getWorldPosition(savedPos[i]);
+    c.getWorldQuaternion(savedQuat[i]);
+  });
+
+  // Reparent to pivot (at origin, identity)
+  pivot.rotation.set(0, 0, 0);
+  faceCubies.forEach((c, i) => {
+    scene.remove(c);
+    pivot.add(c);
+    c.position.copy(savedPos[i]);
+    c.quaternion.copy(savedQuat[i]);
+  });
+
+  // Apply rotation instantly
+  const axisKeys = ["x", "y", "z"] as const;
+  pivot.rotation[axisKeys[animDef.axisIndex]] = targetAngle;
+  pivot.updateMatrixWorld(true);
+
+  // Read new world transforms
+  faceCubies.forEach((c, i) => {
+    c.getWorldPosition(savedPos[i]);
+    c.getWorldQuaternion(savedQuat[i]);
+  });
+
+  // Reparent back to scene
+  faceCubies.forEach((c, i) => {
+    pivot.remove(c);
+    scene.add(c);
+    c.position.copy(savedPos[i]);
+    c.quaternion.copy(savedQuat[i]);
+  });
+
+  pivot.rotation.set(0, 0, 0);
+}
+
+// ---------------------------------------------------------------------------
+// AnimatedScene — the inner R3F component
+// ---------------------------------------------------------------------------
 
 interface CubeSceneProps {
   interactive: boolean;
+  /** Accepted for API compatibility with CubeViewer — not used for rendering in this architecture. */
   cubeState?: CubeFaces;
+  /** Accepted for API compatibility — highlight/dim system removed per spec. */
   highlightedCubies?: string[];
   onReady?: () => void;
 }
 
-function AnimatedScene({ interactive, cubeState, highlightedCubies }: CubeSceneProps) {
-  const storeFaces      = useCubeStore((s) => s.faces);
-  const storeHighlights = useCubeStore((s) => s.highlights);
+function AnimatedScene({ interactive }: CubeSceneProps) {
+  const { scene } = useThree();
 
-  const highlights   = highlightedCubies ?? storeHighlights;
-  const hasHighlight = highlights.length > 0;
-
-  // frozenFacesRef holds the face colors that should be rendered.
-  //
-  // Using a plain ref (not useState) is the key to preventing the F/B snap.
-  // useState values are subject to React's batching and useSyncExternalStore's
-  // forced synchronous re-renders — their final value in any given render
-  // depends on React's internal scheduling. A ref is read synchronously at
-  // render time and always reflects exactly what we last wrote to it.
-  //
-  // isAnimatingRef gates whether we use the frozen ref or live storeFaces:
-  //   idle:       faces = storeFaces (Zustand drives colors normally)
-  //   animating:  faces = frozenFacesRef.current (immune to Zustand re-renders)
-  const frozenFacesRef = useRef<CubeFaces>(storeFaces);
+  const cubiesRef      = useRef<THREE.Group[]>([]);
+  const pivotRef       = useRef(new THREE.Group());
   const isAnimatingRef = useRef(false);
+  const moveLogRef     = useRef<string[]>([]);
 
-  const [currentAnim, setCurrentAnim] = useState<CurrentAnim | null>(null);
+  const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
 
-  // When idle, keep frozenFacesRef in sync so the next freeze captures
-  // up-to-date state (e.g. after a reset or instant applyAlgorithm).
-  if (!isAnimatingRef.current) {
-    frozenFacesRef.current = storeFaces;
-  }
-
-  const faces = cubeState ?? (isAnimatingRef.current ? frozenFacesRef.current : storeFaces);
-
-  const pivotRef = useRef<THREE.Group>(null);
-
-  const highlightedPositions = useMemo(() => {
-    if (!hasHighlight) return new Set<string>();
-    const set = new Set<string>();
-    for (const id of highlights) {
-      const pos = cubeEngine.getCubieWorldPosition(id);
-      if (pos) set.add(pos.join(","));
-    }
-    return set;
-  }, [highlights, hasHighlight]);
-
+  // ---- Mount: create all 26 cubie objects imperatively --------------------
   useEffect(() => {
-    const handler = (move: string, durationMs: number): Promise<void> => {
-      return new Promise((resolve) => {
+    const pivot = pivotRef.current;
+    scene.add(pivot);
+
+    const cubies = CUBIE_POSITIONS.map(([x, y, z]) => createCubieGroup(x, y, z));
+    cubies.forEach((c) => scene.add(c));
+    cubiesRef.current = cubies;
+
+    return () => {
+      cubies.forEach((c) => {
+        c.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            obj.geometry.dispose();
+            const mat = obj.material;
+            if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+            else mat.dispose();
+          }
+        });
+        scene.remove(c);
+      });
+      scene.remove(pivot);
+    };
+  }, [scene]);
+
+  // ---- GSAP animation handler (registered with cubeStore on mount) --------
+  useEffect(() => {
+    const handler = (move: string, durationMs: number): Promise<void> =>
+      new Promise((resolve) => {
         const parsed  = parseAlgorithm(move)[0];
         const animDef = parsed ? FACE_ANIM[parsed.face] : undefined;
 
@@ -150,21 +322,32 @@ function AnimatedScene({ interactive, cubeState, highlightedCubies }: CubeSceneP
         if (parsed.inverse) targetAngle *= -1;
         if (parsed.double)  targetAngle *= 2;
 
-        // Freeze the ref to the pre-move snapshot and mark animating.
-        // From this point, Zustand re-renders read frozenFacesRef.current
-        // instead of storeFaces — immune to useSyncExternalStore firing.
-        frozenFacesRef.current = useCubeStore.getState().faces;
+        const clockwise = Math.sign(targetAngle) === Math.sign(animDef.cwAngle);
         isAnimatingRef.current = true;
-        flushSync(() => {
-          setCurrentAnim({ face: parsed.face, axisIndex: animDef.axisIndex, targetAngle });
+        setCurrentAnim({ face: parsed.face, clockwise });
+
+        const allCubies  = cubiesRef.current;
+        const faceCubies = allCubies.filter((c) => isCubieInFace(c, parsed.face));
+
+        const savedPos  = faceCubies.map(() => new THREE.Vector3());
+        const savedQuat = faceCubies.map(() => new THREE.Quaternion());
+
+        // Save current world transforms
+        faceCubies.forEach((c, i) => {
+          c.getWorldPosition(savedPos[i]);
+          c.getWorldQuaternion(savedQuat[i]);
         });
 
+        // Reparent cubies into pivot group (pivot is at origin with identity rotation)
         const pivot = pivotRef.current;
-        if (!pivot) {
-          commitAnimatedMove(move);
-          resolve();
-          return;
-        }
+        pivot.rotation.set(0, 0, 0);
+        faceCubies.forEach((c, i) => {
+          scene.remove(c);
+          pivot.add(c);
+          // Restore world transform as local transform — valid because pivot = identity
+          c.position.copy(savedPos[i]);
+          c.quaternion.copy(savedQuat[i]);
+        });
 
         const axisKeys = ["x", "y", "z"] as const;
         const axisKey  = axisKeys[animDef.axisIndex];
@@ -174,75 +357,118 @@ function AnimatedScene({ interactive, cubeState, highlightedCubies }: CubeSceneP
           duration: durationMs / 1000,
           ease: "power2.inOut",
           onComplete: () => {
-            // Step 1: Apply the move to the engine and read post-move faces.
-            // We do NOT update Zustand yet — that would trigger a sync re-render
-            // while currentAnim is still set, causing the color snap.
-            cubeEngine.applyMoveString(move);
-            const newFaces = cubeEngine.getState();
+            pivot.updateMatrixWorld(true);
 
-            // Step 2: Write post-move colors into the ref, then clear the
-            // animation — one React commit. The ref is read synchronously during
-            // this render, so cubies get new colors at their final positions
-            // with no intermediate frame showing old colors.
-            frozenFacesRef.current = newFaces;
-            flushSync(() => {
-              setCurrentAnim(null);
+            // Read post-rotation world transforms
+            faceCubies.forEach((c, i) => {
+              c.getWorldPosition(savedPos[i]);
+              c.getWorldQuaternion(savedQuat[i]);
             });
-            // Animation is done — idle reads will go back to storeFaces.
-            isAnimatingRef.current = false;
 
-            // Step 3: Pivot is now empty — reset is invisible.
+            // Reparent cubies back to scene root with their new world transforms
+            faceCubies.forEach((c, i) => {
+              pivot.remove(c);
+              scene.add(c);
+              c.position.copy(savedPos[i]);
+              c.quaternion.copy(savedQuat[i]);
+            });
+
             pivot.rotation.set(0, 0, 0);
 
-            // Step 4: Bring Zustand in sync. frozenFacesRef.current === newFaces,
-            // and isAnimatingRef is false, so the next Zustand re-render will
-            // read storeFaces which now matches — no visual change.
-            useCubeStore.setState({ faces: newFaces });
+            // Append to move log BEFORE commitAnimatedMove so that the
+            // Zustand subscribe fires while isAnimatingRef is still true,
+            // preventing the external-change handler from misidentifying
+            // this update as an AlgorithmPlayer step-back.
+            moveLogRef.current.push(move);
+            commitAnimatedMove(move);   // updates engine + Zustand state
+            isAnimatingRef.current = false;
+            setCurrentAnim(null);
 
             resolve();
           },
         });
       });
-    };
 
     registerAnimationHandler(handler);
     return () => unregisterAnimationHandler();
-  }, []);
+  }, [scene]);
 
-  const renderCubie = ([x, y, z]: Vec3) => {
-    const posKey = `${x},${y},${z}`;
-    const isHighlighted = highlightedPositions.has(posKey);
-    const isDimmed = hasHighlight && !isHighlighted;
-    return (
-      <Cubie
-        key={posKey}
-        position={[x, y, z]}
-        faceColors={computeFaceColors(faces, x, y, z)}
-        highlighted={isHighlighted}
-        dimmed={isDimmed}
-      />
-    );
-  };
+  // ---- Instant handler (cubeStore.reset / cubeStore.applyInstant) ---------
+  useEffect(() => {
+    const handler = (alg: string | null) => {
+      const cubies = cubiesRef.current;
+      const pivot  = pivotRef.current;
 
+      resetCubiesToSolved(cubies);
+
+      if (alg) {
+        const moves = parseAlgorithm(alg);
+        for (const m of moves) {
+          applyMoveInstant(m.notation, cubies, scene, pivot);
+        }
+        moveLogRef.current = moves.map((m) => m.notation);
+      } else {
+        moveLogRef.current = [];
+      }
+    };
+
+    registerInstantHandler(handler);
+    return () => unregisterInstantHandler();
+  }, [scene]);
+
+  // ---- Zustand subscribe: handle AlgorithmPlayer step-back / reset --------
+  //
+  // AlgorithmPlayer calls useCubeStore.setState({ faces }) directly for step-back
+  // and reset (not via animateMove). When faces change while we are not animating,
+  // we use move-log matching to find the matching prefix and replay it instantly.
+  useEffect(() => {
+    const unsub = useCubeStore.subscribe((state, prevState) => {
+      if (state.faces === prevState.faces) return;
+      if (isAnimatingRef.current)          return; // our own commitAnimatedMove — ignore
+
+      const newFaces = state.faces;
+      const log      = moveLogRef.current;
+      const cubies   = cubiesRef.current;
+      const pivot    = pivotRef.current;
+
+      // Try to find a prefix of the current move log whose end-state matches newFaces
+      const localEngine = new CubeEngine();
+      let matchedK: number | null = null;
+
+      for (let k = 0; k <= log.length; k++) {
+        if (faceStatesMatch(localEngine.getState(), newFaces)) {
+          matchedK = k;
+          break;
+        }
+        if (k < log.length) localEngine.applyMoveString(log[k]);
+      }
+
+      if (matchedK !== null) {
+        // Replay exactly the first matchedK moves from solved
+        resetCubiesToSolved(cubies);
+        for (let i = 0; i < matchedK; i++) {
+          applyMoveInstant(log[i], cubies, scene, pivot);
+        }
+        moveLogRef.current = log.slice(0, matchedK);
+      } else {
+        // State not reachable via our log (e.g. tutorial initial state) — snap to solved
+        resetCubiesToSolved(cubies);
+        moveLogRef.current = [];
+      }
+    });
+
+    return () => unsub();
+  }, [scene]);
+
+  // ---- Declarative R3F scene (lights, controls, arrow) --------------------
   return (
     <>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[6, 8, 5]} intensity={1.1} />
-      <directionalLight position={[-4, -2, -3]} intensity={0.25} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 8, 5]} intensity={0.8} />
 
-      {/* 17 non-rotating cubies */}
-      <group>
-        {CUBIE_POSITIONS
-          .filter(([x, y, z]) => !isInFace(currentAnim?.face, x, y, z))
-          .map(renderCubie)}
-      </group>
-
-      {/* Pivot group — holds the 9 face cubies during a rotation */}
-      <group ref={pivotRef}>
-        {CUBIE_POSITIONS
-          .filter(([x, y, z]) => isInFace(currentAnim?.face, x, y, z))
-          .map(renderCubie)}
-      </group>
+      {currentAnim && (
+        <MoveArrow face={currentAnim.face} clockwise={currentAnim.clockwise} />
+      )}
 
       {interactive && (
         <OrbitControls
@@ -257,6 +483,10 @@ function AnimatedScene({ interactive, cubeState, highlightedCubies }: CubeSceneP
     </>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Public export
+// ---------------------------------------------------------------------------
 
 export function CubeScene({ interactive, cubeState, highlightedCubies, onReady }: CubeSceneProps) {
   return (
