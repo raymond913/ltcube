@@ -11,10 +11,23 @@ import {
 import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
 
 // ---------------------------------------------------------------------------
-// Pure helper — pre-computes one CubeFaces snapshot per step.
-// Uses a throw-away local engine so the global singleton is untouched.
+// Pure helpers
 // ---------------------------------------------------------------------------
 
+/**
+ * Build a CubeFaces snapshot from an algorithm string applied to a solved cube.
+ * Used to derive the initial cube state from a raw scramble/setup string.
+ */
+function computeFacesFromAlg(alg: string): CubeFaces {
+  const engine = new CubeEngine();
+  if (alg) engine.applyAlgorithm(alg);
+  return engine.getState();
+}
+
+/**
+ * Pre-computes one CubeFaces snapshot per step.
+ * Uses a throw-away local engine so the global singleton is untouched.
+ */
 export function buildPlaybackState(
   algorithm: string,
   initialState?: CubeFaces,
@@ -38,12 +51,18 @@ export function buildPlaybackState(
 // ---------------------------------------------------------------------------
 
 /**
- * @param initialState Must be referentially stable (e.g. from useMemo or a
- * module-level constant). Passing an inline object literal will cause the
- * snapshot array to be rebuilt and playback to reset on every parent render.
+ * @param initialStateAlg  Raw algorithm string applied from solved to reach the
+ *   starting state (preferred).  When provided, the 3D cube is set via
+ *   `cubeStore.applyInstant()` so CubeScene builds the correct visual state
+ *   without triggering the subscribe-reset path.
+ *
+ * @param initialState  Pre-computed CubeFaces — kept for API compatibility with
+ *   non-tutorial callers.  Ignored when `initialStateAlg` is provided.
+ *   Must be referentially stable (e.g. from useMemo).
  */
 interface AlgorithmPlayerProps {
   algorithm: string;
+  initialStateAlg?: string;
   initialState?: CubeFaces;
   highlights?: Record<number, string[]>;
   title?: string;
@@ -55,6 +74,7 @@ type Speed = (typeof SPEEDS)[number];
 
 export function AlgorithmPlayer({
   algorithm,
+  initialStateAlg,
   initialState,
   highlights,
   title,
@@ -62,9 +82,15 @@ export function AlgorithmPlayer({
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
 
-  const [playback, setPlayback] = useState(() =>
-    buildPlaybackState(algorithm, initialState),
-  );
+  // Derive CubeFaces for the initial step, preferring initialStateAlg.
+  // This is only used for buildPlaybackState — the 3D canvas is updated via
+  // applyInstant (when initialStateAlg is provided) or setState (legacy path).
+  const [playback, setPlayback] = useState(() => {
+    const initFaces = initialStateAlg !== undefined
+      ? computeFacesFromAlg(initialStateAlg)
+      : initialState;
+    return buildPlaybackState(algorithm, initFaces);
+  });
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<Speed>(1);
@@ -76,16 +102,29 @@ export function AlgorithmPlayer({
   // false before React has processed the setCurrentStep(s+1) state update.
   const stepFiredRef = useRef(false);
 
-  // Re-build when algorithm or initialState changes
+  // Re-build snapshots and sync 3D state when algorithm or initial state changes.
   useEffect(() => {
-    const pb = buildPlaybackState(algorithm, initialState);
+    const initFaces = initialStateAlg !== undefined
+      ? computeFacesFromAlg(initialStateAlg)
+      : initialState;
+    const pb = buildPlaybackState(algorithm, initFaces);
     setPlayback(pb);
     setCurrentStep(0);
     setIsPlaying(false);
     stepFiredRef.current = false;
-    cubeEngine.setState(pb.snapshots[0]);
-    useCubeStore.setState({ faces: pb.snapshots[0] });
-  }, [algorithm, initialState]);
+
+    if (initialStateAlg !== undefined) {
+      // applyInstant resets the engine, applies the alg, and calls the instant
+      // handler in CubeScene — which resets the cubies to solved then replays
+      // the alg moves, building the correct move log for step-back/reset.
+      useCubeStore.getState().applyInstant(initialStateAlg);
+    } else {
+      // Legacy path: set engine + faces directly.
+      cubeEngine.setState(pb.snapshots[0]);
+      useCubeStore.setState({ faces: pb.snapshots[0] });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [algorithm, initialStateAlg, initialState]);
 
   // Sync speed to store
   useEffect(() => {
@@ -113,6 +152,8 @@ export function AlgorithmPlayer({
     if (isAnimating || currentStep === 0) return;
     const newStep = currentStep - 1;
     setCurrentStep(newStep);
+    // CubeScene's Zustand subscribe will match newStep's faces against the
+    // move log and replay the correct prefix — no need to call applyInstant here.
     cubeEngine.setState(snapshots[newStep]);
     useCubeStore.setState({ faces: snapshots[newStep] });
   }, [isAnimating, currentStep, snapshots]);
@@ -121,9 +162,15 @@ export function AlgorithmPlayer({
     setIsPlaying(false);
     setCurrentStep(0);
     stepFiredRef.current = false;
-    cubeEngine.setState(snapshots[0]);
-    useCubeStore.setState({ faces: snapshots[0] });
-  }, [snapshots]);
+    if (initialStateAlg !== undefined) {
+      // applyInstant resets the 3D scene back to the scrambled initial state
+      // and rebuilds the move log so subsequent step-back/reset work correctly.
+      useCubeStore.getState().applyInstant(initialStateAlg);
+    } else {
+      cubeEngine.setState(snapshots[0]);
+      useCubeStore.setState({ faces: snapshots[0] });
+    }
+  }, [snapshots, initialStateAlg]);
 
   // Auto-play loop. stepForward is in deps (not isAnimating directly) because
   // stepForward closes over isAnimating — changing it here would break the

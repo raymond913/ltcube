@@ -1,16 +1,20 @@
-export default function SecondLayerPage() {
+import { TutorialLayout } from "@/components/tutorial/TutorialLayout";
+import { secondLayer, BEGINNER_STEPS } from "@/data/beginner";
+
+export default async function SecondLayerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ step?: string }>;
+}) {
+  const { step } = await searchParams;
+  const initialSubstepIndex = step ? Math.max(0, parseInt(step) - 1) : 0;
+  const stepMeta = BEGINNER_STEPS.find((s) => s.id === "second-layer")!;
+
   return (
-    <div className="flex flex-col gap-4">
-      <span className="text-sm font-medium text-[#2563EB]">Step 3 of 5</span>
-      <h1 className="text-3xl font-bold tracking-tight text-[#1E293B]">Second Layer</h1>
-      <p className="text-[#64748B]">
-        Solve the middle layer by inserting the four edge pieces into their
-        correct positions using two mirror algorithms.
-      </p>
-      <p className="text-sm text-[#64748B] bg-[#F8FAFC] rounded-lg px-4 py-3 border border-[#E2E8F0]">
-        Interactive 3D tutorial with step-by-step algorithm playback will be
-        built in Phases 2–4.
-      </p>
-    </div>
+    <TutorialLayout
+      stepData={secondLayer}
+      stepMeta={stepMeta}
+      initialSubstepIndex={initialSubstepIndex}
+    />
   );
 }

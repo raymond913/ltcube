@@ -29,11 +29,21 @@ export function unregisterAnimationHandler(): void {
 /**
  * Called by CubeScene on mount — registers the instant (no-animation) apply handler.
  * alg: algorithm string to apply from solved, or null to just reset to solved.
+ *
+ * On registration, immediately consumes any `pendingInstantAlg` that was queued
+ * before CubeScene mounted (e.g. on initial page load when the 3D canvas isn't
+ * ready yet when AlgorithmPlayer's effects first fire).
  */
 export function registerInstantHandler(
   fn: (alg: string | null) => void,
 ): void {
   _instantHandler = fn;
+  // Drain any pending instant that arrived before we were mounted.
+  const pending = useCubeStore.getState().pendingInstantAlg;
+  if (pending !== null) {
+    fn(pending === "" ? null : pending); // "" encodes "reset to solved"
+    useCubeStore.setState({ pendingInstantAlg: null });
+  }
 }
 
 /** Called by CubeScene on unmount. */
@@ -70,6 +80,13 @@ interface CubeStore {
   highlights: string[];
   isAnimating: boolean;
   animationSpeed: number;
+  /**
+   * Holds an alg string that CubeScene should apply instantly as soon as its
+   * instant handler is registered.  Set by `applyInstant` when `_instantHandler`
+   * is not yet registered (race on initial page load due to next/dynamic).
+   * "" encodes "reset to solved".  null means nothing pending.
+   */
+  pendingInstantAlg: string | null;
 
   execute: (move: string) => void;
   applyAlgorithm: (alg: string) => void;
@@ -89,6 +106,7 @@ export const useCubeStore = create<CubeStore>()((set, get) => ({
   highlights: [],
   isAnimating: false,
   animationSpeed: 1,
+  pendingInstantAlg: null,
 
   execute: (move) => {
     _engine.applyMoveString(move);
@@ -103,14 +121,27 @@ export const useCubeStore = create<CubeStore>()((set, get) => ({
   applyInstant: (alg) => {
     _engine.reset();
     _engine.applyAlgorithm(alg);
-    set({ faces: _engine.getState() });
-    _instantHandler?.(alg);
+    if (_instantHandler) {
+      // Handler is registered — apply immediately and leave no pending state.
+      _instantHandler(alg || null);
+      set({ faces: _engine.getState(), pendingInstantAlg: null });
+    } else {
+      // CubeScene not mounted yet (next/dynamic still loading on first render).
+      // Store the alg so registerInstantHandler can pick it up when ready.
+      set({ faces: _engine.getState(), pendingInstantAlg: alg });
+    }
   },
 
   reset: () => {
     _engine.reset();
-    set({ faces: _engine.getState() });
-    _instantHandler?.(null);
+    // "" encodes "reset to solved" so registerInstantHandler can distinguish
+    // "nothing pending" (null) from "pending reset" ("").
+    if (_instantHandler) {
+      _instantHandler(null);
+      set({ faces: _engine.getState(), pendingInstantAlg: null });
+    } else {
+      set({ faces: _engine.getState(), pendingInstantAlg: "" });
+    }
   },
 
   scramble: () => {

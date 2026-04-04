@@ -1,16 +1,40 @@
-export default function PllPage() {
+import { AlgorithmCasePage, type SectionDef } from "@/components/tutorial/AlgorithmCasePage";
+import { twoLookPll, BEGINNER_STEPS } from "@/data/beginner";
+
+const PLL_SECTIONS: SectionDef[] = [
+  {
+    title: "Look 1 — Corner Permutation",
+    description:
+      "Look at the top-layer corner stickers from the sides. Find two corners that match each other, then check if the swap is adjacent or diagonal.",
+    substepIds: ["pll-adj", "pll-diag"],
+  },
+  {
+    title: "Look 2 — Edge Permutation",
+    description:
+      "After the corners are solved, identify the edge cycle. The one solved edge should face back before applying the algorithm.",
+    substepIds: ["pll-ua", "pll-ub", "pll-h", "pll-z"],
+  },
+];
+
+export default async function PllPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ step?: string }>;
+}) {
+  const { step } = await searchParams;
+  const stepMeta = BEGINNER_STEPS.find((s) => s.id === "two-look-pll")!;
+
+  const initialActiveId = step
+    ? twoLookPll.substeps[Math.max(0, parseInt(step) - 1)]?.id
+    : undefined;
+
   return (
-    <div className="flex flex-col gap-4">
-      <span className="text-sm font-medium text-[#2563EB]">Step 5 of 5</span>
-      <h1 className="text-3xl font-bold tracking-tight text-[#1E293B]">2-Look PLL</h1>
-      <p className="text-[#64748B]">
-        Permute the last layer in two looks: first the corners, then the edges.
-        Covers all 6 cases needed for the beginner method.
-      </p>
-      <p className="text-sm text-[#64748B] bg-[#F8FAFC] rounded-lg px-4 py-3 border border-[#E2E8F0]">
-        PLL case library with pattern recognition and algorithm playback will be
-        built in Phases 3–4.
-      </p>
-    </div>
+    <AlgorithmCasePage
+      stepData={twoLookPll}
+      stepMeta={stepMeta}
+      sections={PLL_SECTIONS}
+      diagramType="pll"
+      initialActiveId={initialActiveId}
+    />
   );
 }

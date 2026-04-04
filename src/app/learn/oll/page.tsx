@@ -1,16 +1,49 @@
-export default function OllPage() {
+import { AlgorithmCasePage, type SectionDef } from "@/components/tutorial/AlgorithmCasePage";
+import { twoLookOll, BEGINNER_STEPS } from "@/data/beginner";
+
+const OLL_SECTIONS: SectionDef[] = [
+  {
+    title: "Look 1 — Edge Orientation",
+    description:
+      "Identify the yellow-edge pattern on top. If you already have a yellow cross, skip to Look 2.",
+    substepIds: ["oll-dot", "oll-l-shape", "oll-line"],
+  },
+  {
+    title: "Look 2 — Corner Orientation",
+    description:
+      "The yellow cross is done. Count how many corner tops are yellow and match the pattern.",
+    substepIds: [
+      "oll-h",
+      "oll-sune",
+      "oll-antisune",
+      "oll-pi",
+      "oll-u",
+      "oll-t",
+      "oll-l",
+    ],
+  },
+];
+
+export default async function OllPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ step?: string }>;
+}) {
+  const { step } = await searchParams;
+  const stepMeta = BEGINNER_STEPS.find((s) => s.id === "two-look-oll")!;
+
+  // Map ?step=N (1-based substep index) to a substep id for initial selection
+  const initialActiveId = step
+    ? twoLookOll.substeps[Math.max(0, parseInt(step) - 1)]?.id
+    : undefined;
+
   return (
-    <div className="flex flex-col gap-4">
-      <span className="text-sm font-medium text-[#2563EB]">Step 4 of 5</span>
-      <h1 className="text-3xl font-bold tracking-tight text-[#1E293B]">2-Look OLL</h1>
-      <p className="text-[#64748B]">
-        Orient the last layer in two looks: first form the yellow cross, then
-        orient the corners. Covers all 10 relevant cases.
-      </p>
-      <p className="text-sm text-[#64748B] bg-[#F8FAFC] rounded-lg px-4 py-3 border border-[#E2E8F0]">
-        OLL case library with pattern recognition and algorithm playback will be
-        built in Phases 3–4.
-      </p>
-    </div>
+    <AlgorithmCasePage
+      stepData={twoLookOll}
+      stepMeta={stepMeta}
+      sections={OLL_SECTIONS}
+      diagramType="oll"
+      initialActiveId={initialActiveId}
+    />
   );
 }
