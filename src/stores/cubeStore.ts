@@ -12,6 +12,7 @@ const _engine = new CubeEngine();
 let _animChain: Promise<void> = Promise.resolve();
 let _pendingCount = 0;
 let _animHandler: ((move: string, durationMs: number) => Promise<void>) | null = null;
+let _instantHandler: ((alg: string | null) => void) | null = null;
 
 /** Called by CubeScene on mount — registers the GSAP animation handler. */
 export function registerAnimationHandler(
@@ -26,6 +27,21 @@ export function unregisterAnimationHandler(): void {
 }
 
 /**
+ * Called by CubeScene on mount — registers the instant (no-animation) apply handler.
+ * alg: algorithm string to apply from solved, or null to just reset to solved.
+ */
+export function registerInstantHandler(
+  fn: (alg: string | null) => void,
+): void {
+  _instantHandler = fn;
+}
+
+/** Called by CubeScene on unmount. */
+export function unregisterInstantHandler(): void {
+  _instantHandler = null;
+}
+
+/**
  * Called by CubeScene after GSAP completes a move.
  * Applies the move to the engine and pushes the new face state into Zustand.
  */
@@ -36,7 +52,7 @@ export function commitAnimatedMove(move: string): void {
 
 /** Execute one move — via handler if registered, else instant fallback. */
 async function _runSingle(move: string): Promise<void> {
-  const durationMs = 300 / useCubeStore.getState().animationSpeed;
+  const durationMs = 400 / useCubeStore.getState().animationSpeed;
   if (_animHandler) {
     await _animHandler(move, durationMs);
   } else {
@@ -57,6 +73,7 @@ interface CubeStore {
 
   execute: (move: string) => void;
   applyAlgorithm: (alg: string) => void;
+  applyInstant: (alg: string) => void;
   reset: () => void;
   scramble: () => void;
   setHighlights: (cubies: string[]) => void;
@@ -83,9 +100,17 @@ export const useCubeStore = create<CubeStore>()((set, get) => ({
     set({ faces: _engine.getState() });
   },
 
+  applyInstant: (alg) => {
+    _engine.reset();
+    _engine.applyAlgorithm(alg);
+    set({ faces: _engine.getState() });
+    _instantHandler?.(alg);
+  },
+
   reset: () => {
     _engine.reset();
     set({ faces: _engine.getState() });
+    _instantHandler?.(null);
   },
 
   scramble: () => {
