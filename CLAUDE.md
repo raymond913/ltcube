@@ -23,8 +23,10 @@ Light, clean theme. White/light gray backgrounds, subtle shadows, blue (#2563EB)
 - Use `--legacy-peer-deps` for all npm installs if peer dependency conflicts arise
 - Progress stored in localStorage via Zustand persist — no backend for v1
 - Animation handler is registered imperatively by CubeScene on mount via `registerAnimationHandler` — decouples the store from React/Three.js
-- F and B face animation angles are the mirror of R/L/U/D: `F: +π/2`, `B: -π/2` (engine's strip cycle direction for Z-axis faces is opposite to Three.js rotation convention)
-- Face colors during animation are frozen in a `useRef` (not `useState`) to prevent Zustand's `useSyncExternalStore` from corrupting colors mid-tween
+- Instant-reset handler registered via `registerInstantHandler` — called by `cubeStore.reset()` and `cubeStore.applyInstant(alg)`
+- **Persistent cubie architecture:** 26 `THREE.Group` objects created once on mount; colors baked permanently; world transforms accumulate across moves via reparent→pivot-GSAP→reparent-back
+- F: `−π/2` around Z, B: `+π/2` around Z (physical rotation convention — no compensating flip needed because rendering is no longer color-derived from engine state)
+- AlgorithmPlayer step-back handled via Zustand `subscribe` + move-log prefix matching in CubeScene
 - Sticker planes use `THREE.DoubleSide` so they remain visible from both sides during rotation
 
 ## Cube Color Scheme (standard)
@@ -34,7 +36,7 @@ Light, clean theme. White/light gray backgrounds, subtle shadows, blue (#2563EB)
 - Bottom (-Y): White #FFFFFF
 - Front (+Z): Blue #2563EB
 - Back (-Z): Green #16A34A
-- Internal faces: Dark gray #1a1a1a
+- Internal faces: Dark gray #1E1E1E
 
 ## Site Routes
 - `/` — Landing page
@@ -68,30 +70,36 @@ Light, clean theme. White/light gray backgrounds, subtle shadows, blue (#2563EB)
 ### cubeStore exports
 - `animateMove(move): Promise<void>` — queues and animates a single move
 - `animateAlgorithm(alg): Promise<void>` — animates all moves in an alg string sequentially
+- `applyInstant(alg): void` — applies moves instantly from solved (for loading states)
 - `isAnimating: boolean` — true while any animation is in progress
-- `animationSpeed: number` — multiplier (default 1); duration = 300 / speed ms
+- `animationSpeed: number` — multiplier (default 1); duration = 400 / speed ms
 - `setAnimationSpeed(speed): void`
-- `scramble()` — now animates 20 moves (was instant)
+- `scramble()` — animates 20 moves
 - `registerAnimationHandler(fn)` / `unregisterAnimationHandler()` — bridge between store and CubeScene
+- `registerInstantHandler(fn)` / `unregisterInstantHandler()` — instant-apply bridge
 - `commitAnimatedMove(move)` — exported for CubeScene to call post-tween
 
 ### Speed reference
 | Multiplier | Duration |
 |---|---|
-| 0.5× | 600 ms |
-| 1× | 300 ms |
-| 1.5× | 200 ms |
-| 2× | 150 ms |
+| 0.5× | 800 ms |
+| 1× | 400 ms |
+| 1.5× | 267 ms |
+| 2× | 200 ms |
 
-### Rotation axis map
-| Face | Axis | Angle (CW engine convention) |
+### Rotation axis map (persistent cubie convention)
+| Face | Axis | Angle |
 |---|---|---|
 | R | X | −π/2 |
 | L | X | +π/2 |
 | U | Y | −π/2 |
 | D | Y | +π/2 |
-| F | Z | +π/2 |
-| B | Z | −π/2 |
+| F | Z | −π/2 |
+| B | Z | +π/2 |
+
+**Note:** F is −π/2 and B is +π/2. The old architecture used +π/2 / −π/2 as a compensating
+flip for the engine's Z-face strip direction in color rendering. The persistent cubie
+architecture drives THREE.js objects directly — no compensation needed.
 
 ## File Structure Reference
 ```
