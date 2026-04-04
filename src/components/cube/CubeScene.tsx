@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from "three";
@@ -258,6 +258,27 @@ function applyMoveInstant(
 }
 
 // ---------------------------------------------------------------------------
+// Highlight helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Map a cubie notation string (e.g. "UFR", "UL") to its expected world-space
+ * integer position.  Missing axes default to 0 (middle slice).
+ */
+function notationToWorldPos(id: string): THREE.Vector3 {
+  let x = 0, y = 0, z = 0;
+  for (const ch of id) {
+    if      (ch === "U") y =  1;
+    else if (ch === "D") y = -1;
+    else if (ch === "R") x =  1;
+    else if (ch === "L") x = -1;
+    else if (ch === "F") z =  1;
+    else if (ch === "B") z = -1;
+  }
+  return new THREE.Vector3(x, y, z);
+}
+
+// ---------------------------------------------------------------------------
 // AnimatedScene — the inner R3F component
 // ---------------------------------------------------------------------------
 
@@ -270,7 +291,7 @@ interface CubeSceneProps {
   onReady?: () => void;
 }
 
-function AnimatedScene({ interactive }: CubeSceneProps) {
+function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
   const { scene } = useThree();
 
   const cubiesRef      = useRef<THREE.Group[]>([]);
@@ -278,7 +299,55 @@ function AnimatedScene({ interactive }: CubeSceneProps) {
   const isAnimatingRef = useRef(false);
   const moveLogRef     = useRef<string[]>([]);
 
+  // ---- Highlight state ----------------------------------------------------
+  const highlightedCubiesRef = useRef<string[]>([]);
+  const highlightMeshesRef   = useRef<THREE.Mesh[]>([]);
+  // Keep the ref in sync on every render so handlers always read the latest list
+  highlightedCubiesRef.current = highlightedCubies ?? [];
+
   const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
+
+  // ---- attachHighlights: find cubies by world pos and attach glow meshes ---
+  const attachHighlights = useCallback(() => {
+    const cubies = cubiesRef.current;
+    // Detach and dispose previous highlight meshes
+    for (const mesh of highlightMeshesRef.current) {
+      mesh.parent?.remove(mesh);
+      mesh.geometry.dispose();
+      (mesh.material as THREE.Material).dispose();
+    }
+    highlightMeshesRef.current = [];
+
+    const ids = highlightedCubiesRef.current;
+    if (!ids.length || !cubies.length) return;
+
+    const tmp = new THREE.Vector3();
+    for (const id of ids) {
+      const target = notationToWorldPos(id);
+      // Find the cubie whose current world position is nearest to the target
+      let nearest: THREE.Group | null = null;
+      let nearestDist = Infinity;
+      for (const c of cubies) {
+        c.getWorldPosition(tmp);
+        const d = tmp.distanceTo(target);
+        if (d < nearestDist) { nearestDist = d; nearest = c; }
+      }
+      if (!nearest || nearestDist > 0.4) continue;
+
+      // Slightly-larger back-face box creates a coloured glow halo around the cubie
+      const geo = new THREE.BoxGeometry(1.1, 1.1, 1.1);
+      const mat = new THREE.MeshBasicMaterial({
+        color: "#2563EB",
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.BackSide,
+        depthWrite: false,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      nearest.add(mesh);
+      highlightMeshesRef.current.push(mesh);
+    }
+  }, []);
 
   // ---- Mount: create all 26 cubie objects imperatively --------------------
   useEffect(() => {
@@ -290,6 +359,13 @@ function AnimatedScene({ interactive }: CubeSceneProps) {
     cubiesRef.current = cubies;
 
     return () => {
+      // Dispose highlight meshes (they are children of cubies, removed with them)
+      for (const mesh of highlightMeshesRef.current) {
+        mesh.geometry.dispose();
+        (mesh.material as THREE.Material).dispose();
+      }
+      highlightMeshesRef.current = [];
+
       cubies.forEach((c) => {
         c.traverse((obj) => {
           if (obj instanceof THREE.Mesh) {
@@ -410,11 +486,14 @@ function AnimatedScene({ interactive }: CubeSceneProps) {
       } else {
         moveLogRef.current = [];
       }
+
+      // Re-attach highlights after cubies have been repositioned
+      attachHighlights();
     };
 
     registerInstantHandler(handler);
     return () => unregisterInstantHandler();
-  }, [scene]);
+  }, [scene, attachHighlights]);
 
   // ---- Zustand subscribe: handle AlgorithmPlayer step-back / reset --------
   //
@@ -459,6 +538,21 @@ function AnimatedScene({ interactive }: CubeSceneProps) {
 
     return () => unsub();
   }, [scene]);
+
+  // ---- Highlight glow: re-attach when the highlighted set changes ----------
+  useEffect(() => {
+    if (cubiesRef.current.length) attachHighlights();
+  }, [highlightedCubies, scene, attachHighlights]);
+
+  // ---- Pulse the highlight opacity each frame ------------------------------
+  useFrame(({ clock }) => {
+    if (!highlightMeshesRef.current.length) return;
+    const t = clock.getElapsedTime();
+    const opacity = 0.2 + 0.2 * Math.sin(t * 2.5);
+    for (const mesh of highlightMeshesRef.current) {
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+    }
+  });
 
   // ---- Declarative R3F scene (lights, controls, arrow) --------------------
   return (

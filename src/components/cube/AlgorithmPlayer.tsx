@@ -5,6 +5,7 @@ import { CubeViewer } from "@/components/cube/CubeViewer";
 import {
   CubeEngine,
   parseAlgorithm,
+  invertAlgorithm,
   type CubeFaces,
   type Move,
 } from "@/lib/cubeEngine";
@@ -97,6 +98,10 @@ export function AlgorithmPlayer({
 
   const { snapshots, moves } = playback;
 
+  // Highlights are pinned to step 0 so they persist on the target piece
+  // throughout the algorithm (the glow follows the cubie as it moves).
+  const currentHighlights = highlights?.[0] ?? [];
+
   // Tracks whether a stepForward animation is in-flight. Prevents the
   // auto-play effect from re-triggering the same move when isAnimating flips
   // false before React has processed the setCurrentStep(s+1) state update.
@@ -119,9 +124,11 @@ export function AlgorithmPlayer({
       // the alg moves, building the correct move log for step-back/reset.
       useCubeStore.getState().applyInstant(initialStateAlg);
     } else {
-      // Legacy path: set engine + faces directly.
-      cubeEngine.setState(pb.snapshots[0]);
-      useCubeStore.setState({ faces: pb.snapshots[0] });
+      // Legacy path: derive the setup alg as the inverse of the solution algorithm.
+      // For all tutorial cases the initialState was built by applying
+      // invertAlgorithm(algorithm) from solved, so this correctly sets both the
+      // 3D scene and the move log via applyInstant.
+      useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithm, initialStateAlg, initialState]);
@@ -167,10 +174,9 @@ export function AlgorithmPlayer({
       // and rebuilds the move log so subsequent step-back/reset work correctly.
       useCubeStore.getState().applyInstant(initialStateAlg);
     } else {
-      cubeEngine.setState(snapshots[0]);
-      useCubeStore.setState({ faces: snapshots[0] });
+      useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
     }
-  }, [snapshots, initialStateAlg]);
+  }, [initialStateAlg, algorithm]);
 
   // Auto-play loop. stepForward is in deps (not isAnimating directly) because
   // stepForward closes over isAnimating — changing it here would break the
@@ -213,7 +219,6 @@ export function AlgorithmPlayer({
 
   const progressPercent =
     moves.length > 0 ? (currentStep / moves.length) * 100 : 0;
-  const currentHighlights = highlights?.[currentStep] ?? [];
 
   return (
     <div
