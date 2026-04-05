@@ -557,8 +557,9 @@ function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
   // ---- Declarative R3F scene (lights, controls, arrow) --------------------
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 8, 5]} intensity={0.8} />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[5, 8, 6]} intensity={0.7} />
+      <directionalLight position={[-3, -2, -4]} intensity={0.3} />
 
       {currentAnim && (
         <MoveArrow face={currentAnim.face} clockwise={currentAnim.clockwise} />
