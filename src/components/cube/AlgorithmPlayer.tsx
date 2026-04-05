@@ -92,6 +92,12 @@ export function AlgorithmPlayer({
     const initFaces = initialStateAlg !== undefined
       ? computeFacesFromAlg(initialStateAlg)
       : initialState;
+    // Apply to 3D scene before first render so the cube never shows solved.
+    if (initialStateAlg !== undefined) {
+      useCubeStore.getState().applyInstant(initialStateAlg);
+    } else {
+      useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
+    }
     return buildPlaybackState(algorithm, initFaces);
   });
   const [currentStep, setCurrentStep] = useState(0);
