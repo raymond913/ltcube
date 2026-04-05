@@ -156,7 +156,9 @@ function createCubieGroup(x: number, y: number, z: number): THREE.Group {
   // Body
   const bodyGeo = new RoundedBoxGeometry(BODY_SIZE, BODY_SIZE, BODY_SIZE, 2, 0.08);
   const bodyMat = new THREE.MeshStandardMaterial({ color: "#1E1E1E" });
-  group.add(new THREE.Mesh(bodyGeo, bodyMat));
+  const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+  bodyMesh.userData.originalColor = "#1E1E1E";
+  group.add(bodyMesh);
 
   // Stickers — one per outer face this cubie touches
   const addSticker = (
@@ -169,6 +171,7 @@ function createCubieGroup(x: number, y: number, z: number): THREE.Group {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(px, py, pz);
     mesh.rotation.set(rx, ry, rz);
+    mesh.userData.originalColor = color;
     group.add(mesh);
   };
 
@@ -288,10 +291,33 @@ interface CubeSceneProps {
   cubeState?: CubeFaces;
   /** Accepted for API compatibility — highlight/dim system removed per spec. */
   highlightedCubies?: string[];
+  /** Position keys ("x,y,z") of cubies that should render normally; all others are grayed out. When undefined or empty, all cubies render normally. */
+  visibleCubies?: string[];
   onReady?: () => void;
 }
 
-function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
+function applyGrayOut(cubies: THREE.Group[], visibleKeys: Set<string>): void {
+  cubies.forEach((cubie, idx) => {
+    const [x, y, z] = CUBIE_POSITIONS[idx];
+    const key = `${x},${y},${z}`;
+    const isGrayed = visibleKeys.size > 0 && !visibleKeys.has(key);
+    cubie.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      const mat = obj.material as THREE.MeshStandardMaterial;
+      if (isGrayed) {
+        mat.color.set("#9CA3AF");
+        mat.opacity = 0.6;
+        mat.transparent = true;
+      } else {
+        mat.color.set((obj.userData.originalColor as string) ?? "#1E1E1E");
+        mat.opacity = 1;
+        mat.transparent = false;
+      }
+    });
+  });
+}
+
+function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSceneProps) {
   const { scene } = useThree();
 
   const cubiesRef      = useRef<THREE.Group[]>([]);
@@ -304,6 +330,10 @@ function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
   const highlightMeshesRef   = useRef<THREE.Mesh[]>([]);
   // Keep the ref in sync on every render so handlers always read the latest list
   highlightedCubiesRef.current = highlightedCubies ?? [];
+
+  // ---- Gray-out state -----------------------------------------------------
+  const visibleCubiesRef = useRef<string[]>([]);
+  visibleCubiesRef.current = visibleCubies ?? [];
 
   const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
 
@@ -487,8 +517,9 @@ function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
         moveLogRef.current = [];
       }
 
-      // Re-attach highlights after cubies have been repositioned
+      // Re-attach highlights and re-apply gray-out after cubies have been repositioned
       attachHighlights();
+      applyGrayOut(cubies, new Set(visibleCubiesRef.current));
     };
 
     registerInstantHandler(handler);
@@ -544,6 +575,13 @@ function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
     if (cubiesRef.current.length) attachHighlights();
   }, [highlightedCubies, scene, attachHighlights]);
 
+  // ---- Gray-out: update cubie materials when visibleCubies changes ---------
+  useEffect(() => {
+    if (cubiesRef.current.length) {
+      applyGrayOut(cubiesRef.current, new Set(visibleCubies ?? []));
+    }
+  }, [visibleCubies]);
+
   // ---- Pulse the highlight opacity each frame ------------------------------
   useFrame(({ clock }) => {
     if (!highlightMeshesRef.current.length) return;
@@ -583,7 +621,7 @@ function AnimatedScene({ interactive, highlightedCubies }: CubeSceneProps) {
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, highlightedCubies, onReady }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, highlightedCubies, visibleCubies, onReady }: CubeSceneProps) {
   return (
     <Canvas
       camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
@@ -595,6 +633,7 @@ export function CubeScene({ interactive, cubeState, highlightedCubies, onReady }
         interactive={interactive}
         cubeState={cubeState}
         highlightedCubies={highlightedCubies}
+        visibleCubies={visibleCubies}
       />
     </Canvas>
   );

@@ -66,6 +66,7 @@ interface AlgorithmPlayerProps {
   initialStateAlg?: string;
   initialState?: CubeFaces;
   highlights?: Record<number, string[]>;
+  visibleCubies?: string[];
   title?: string;
   description?: string;
 }
@@ -78,6 +79,7 @@ export function AlgorithmPlayer({
   initialStateAlg,
   initialState,
   highlights,
+  visibleCubies,
   title,
   description,
 }: AlgorithmPlayerProps) {
@@ -244,6 +246,7 @@ export function AlgorithmPlayer({
           size={300}
           interactive
           highlightedCubies={currentHighlights}
+          visibleCubies={visibleCubies}
         />
       </div>
 

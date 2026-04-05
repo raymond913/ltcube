@@ -26,6 +26,8 @@ interface CubeViewerProps {
   cubeState?: CubeFaces;
   /** Cubie IDs to highlight, e.g. ["UFR", "UF"] */
   highlightedCubies?: string[];
+  /** Position keys ("x,y,z") of cubies to show normally; all others are grayed out. */
+  visibleCubies?: string[];
   /** Called once when the Canvas is mounted and ready */
   onReady?: () => void;
 }
@@ -36,6 +38,7 @@ export function CubeViewer({
   className = "",
   cubeState,
   highlightedCubies,
+  visibleCubies,
   onReady,
 }: CubeViewerProps) {
   return (
@@ -47,6 +50,7 @@ export function CubeViewer({
         interactive={interactive}
         cubeState={cubeState}
         highlightedCubies={highlightedCubies}
+        visibleCubies={visibleCubies}
         onReady={onReady}
       />
     </div>
