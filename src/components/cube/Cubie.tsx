@@ -2,10 +2,10 @@
 
 import { RoundedBox } from "@react-three/drei";
 
-const BODY_SIZE      = 0.94;
-const STICKER_SIZE   = BODY_SIZE * 0.82;   // ~0.771
-const STICKER_DEPTH  = 0.01;
-const STICKER_OFFSET = BODY_SIZE / 2 + 0.005; // ~0.475
+const BODY_SIZE      = 0.93;
+const STICKER_SIZE   = BODY_SIZE * 0.82;
+const STICKER_DEPTH  = 0.008;
+const STICKER_OFFSET = BODY_SIZE / 2 + STICKER_DEPTH / 2 + 0.005;
 
 type Vec3 = [number, number, number];
 
