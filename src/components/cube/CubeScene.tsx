@@ -114,10 +114,21 @@ function MoveArrow({ face, clockwise }: { face: string; clockwise: boolean }) {
  * Returns true if this cubie's world position places it on the given face.
  * Uses a 0.1 tolerance to absorb floating-point accumulation across many moves.
  */
-function isCubieInFace(cubie: THREE.Group, face: string): boolean {
+function isCubieInFace(cubie: THREE.Group, face: string, wide = false): boolean {
   const pos = new THREE.Vector3();
   cubie.getWorldPosition(pos);
   const EPS = 0.1;
+  if (wide) {
+    switch (face) {
+      case "R": return pos.x >= -EPS;
+      case "L": return pos.x <=  EPS;
+      case "U": return pos.y >= -EPS;
+      case "D": return pos.y <=  EPS;
+      case "F": return pos.z >= -EPS;
+      case "B": return pos.z <=  EPS;
+      default:  return false;
+    }
+  }
   switch (face) {
     case "R": return Math.abs(pos.x - 1)  < EPS;
     case "L": return Math.abs(pos.x + 1)  < EPS;
@@ -217,7 +228,7 @@ function applyMoveInstant(
   if (parsed.inverse) targetAngle *= -1;
   if (parsed.double)  targetAngle *= 2;
 
-  const faceCubies = cubies.filter((c) => isCubieInFace(c, parsed.face));
+  const faceCubies = cubies.filter((c) => isCubieInFace(c, parsed.face, parsed.wide));
   if (faceCubies.length === 0) return;
 
   const savedPos  = faceCubies.map(() => new THREE.Vector3());
@@ -433,7 +444,7 @@ function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSc
         setCurrentAnim({ face: parsed.face, clockwise });
 
         const allCubies  = cubiesRef.current;
-        const faceCubies = allCubies.filter((c) => isCubieInFace(c, parsed.face));
+        const faceCubies = allCubies.filter((c) => isCubieInFace(c, parsed.face, parsed.wide));
 
         const savedPos  = faceCubies.map(() => new THREE.Vector3());
         const savedQuat = faceCubies.map(() => new THREE.Quaternion());
