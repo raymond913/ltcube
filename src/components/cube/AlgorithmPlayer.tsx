@@ -173,6 +173,16 @@ export function AlgorithmPlayer({
     useCubeStore.setState({ faces: snapshots[newStep] });
   }, [isAnimating, currentStep, snapshots]);
 
+  const jumpToStep = useCallback((target: number) => {
+    if (isAnimating) return;
+    setIsPlaying(false);
+    stepFiredRef.current = false;
+    const clamped = Math.max(0, Math.min(target, moves.length));
+    setCurrentStep(clamped);
+    cubeEngine.setState(snapshots[clamped]);
+    useCubeStore.setState({ faces: snapshots[clamped] });
+  }, [isAnimating, moves.length, snapshots]);
+
   const reset = useCallback(() => {
     setIsPlaying(false);
     setCurrentStep(0);
@@ -225,9 +235,6 @@ export function AlgorithmPlayer({
     [stepForward, stepBack, reset],
   );
 
-  const progressPercent =
-    moves.length > 0 ? (currentStep / moves.length) * 100 : 0;
-
   return (
     <div
       className="rounded-xl border border-[#E2E8F0] bg-white shadow-sm p-5 w-full max-w-[500px] mx-auto flex flex-col gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
@@ -269,31 +276,48 @@ export function AlgorithmPlayer({
         )}
       </div>
 
-      {/* Progress bar */}
-      <div className="h-1 w-full rounded-full bg-[#F1F5F9] overflow-hidden">
-        <div
-          className="h-full rounded-full bg-[#2563EB] transition-all duration-300"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
-
-      {/* Algorithm notation + move counter */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-wrap gap-x-1.5 gap-y-1 font-mono text-sm leading-relaxed">
-          {moves.map((m, i) => {
-            let cls = "text-[#1E293B]";
-            if (i < currentStep) cls = "text-[#94A3B8]";
-            else if (i === currentStep) cls = "font-bold text-[#2563EB]";
-            return (
-              <span key={i} className={cls}>
-                {m.notation}
-              </span>
-            );
-          })}
+      {/* Step dot navigator */}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-1.5 items-center">
+          {Array.from({ length: moves.length + 1 }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => jumpToStep(i)}
+              disabled={isAnimating}
+              title={i === 0 ? "Start" : moves[i - 1]?.notation}
+              aria-label={i === 0 ? "Go to start" : `Go to move ${i}: ${moves[i - 1]?.notation}`}
+              className={`rounded-full transition-all duration-150 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] ${
+                i === currentStep
+                  ? "w-3.5 h-3.5 bg-[#2563EB] scale-110"
+                  : i < currentStep
+                  ? "w-2.5 h-2.5 bg-[#93C5FD] hover:bg-[#2563EB]"
+                  : "w-2.5 h-2.5 bg-[#E2E8F0] hover:bg-[#CBD5E1]"
+              }`}
+            />
+          ))}
         </div>
-        <span className="shrink-0 text-xs text-[#64748B] pt-0.5 whitespace-nowrap">
-          Move {currentStep} of {moves.length}
-        </span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 font-mono text-sm leading-relaxed">
+            {moves.map((m, i) => {
+              let cls = "text-[#1E293B]";
+              if (i < currentStep) cls = "text-[#94A3B8]";
+              else if (i === currentStep) cls = "font-bold text-[#2563EB]";
+              return (
+                <button
+                  key={i}
+                  onClick={() => jumpToStep(i)}
+                  disabled={isAnimating}
+                  className={`${cls} hover:underline disabled:cursor-not-allowed`}
+                >
+                  {m.notation}
+                </button>
+              );
+            })}
+          </div>
+          <span className="shrink-0 text-xs text-[#94A3B8] whitespace-nowrap">
+            {currentStep} / {moves.length}
+          </span>
+        </div>
       </div>
 
       {/* Transport controls */}
