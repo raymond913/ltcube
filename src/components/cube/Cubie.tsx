@@ -4,21 +4,20 @@ import { RoundedBox } from "@react-three/drei";
 
 const BODY_SIZE      = 0.93;
 const STICKER_SIZE   = BODY_SIZE * 0.82;
-const STICKER_DEPTH  = 0.008;
-const STICKER_OFFSET = BODY_SIZE / 2 + STICKER_DEPTH / 2 + 0.005;
+const STICKER_OFFSET = BODY_SIZE / 2 + 0.006;
 
 type Vec3 = [number, number, number];
 
 export type FaceColorKey = `${number}_${number}`;
 
 const FACE_MAP = [
-  { axis: 0, sign:  1, color: "#DC2626", pos: [ STICKER_OFFSET,  0,              0             ] as Vec3, rot: [0,            Math.PI / 2, 0] as Vec3 },
-  { axis: 0, sign: -1, color: "#EA580C", pos: [-STICKER_OFFSET,  0,              0             ] as Vec3, rot: [0,           -Math.PI / 2, 0] as Vec3 },
-  { axis: 1, sign:  1, color: "#EAB308", pos: [ 0,               STICKER_OFFSET, 0             ] as Vec3, rot: [-Math.PI / 2, 0,           0] as Vec3 },
-  { axis: 1, sign: -1, color: "#FFFFFF", pos: [ 0,              -STICKER_OFFSET, 0             ] as Vec3, rot: [ Math.PI / 2, 0,           0] as Vec3 },
-  { axis: 2, sign:  1, color: "#2563EB", pos: [ 0,               0,              STICKER_OFFSET] as Vec3, rot: [0,            0,           0] as Vec3 },
-  { axis: 2, sign: -1, color: "#16A34A", pos: [ 0,               0,             -STICKER_OFFSET] as Vec3, rot: [0,            Math.PI,     0] as Vec3 },
-] as const;
+  { axis: 0, sign:  1 as  1, color: "#DC2626", pos: [ STICKER_OFFSET, 0,              0             ] as Vec3, rot: [0,            Math.PI / 2, 0] as Vec3 },
+  { axis: 0, sign: -1 as -1, color: "#EA580C", pos: [-STICKER_OFFSET, 0,              0             ] as Vec3, rot: [0,           -Math.PI / 2, 0] as Vec3 },
+  { axis: 1, sign:  1 as  1, color: "#EAB308", pos: [0,               STICKER_OFFSET, 0             ] as Vec3, rot: [-Math.PI / 2, 0,           0] as Vec3 },
+  { axis: 1, sign: -1 as -1, color: "#FFFFFF", pos: [0,              -STICKER_OFFSET, 0             ] as Vec3, rot: [ Math.PI / 2, 0,           0] as Vec3 },
+  { axis: 2, sign:  1 as  1, color: "#2563EB", pos: [0,               0,              STICKER_OFFSET] as Vec3, rot: [0,            0,           0] as Vec3 },
+  { axis: 2, sign: -1 as -1, color: "#16A34A", pos: [0,               0,             -STICKER_OFFSET] as Vec3, rot: [0,            Math.PI,     0] as Vec3 },
+];
 
 interface CubieProps {
   position: Vec3;
@@ -32,6 +31,7 @@ export function Cubie({ position, faceColors, grayedOut = false }: CubieProps) {
 
   return (
     <group position={position}>
+      {/* Black body — always rendered */}
       <RoundedBox args={[BODY_SIZE, BODY_SIZE, BODY_SIZE]} radius={0.12} smoothness={4}>
         <meshStandardMaterial
           color={bodyColor}
@@ -42,22 +42,23 @@ export function Cubie({ position, faceColors, grayedOut = false }: CubieProps) {
         />
       </RoundedBox>
 
+      {/* Stickers — only on outward-facing sides */}
       {FACE_MAP.map(({ axis, sign, color, pos, rot }) => {
-        if (position[axis] !== sign) return null;
+        const coord = Math.round(position[axis]);
+        if (coord !== sign) return null;
         const key          = `${axis}_${sign}` as FaceColorKey;
         const stickerColor = grayedOut ? "#9CA3AF" : (faceColors?.[key] ?? color);
         return (
-          <group key={`${axis}${sign}`} position={pos} rotation={rot}>
-            <RoundedBox args={[STICKER_SIZE, STICKER_SIZE, STICKER_DEPTH]} radius={0.05} smoothness={2}>
-              <meshStandardMaterial
-                color={stickerColor}
-                roughness={0.35}
-                metalness={0.05}
-                transparent={grayedOut}
-                opacity={grayedOut ? 0.5 : 1}
-              />
-            </RoundedBox>
-          </group>
+          <mesh key={`${axis}${sign}`} position={pos} rotation={rot}>
+            <planeGeometry args={[STICKER_SIZE, STICKER_SIZE]} />
+            <meshStandardMaterial
+              color={stickerColor}
+              roughness={0.35}
+              metalness={0.05}
+              transparent={grayedOut}
+              opacity={grayedOut ? 0.6 : 1}
+            />
+          </mesh>
         );
       })}
     </group>

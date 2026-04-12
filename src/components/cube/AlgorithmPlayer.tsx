@@ -10,6 +10,7 @@ import {
   type Move,
 } from "@/lib/cubeEngine";
 import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
+import type { Arrow } from "@/lib/tutorialTypes";
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -69,6 +70,8 @@ interface AlgorithmPlayerProps {
   visibleCubies?: string[];
   title?: string;
   description?: string;
+  showViewToggle?: boolean;
+  arrows?: Arrow[];
 }
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
@@ -82,8 +85,11 @@ export function AlgorithmPlayer({
   visibleCubies,
   title,
   description,
+  showViewToggle,
+  arrows,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
+  const [viewMode, setViewMode] = useState<"default" | "white-up">("default");
 
   // Derive CubeFaces for the initial step, preferring initialStateAlg.
   // This is only used for buildPlaybackState — the 3D canvas is updated via
@@ -242,13 +248,28 @@ export function AlgorithmPlayer({
       )}
 
       {/* 3D cube */}
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-2">
         <CubeViewer
           size={300}
           interactive
           highlightedCubies={currentHighlights}
           visibleCubies={visibleCubies}
+          viewMode={viewMode}
+          ghostMode={currentStep === 0 && !isPlaying}
+          arrows={arrows}
         />
+        {showViewToggle && (
+          <button
+            onClick={() => setViewMode((v) => v === "white-up" ? "default" : "white-up")}
+            className={`rounded-md border px-3 py-1 text-xs font-medium transition-colors ${
+              viewMode === "white-up"
+                ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
+                : "border-[#E2E8F0] bg-white text-[#64748B] hover:bg-[#F1F5F9]"
+            }`}
+          >
+            {viewMode === "white-up" ? "Default view" : "View white face"}
+          </button>
+        )}
       </div>
 
       {/* Progress bar */}

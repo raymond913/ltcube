@@ -14,6 +14,7 @@ interface TutorialLayoutProps {
   stepMeta: StepMeta;
   initialSubstepIndex?: number;
   showAlgorithmGrid?: boolean;
+  showViewToggle?: boolean;
 }
 
 export function TutorialLayout({
@@ -21,6 +22,7 @@ export function TutorialLayout({
   stepMeta,
   initialSubstepIndex = 0,
   showAlgorithmGrid = false,
+  showViewToggle = false,
 }: TutorialLayoutProps) {
   const [activeIdx, setActiveIdx] = useState(
     Math.min(initialSubstepIndex, stepData.substeps.length - 1),
@@ -63,6 +65,8 @@ export function TutorialLayout({
             initialStateAlg={activeSubstep.initialState}
             highlights={{ 0: activeSubstep.highlightPieces }}
             title={activeSubstep.title}
+            showViewToggle={showViewToggle}
+            arrows={activeSubstep.arrows}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
               ? { visibleCubies: activeSubstep.visibleCubies }
               : {})}

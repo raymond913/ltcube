@@ -18,6 +18,9 @@ export const whiteCorners: TutorialStep = {
         "The white-blue-red corner is in the bottom layer below its slot. The white sticker faces the right side. Use R' D' R to slot it in.",
       algorithm: "R' D' R",
       initialState: "R' D R",
+      arrows: [
+        { from: [1, -1, -1], to: [1, -1, 1] },
+      ],
       tip: "This is the most common corner case. Get comfortable with R' D' R.",
     },
     {
@@ -27,6 +30,9 @@ export const whiteCorners: TutorialStep = {
         "Same corner, but now white faces the front. Use F D F' to insert.",
       algorithm: "F D F'",
       initialState: "F D' F'",
+      arrows: [
+        { from: [-1, -1, 1], to: [1, -1, 1] },
+      ],
       tip: "Notice how this is a mirror of the first case — F D F' instead of R' D' R.",
     },
     {
@@ -36,6 +42,9 @@ export const whiteCorners: TutorialStep = {
         "The tricky case — white faces downward. Use R' D R F D2 F' to reorient and insert.",
       algorithm: "R' D R F D2 F'",
       initialState: "F D2' R' D' R F'",
+      arrows: [
+        { from: [-1, -1, -1], to: [1, -1, 1] },
+      ],
       tip: "This is the longest corner case. The first 3 moves kick it out, the last 3 slot it correctly.",
     },
     {

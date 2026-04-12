@@ -1,3 +1,9 @@
+export interface Arrow {
+  from: [number, number, number];
+  to: [number, number, number];
+  color?: string;
+}
+
 export interface Substep {
   id: string;
   title: string;
@@ -9,6 +15,7 @@ export interface Substep {
   highlightPieces: string[];
   visibleCubies?: string[];
   solutionMoves?: string;
+  arrows?: Arrow[];
 }
 
 export interface TutorialStep {

@@ -16,6 +16,8 @@ import {
 } from "@/stores/cubeStore";
 import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
+import type { Arrow } from "@/lib/tutorialTypes";
+import { DirectionArrow } from "./DirectionArrow";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -305,31 +307,45 @@ interface CubeSceneProps {
   /** Position keys ("x,y,z") of cubies that should render normally; all others are grayed out. When undefined or empty, all cubies render normally. */
   visibleCubies?: string[];
   onReady?: () => void;
+  /** Camera view mode: "default" = standard angle, "white-up" = top-down showing white face */
+  viewMode?: "default" | "white-up";
+  /** Ghost mode: all cubies 15% opacity except visibleCubies which stay solid */
+  ghostMode?: boolean;
+  /** Arrows rendered only when ghostMode is true */
+  arrows?: Arrow[];
 }
 
-function applyGrayOut(cubies: THREE.Group[], visibleKeys: Set<string>): void {
+function applyAppearance(cubies: THREE.Group[], visibleKeys: Set<string>, ghostMode: boolean): void {
   cubies.forEach((cubie, idx) => {
     const [x, y, z] = CUBIE_POSITIONS[idx];
     const key = `${x},${y},${z}`;
-    const isGrayed = visibleKeys.size > 0 && !visibleKeys.has(key);
+    const isTarget = visibleKeys.size === 0 || visibleKeys.has(key);
     cubie.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
       const mat = obj.material as THREE.MeshStandardMaterial;
-      if (isGrayed) {
-        mat.color.set("#9CA3AF");
-        mat.opacity = 0.6;
-        mat.transparent = true;
-      } else {
+      if (ghostMode) {
         mat.color.set((obj.userData.originalColor as string) ?? "#1E1E1E");
-        mat.opacity = 1;
-        mat.transparent = false;
+        mat.opacity = isTarget ? 1 : 0.15;
+        mat.transparent = !isTarget;
+      } else {
+        const isGrayed = visibleKeys.size > 0 && !isTarget;
+        if (isGrayed) {
+          mat.color.set("#9CA3AF");
+          mat.opacity = 0.6;
+          mat.transparent = true;
+        } else {
+          mat.color.set((obj.userData.originalColor as string) ?? "#1E1E1E");
+          mat.opacity = 1;
+          mat.transparent = false;
+        }
       }
     });
   });
 }
 
-function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSceneProps) {
-  const { scene } = useThree();
+function AnimatedScene({ interactive, highlightedCubies, visibleCubies, viewMode, ghostMode, arrows }: CubeSceneProps) {
+  const { scene, camera } = useThree();
+  const orbitRef = useRef<any>(null);
 
   const cubiesRef      = useRef<THREE.Group[]>([]);
   const pivotRef       = useRef(new THREE.Group());
@@ -342,9 +358,11 @@ function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSc
   // Keep the ref in sync on every render so handlers always read the latest list
   highlightedCubiesRef.current = highlightedCubies ?? [];
 
-  // ---- Gray-out state -----------------------------------------------------
+  // ---- Gray-out / ghost state -----------------------------------------------------
   const visibleCubiesRef = useRef<string[]>([]);
   visibleCubiesRef.current = visibleCubies ?? [];
+  const ghostModeRef = useRef<boolean>(false);
+  ghostModeRef.current = ghostMode ?? false;
 
   const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
 
@@ -528,9 +546,9 @@ function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSc
         moveLogRef.current = [];
       }
 
-      // Re-attach highlights and re-apply gray-out after cubies have been repositioned
+      // Re-attach highlights and re-apply appearance after cubies have been repositioned
       attachHighlights();
-      applyGrayOut(cubies, new Set(visibleCubiesRef.current));
+      applyAppearance(cubies, new Set(visibleCubiesRef.current), ghostModeRef.current);
     };
 
     registerInstantHandler(handler);
@@ -586,12 +604,23 @@ function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSc
     if (cubiesRef.current.length) attachHighlights();
   }, [highlightedCubies, scene, attachHighlights]);
 
-  // ---- Gray-out: update cubie materials when visibleCubies changes ---------
+  // ---- Appearance: update cubie materials when visibleCubies or ghostMode changes ---------
   useEffect(() => {
     if (cubiesRef.current.length) {
-      applyGrayOut(cubiesRef.current, new Set(visibleCubies ?? []));
+      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []), ghostMode ?? false);
     }
-  }, [visibleCubies]);
+  }, [visibleCubies, ghostMode]);
+
+  // ---- Camera view mode animation -----------------------------------------
+  useEffect(() => {
+    const [tx, ty, tz] = viewMode === "white-up" ? [0, 7, 1.5] : [4, 3, 4];
+    gsap.to(camera.position, {
+      x: tx, y: ty, z: tz,
+      duration: 0.6,
+      ease: "power2.inOut",
+      onUpdate: () => { orbitRef.current?.update(); },
+    });
+  }, [viewMode, camera]);
 
   // ---- Pulse the highlight opacity each frame ------------------------------
   useFrame(({ clock }) => {
@@ -614,8 +643,13 @@ function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSc
         <MoveArrow face={currentAnim.face} clockwise={currentAnim.clockwise} />
       )}
 
+      {ghostMode && arrows?.map((a, i) => (
+        <DirectionArrow key={i} from={a.from} to={a.to} color={a.color} />
+      ))}
+
       {interactive && (
         <OrbitControls
+          ref={orbitRef}
           enableZoom
           minDistance={3.5}
           maxDistance={8}
@@ -632,7 +666,7 @@ function AnimatedScene({ interactive, highlightedCubies, visibleCubies }: CubeSc
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, highlightedCubies, visibleCubies, onReady }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, highlightedCubies, visibleCubies, onReady, viewMode, ghostMode, arrows }: CubeSceneProps) {
   return (
     <Canvas
       camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
@@ -645,6 +679,9 @@ export function CubeScene({ interactive, cubeState, highlightedCubies, visibleCu
         cubeState={cubeState}
         highlightedCubies={highlightedCubies}
         visibleCubies={visibleCubies}
+        viewMode={viewMode}
+        ghostMode={ghostMode}
+        arrows={arrows}
       />
     </Canvas>
   );

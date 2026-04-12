@@ -20,6 +20,9 @@ export const whiteCross: TutorialStep = {
       initialState: "x2 F2",
       highlightPieces: [],
       visibleCubies: ["0,1,0", "0,1,-1", "1,1,0", "-1,1,0", "0,1,1", "0,-1,1"],
+      arrows: [
+        { from: [0, -1, 1], to: [0, 1, -1] },
+      ],
       tip: "Always look for edges on the bottom first — they're the easiest to place.",
     },
     {
@@ -31,6 +34,9 @@ export const whiteCross: TutorialStep = {
       initialState: "x2 F2 U R'",
       highlightPieces: [],
       visibleCubies: ["0,1,0", "1,0,1", "1,1,0", "-1,1,0", "0,1,1", "0,1,-1"],
+      arrows: [
+        { from: [1, 0, 1], to: [1, 1, 0] },
+      ],
       tip: "If an edge is in the middle layer, look for a single face turn that brings it to the top.",
     },
     {
@@ -42,6 +48,9 @@ export const whiteCross: TutorialStep = {
       initialState: "x2 F2 U' F U'",
       highlightPieces: [],
       visibleCubies: ["0,1,0", "0,1,1", "1,1,0", "-1,1,0", "0,1,-1", "-1,0,-1"],
+      arrows: [
+        { from: [0, 1, 1], to: [0, 1, -1] },
+      ],
       tip: "A flipped edge needs to be rotated before it can be inserted.",
     },
     {
@@ -53,6 +62,12 @@ export const whiteCross: TutorialStep = {
       initialState: "x2 L2 B2 R2 F2",
       highlightPieces: [],
       visibleCubies: ["0,1,0", "0,1,1", "0,1,-1", "1,1,0", "-1,1,0"],
+      arrows: [
+        { from: [0, -1, 1],  to: [0, 1, 1]  },
+        { from: [1, -1, 0],  to: [1, 1, 0]  },
+        { from: [0, -1, -1], to: [0, 1, -1] },
+        { from: [-1, -1, 0], to: [-1, 1, 0] },
+      ],
       tip: "Try to solve edges without disturbing ones you've already placed.",
     },
   ],

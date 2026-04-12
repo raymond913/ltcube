@@ -18,9 +18,12 @@ export const secondLayer: TutorialStep = {
         "The edge in the top layer needs to go into the right slot. Align it with the center, then execute the Right Insert.",
       algorithm: "U R U' R' U' F' U F",
       algorithmName: "Right Insert",
-      initialState: "F' U' F U R U R'",
+      initialState: "F' U' F U R U R' U'",
       solutionMoves: "U R U' R' U' F' U F",
       highlightPieces: ["UF", "FR"],
+      arrows: [
+        { from: [0, 1, 1], to: [1, 0, 1] },
+      ],
     },
     {
       id: "sl-left",
@@ -29,9 +32,12 @@ export const secondLayer: TutorialStep = {
         "This edge needs to go left. Align and execute the Left Insert.",
       algorithm: "U' L' U L U F U' F'",
       algorithmName: "Left Insert",
-      initialState: "F U F' U' L' U' L",
+      initialState: "F U F' U' L' U' L U",
       solutionMoves: "U' L' U L U F U' F'",
       highlightPieces: ["UF", "FL"],
+      arrows: [
+        { from: [0, 1, 1], to: [-1, 0, 1] },
+      ],
     },
     {
       id: "sl-flipped",
@@ -39,11 +45,14 @@ export const secondLayer: TutorialStep = {
       explanation:
         "The edge is in the correct slot but flipped. First, extract it using the Right Insert to kick it to the top layer. Once it's on top and correctly oriented, re-insert it with the appropriate algorithm.",
       tip: "Use any insert algorithm to knock the flipped edge out of the middle layer — it will land on top where you can solve it normally.",
-      algorithm: "U R U' R' U' F' U F",
+      algorithm: "U R U' R' U' F' U F U R U' R' U' F' U F",
       algorithmName: "Right Insert",
-      initialState: "F' U' F U R U R' F' U' F U R U R'",
+      initialState: "F' U' F U R U R' U' F' U' F U R U R' U'",
       solutionMoves: "U R U' R' U' F' U F U R U' R' U' F' U F",
       highlightPieces: ["FR"],
+      arrows: [
+        { from: [1, 0, 1], to: [0, 1, 1] },
+      ],
     },
   ],
 };

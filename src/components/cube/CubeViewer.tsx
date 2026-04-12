@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { CubeFaces } from "@/lib/cubeEngine";
+import type { Arrow } from "@/lib/tutorialTypes";
 
 const CubeScene = dynamic(
   () => import("./CubeScene").then((m) => m.CubeScene),
@@ -30,6 +31,12 @@ interface CubeViewerProps {
   visibleCubies?: string[];
   /** Called once when the Canvas is mounted and ready */
   onReady?: () => void;
+  /** Camera view mode */
+  viewMode?: "default" | "white-up";
+  /** Ghost mode: all cubies faded except visibleCubies which stay solid */
+  ghostMode?: boolean;
+  /** Arrows rendered in ghost mode */
+  arrows?: Arrow[];
 }
 
 export function CubeViewer({
@@ -40,6 +47,9 @@ export function CubeViewer({
   highlightedCubies,
   visibleCubies,
   onReady,
+  viewMode,
+  ghostMode,
+  arrows,
 }: CubeViewerProps) {
   return (
     <div
@@ -52,6 +62,9 @@ export function CubeViewer({
         highlightedCubies={highlightedCubies}
         visibleCubies={visibleCubies}
         onReady={onReady}
+        viewMode={viewMode}
+        ghostMode={ghostMode}
+        arrows={arrows}
       />
     </div>
   );
