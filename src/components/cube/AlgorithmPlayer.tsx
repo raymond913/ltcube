@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useLayoutEffect, useCallback, useState, useRef } from "react";
 import { CubeViewer } from "@/components/cube/CubeViewer";
 import {
   CubeEngine,
@@ -116,7 +116,11 @@ export function AlgorithmPlayer({
   const stepFiredRef = useRef(false);
 
   // Re-build snapshots and sync 3D state when algorithm or initial state changes.
-  useEffect(() => {
+  // useLayoutEffect fires before the browser paint so the cube never flashes solved.
+  useLayoutEffect(() => {
+    const alg = initialStateAlg !== undefined ? initialStateAlg : invertAlgorithm(algorithm);
+    console.log("[AlgorithmPlayer] initialState alg:", alg);
+
     const initFaces = initialStateAlg !== undefined
       ? computeFacesFromAlg(initialStateAlg)
       : initialState;
@@ -126,18 +130,9 @@ export function AlgorithmPlayer({
     setIsPlaying(false);
     stepFiredRef.current = false;
 
-    if (initialStateAlg !== undefined) {
-      // applyInstant resets the engine, applies the alg, and calls the instant
-      // handler in CubeScene — which resets the cubies to solved then replays
-      // the alg moves, building the correct move log for step-back/reset.
-      useCubeStore.getState().applyInstant(initialStateAlg);
-    } else {
-      // Legacy path: derive the setup alg as the inverse of the solution algorithm.
-      // For all tutorial cases the initialState was built by applying
-      // invertAlgorithm(algorithm) from solved, so this correctly sets both the
-      // 3D scene and the move log via applyInstant.
-      useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
-    }
+    // Reset first to guarantee a clean visual state, then apply setup.
+    useCubeStore.getState().reset();
+    useCubeStore.getState().applyInstant(alg);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [algorithm, initialStateAlg, initialState]);
 
