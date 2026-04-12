@@ -85,7 +85,6 @@ export function AlgorithmCasePage({
             key={activeSubstep.id}
             algorithm={algorithmToPlay}
             initialState={initialCubeState}
-            highlights={{ 0: activeSubstep.highlightPieces }}
             title={activeSubstep.algorithmName ?? activeSubstep.title}
           />
 

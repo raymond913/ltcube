@@ -66,11 +66,12 @@ interface AlgorithmPlayerProps {
   algorithm: string;
   initialStateAlg?: string;
   initialState?: CubeFaces;
-  highlights?: Record<number, string[]>;
-  visibleCubies?: string[];
+  /** Position keys ("x,y,z") of cubies to highlight; shown at step 0 / after completion */
+  highlightedCubies?: string[];
   title?: string;
   description?: string;
   showViewToggle?: boolean;
+  /** Arrows shown at step 0 and after algorithm completes (teaching state) */
   arrows?: Arrow[];
 }
 
@@ -81,8 +82,7 @@ export function AlgorithmPlayer({
   algorithm,
   initialStateAlg,
   initialState,
-  highlights,
-  visibleCubies,
+  highlightedCubies,
   title,
   description,
   showViewToggle,
@@ -112,9 +112,8 @@ export function AlgorithmPlayer({
 
   const { snapshots, moves } = playback;
 
-  // Highlights are pinned to step 0 so they persist on the target piece
-  // throughout the algorithm (the glow follows the cubie as it moves).
-  const currentHighlights = highlights?.[0] ?? [];
+  // Teaching state: show highlighted cubies + arrows at step 0 and after completion
+  const showTeachingState = !isPlaying && (currentStep === 0 || currentStep >= moves.length);
 
   // Tracks whether a stepForward animation is in-flight. Prevents the
   // auto-play effect from re-triggering the same move when isAnimating flips
@@ -252,11 +251,9 @@ export function AlgorithmPlayer({
         <CubeViewer
           size={300}
           interactive
-          highlightedCubies={currentHighlights}
-          visibleCubies={visibleCubies}
+          highlightedCubies={showTeachingState ? highlightedCubies : undefined}
           viewMode={viewMode}
-          ghostMode={currentStep === 0 && !isPlaying}
-          arrows={arrows}
+          arrows={showTeachingState ? arrows : undefined}
         />
         {showViewToggle && (
           <button

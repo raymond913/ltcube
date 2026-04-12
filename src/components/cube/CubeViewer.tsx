@@ -25,17 +25,13 @@ interface CubeViewerProps {
   className?: string;
   /** Override cube state (uses store state if omitted) */
   cubeState?: CubeFaces;
-  /** Cubie IDs to highlight, e.g. ["UFR", "UF"] */
+  /** Position keys ("x,y,z") of cubies to show normally; all others render as black body with no stickers. */
   highlightedCubies?: string[];
-  /** Position keys ("x,y,z") of cubies to show normally; all others are grayed out. */
-  visibleCubies?: string[];
   /** Called once when the Canvas is mounted and ready */
   onReady?: () => void;
   /** Camera view mode */
   viewMode?: "default" | "white-up";
-  /** Ghost mode: all cubies faded except visibleCubies which stay solid */
-  ghostMode?: boolean;
-  /** Arrows rendered in ghost mode */
+  /** Arrows rendered on top of the cube */
   arrows?: Arrow[];
 }
 
@@ -45,10 +41,8 @@ export function CubeViewer({
   className = "",
   cubeState,
   highlightedCubies,
-  visibleCubies,
   onReady,
   viewMode,
-  ghostMode,
   arrows,
 }: CubeViewerProps) {
   return (
@@ -60,10 +54,8 @@ export function CubeViewer({
         interactive={interactive}
         cubeState={cubeState}
         highlightedCubies={highlightedCubies}
-        visibleCubies={visibleCubies}
         onReady={onReady}
         viewMode={viewMode}
-        ghostMode={ghostMode}
         arrows={arrows}
       />
     </div>

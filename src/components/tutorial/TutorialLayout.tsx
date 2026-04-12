@@ -63,12 +63,11 @@ export function TutorialLayout({
             key={`${stepData.id}-${activeIdx}`}
             algorithm={algorithmToPlay}
             initialStateAlg={activeSubstep.initialState}
-            highlights={{ 0: activeSubstep.highlightPieces }}
             title={activeSubstep.title}
             showViewToggle={showViewToggle}
             arrows={activeSubstep.arrows}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
-              ? { visibleCubies: activeSubstep.visibleCubies }
+              ? { highlightedCubies: activeSubstep.visibleCubies }
               : {})}
           />
         </div>
