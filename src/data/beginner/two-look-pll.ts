@@ -19,7 +19,7 @@ export const twoLookPll: TutorialStep = {
         "Two adjacent corners are swapped. Hold the cube so the two swapped corners are at the UFR and UBR positions (front-right and back-right), then apply Adjacent Swap.",
       algorithm: "R U R' U' R' F R2 U' R' U' R U R' F'",
       algorithmName: "Adjacent Swap",
-      initialState: "F R U' R' U R U R2 F' R U R U' R'",
+      initialState: "F R U' R' U R U R2' F' R U R U' R'",
       highlightPieces: ["UFR", "UBR"],
     },
     {
@@ -29,7 +29,7 @@ export const twoLookPll: TutorialStep = {
         "Two diagonal corners are swapped. Any AUF is fine. Apply Diagonal Swap — it's the only case where no two adjacent corners match.",
       algorithm: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
       algorithmName: "Diagonal Swap",
-      initialState: "F R' F' R U R U' R' F R U' R' U R U R' F'",
+      initialState: "F R' F' R U R U' R' F R' U' R U R U' R' F'",
       highlightPieces: ["UFR", "UBL"],
     },
     {
@@ -39,7 +39,7 @@ export const twoLookPll: TutorialStep = {
         "Three edges cycle counter-clockwise. Hold the cube so the one correct edge is at the back (UB), then apply Ua.",
       algorithm: "R U' R U R U R U' R' U' R2",
       algorithmName: "Ua Perm",
-      initialState: "R2 U R U R' U' R' U' R' U R'",
+      initialState: "R2' U U R U R U R' U R' U' R'",
       highlightPieces: ["UF", "UL", "UR"],
     },
     {
@@ -49,7 +49,7 @@ export const twoLookPll: TutorialStep = {
         "Three edges cycle clockwise. Hold the cube so the one correct edge is at the back (UB), then apply Ub.",
       algorithm: "R2 U R U R' U' R' U' R' U R'",
       algorithmName: "Ub Perm",
-      initialState: "R U' R U R U R U' R' U' R2",
+      initialState: "R U' R U R U R U' R' U' R2'",
       highlightPieces: ["UF", "UL", "UR"],
     },
     {
@@ -57,9 +57,9 @@ export const twoLookPll: TutorialStep = {
       title: "H Perm",
       explanation:
         "Opposite edges are swapped in pairs. Both UF↔UB and UL↔UR are swapped. Any AUF. Apply H Perm.",
-      algorithm: "R2 U2 R U2 R2 U2 R2 U2 R U2 R2",
+      algorithm: "M2 U M2 U2 M2 U M2",
       algorithmName: "H Perm",
-      initialState: "R2 U2 R' U2 R2 U2 R2 U2 R' U2 R2",
+      initialState: "M2' U' M2' U2' M2' U' M2'",
       highlightPieces: ["UF", "UB", "UL", "UR"],
     },
     {
@@ -67,9 +67,9 @@ export const twoLookPll: TutorialStep = {
       title: "Z Perm",
       explanation:
         "Adjacent edges are swapped in pairs. UF↔UR and UB↔UL are swapped. Hold the cube so one matched pair is at the front-right, then apply Z Perm.",
-      algorithm: "R' U' R U' R U R U' R' U R U R2 U' R' U2",
+      algorithm: "M2 U M2 U M' U2 M2 U2 M'",
       algorithmName: "Z Perm",
-      initialState: "U2 R U R2 U' R' U' R U R' U' R' U R' U R",
+      initialState: "M U2' M2' U2' M U' M2' U' M2'",
       highlightPieces: ["UF", "UR", "UB", "UL"],
     },
   ],
