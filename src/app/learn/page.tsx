@@ -2,29 +2,26 @@
 
 import Link from "next/link";
 import { useProgressStore } from "@/stores/progressStore";
-import {
-  BEGINNER_STEPS,
-  whiteCross,
-  whiteCorners,
-  secondLayer,
-  twoLookOll,
-  twoLookPll,
-} from "@/data/beginner";
+import { BEGINNER_STEPS, cross, firstLayer, secondLayer, topCross, matchCross, matchCorners, solve } from "@/data/beginner";
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
-  "white-cross": "Form a cross on the white face by placing all four white edge pieces correctly.",
-  "white-corners": "Complete the white face by inserting the four white corner pieces.",
+  "cross": "Form a white cross on the bottom face by placing all four white edge pieces.",
+  "first-layer": "Complete the white face by inserting the four white corner pieces.",
   "second-layer": "Solve the middle layer by inserting the four edge pieces.",
-  "two-look-oll": "Orient the last layer — first the cross, then the corners.",
-  "two-look-pll": "Permute the last layer — corners first, then edges.",
+  "top-cross": "Orient the top layer edges to form a yellow cross on the U face.",
+  "match-cross": "Align the top cross edges so each side colour matches its centre.",
+  "match-corners": "Move the top layer corners to their correct positions.",
+  "solve": "Orient the final corners to complete the cube.",
 };
 
 const STEP_SCENARIO_COUNTS: Record<string, number> = {
-  "white-cross": whiteCross.substeps.length,
-  "white-corners": whiteCorners.substeps.length,
+  "cross": cross.substeps.length,
+  "first-layer": firstLayer.substeps.length,
   "second-layer": secondLayer.substeps.length,
-  "two-look-oll": twoLookOll.substeps.length,
-  "two-look-pll": twoLookPll.substeps.length,
+  "top-cross": topCross.substeps.length,
+  "match-cross": matchCross.substeps.length,
+  "match-corners": matchCorners.substeps.length,
+  "solve": solve.substeps.length,
 };
 
 export default function LearnPage() {
@@ -40,7 +37,7 @@ export default function LearnPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-[#1E293B]">Beginner Method</h1>
         <p className="mt-2 text-[#64748B]">
-          Learn to solve the cube in five stages using the layer-by-layer method.
+          Learn to solve the cube in seven stages using the layer-by-layer method.
           Work through each step in order.
         </p>
       </div>

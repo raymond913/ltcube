@@ -16,6 +16,7 @@ export interface Substep {
   visibleCubies?: string[];
   solutionMoves?: string;
   arrows?: Arrow[];
+  whiteOnTop?: boolean;
 }
 
 export interface TutorialStep {

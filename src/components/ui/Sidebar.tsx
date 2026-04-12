@@ -5,11 +5,13 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const learnSteps = [
-  { href: "/learn/white-cross", label: "White Cross" },
-  { href: "/learn/white-corners", label: "White Corners" },
+  { href: "/learn/cross", label: "White Cross" },
+  { href: "/learn/first-layer", label: "First Layer Corners" },
   { href: "/learn/second-layer", label: "Second Layer" },
-  { href: "/learn/oll", label: "2-Look OLL" },
-  { href: "/learn/pll", label: "2-Look PLL" },
+  { href: "/learn/top-cross", label: "Top Cross" },
+  { href: "/learn/match-cross", label: "Match Cross" },
+  { href: "/learn/match-corners", label: "Match Corners" },
+  { href: "/learn/solve", label: "Solve" },
 ];
 
 const navItems = [

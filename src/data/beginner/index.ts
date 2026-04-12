@@ -2,16 +2,16 @@ import type { StepMeta } from "@/lib/tutorialTypes";
 
 export const BEGINNER_STEPS: StepMeta[] = [
   {
-    id: "white-cross",
+    id: "cross",
     title: "White Cross",
-    route: "/learn/white-cross",
+    route: "/learn/cross",
     stepNumber: 1,
     estimatedMinutes: 15,
   },
   {
-    id: "white-corners",
-    title: "White Corners",
-    route: "/learn/white-corners",
+    id: "first-layer",
+    title: "First Layer Corners",
+    route: "/learn/first-layer",
     stepNumber: 2,
     estimatedMinutes: 20,
   },
@@ -23,25 +23,39 @@ export const BEGINNER_STEPS: StepMeta[] = [
     estimatedMinutes: 20,
   },
   {
-    id: "two-look-oll",
-    title: "2-Look OLL",
-    route: "/learn/oll",
+    id: "top-cross",
+    title: "Top Cross",
+    route: "/learn/top-cross",
     stepNumber: 4,
-    estimatedMinutes: 25,
-    caseCount: 10,
+    estimatedMinutes: 10,
   },
   {
-    id: "two-look-pll",
-    title: "2-Look PLL",
-    route: "/learn/pll",
+    id: "match-cross",
+    title: "Match Cross",
+    route: "/learn/match-cross",
     stepNumber: 5,
-    estimatedMinutes: 20,
-    caseCount: 6,
+    estimatedMinutes: 10,
+  },
+  {
+    id: "match-corners",
+    title: "Match Corners",
+    route: "/learn/match-corners",
+    stepNumber: 6,
+    estimatedMinutes: 15,
+  },
+  {
+    id: "solve",
+    title: "Solve",
+    route: "/learn/solve",
+    stepNumber: 7,
+    estimatedMinutes: 15,
   },
 ];
 
-export { whiteCross } from "./white-cross";
-export { whiteCorners } from "./white-corners";
+export { cross } from "./cross";
+export { firstLayer } from "./first-layer";
 export { secondLayer } from "./second-layer";
-export { twoLookOll } from "./two-look-oll";
-export { twoLookPll } from "./two-look-pll";
+export { topCross } from "./top-cross";
+export { matchCross } from "./match-cross";
+export { matchCorners } from "./match-corners";
+export { solve } from "./solve";
