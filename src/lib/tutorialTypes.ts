@@ -7,6 +7,7 @@ export interface Substep {
   algorithmName?: string;
   initialState: string;
   highlightPieces: string[];
+  visibleCubies?: string[];
   solutionMoves?: string;
 }
 
