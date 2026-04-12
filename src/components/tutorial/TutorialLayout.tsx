@@ -63,6 +63,9 @@ export function TutorialLayout({
             initialStateAlg={activeSubstep.initialState}
             highlights={{ 0: activeSubstep.highlightPieces }}
             title={activeSubstep.title}
+            {...(!showAlgorithmGrid && activeSubstep.visibleCubies
+              ? { visibleCubies: activeSubstep.visibleCubies }
+              : {})}
           />
         </div>
 
