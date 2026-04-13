@@ -98,14 +98,15 @@ export function AlgorithmPlayer({
     const initFaces = initialStateAlg !== undefined
       ? computeFacesFromAlg(initialStateAlg)
       : initialState;
-    // Apply to 3D scene before first render so the cube never shows solved.
-    if (initialStateAlg !== undefined) {
-      useCubeStore.getState().applyInstant(initialStateAlg);
-    } else {
-      useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
-    }
     return buildPlaybackState(algorithm, initFaces);
   });
+
+  useEffect(() => {
+    const alg = initialStateAlg !== undefined ? initialStateAlg : invertAlgorithm(algorithm);
+    useCubeStore.getState().reset();
+    useCubeStore.getState().applyInstant(alg);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialStateAlg, initialState, algorithm]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<Speed>(1);

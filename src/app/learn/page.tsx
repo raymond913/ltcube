@@ -2,52 +2,44 @@
 
 import Link from "next/link";
 import { useProgressStore } from "@/stores/progressStore";
-import { BEGINNER_STEPS, cross, firstLayer, secondLayer, topCross, matchCross, matchCorners, solve } from "@/data/beginner";
+import { BEGINNER_STEPS, cross, corners, secondLayer, twoLookOll, twoLookPll } from "@/data/beginner";
 
 const STEP_DESCRIPTIONS: Record<string, string> = {
   "cross": "Place all four white edge pieces to form the white cross.",
-  "first-layer": "Insert the four white corners to complete the white face.",
+  "corners": "Insert the four white corners to complete the white face.",
   "second-layer": "Solve the middle layer edges using the right or left insert.",
-  "top-cross": "Orient the yellow edges to form a cross on top.",
-  "match-cross": "Cycle the yellow edges until each matches its centre.",
-  "match-corners": "Permute the top corners into their correct positions.",
-  "solve": "Orient the final corners one at a time to finish the cube.",
+  "two-look-oll": "Orient all last-layer pieces so the top face is solid yellow.",
+  "two-look-pll": "Permute the last layer pieces into their correct positions to finish the cube.",
 };
 
 const STEP_ICONS: Record<string, string> = {
   "cross":         "✛",
-  "first-layer":   "⬜",
+  "corners":       "⬜",
   "second-layer":  "▣",
-  "top-cross":     "✦",
-  "match-cross":   "↔",
-  "match-corners": "◈",
-  "solve":         "★",
+  "two-look-oll":  "✦",
+  "two-look-pll":  "★",
 };
 
 const STEP_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   "cross":         { bg: "#EFF6FF", text: "#2563EB", border: "#BFDBFE" },
-  "first-layer":   { bg: "#F0FDF4", text: "#16A34A", border: "#BBF7D0" },
+  "corners":       { bg: "#F0FDF4", text: "#16A34A", border: "#BBF7D0" },
   "second-layer":  { bg: "#FFF7ED", text: "#EA580C", border: "#FED7AA" },
-  "top-cross":     { bg: "#FEFCE8", text: "#CA8A04", border: "#FEF08A" },
-  "match-cross":   { bg: "#FEFCE8", text: "#CA8A04", border: "#FEF08A" },
-  "match-corners": { bg: "#FDF4FF", text: "#9333EA", border: "#E9D5FF" },
-  "solve":         { bg: "#FDF4FF", text: "#9333EA", border: "#E9D5FF" },
+  "two-look-oll":  { bg: "#FEFCE8", text: "#CA8A04", border: "#FEF08A" },
+  "two-look-pll":  { bg: "#FDF4FF", text: "#9333EA", border: "#E9D5FF" },
 };
 
 const STEP_SCENARIO_COUNTS: Record<string, number> = {
   "cross": cross.substeps.length,
-  "first-layer": firstLayer.substeps.length,
+  "corners": corners.substeps.length,
   "second-layer": secondLayer.substeps.length,
-  "top-cross": topCross.substeps.length,
-  "match-cross": matchCross.substeps.length,
-  "match-corners": matchCorners.substeps.length,
-  "solve": solve.substeps.length,
+  "two-look-oll": twoLookOll.substeps.length,
+  "two-look-pll": twoLookPll.substeps.length,
 };
 
 const GROUPS = [
-  { label: "Bottom Layer", ids: ["cross", "first-layer"] },
+  { label: "Bottom Layer", ids: ["cross", "corners"] },
   { label: "Middle Layer", ids: ["second-layer"] },
-  { label: "Last Layer",   ids: ["top-cross", "match-cross", "match-corners", "solve"] },
+  { label: "Last Layer",   ids: ["two-look-oll", "two-look-pll"] },
 ];
 
 export default function LearnPage() {
@@ -61,7 +53,7 @@ export default function LearnPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-[#1E293B]">Beginner Method</h1>
         <p className="mt-2 text-[#64748B]">
-          Seven steps to solve the cube, layer by layer. Work through them in order.
+          Five steps to solve the cube, layer by layer. Work through them in order.
         </p>
       </div>
 

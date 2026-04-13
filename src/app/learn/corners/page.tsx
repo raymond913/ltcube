@@ -1,18 +1,18 @@
 import { TutorialLayout } from "@/components/tutorial/TutorialLayout";
-import { matchCross, BEGINNER_STEPS } from "@/data/beginner";
+import { corners, BEGINNER_STEPS } from "@/data/beginner";
 
-export default async function MatchCrossPage({
+export default async function CornersPage({
   searchParams,
 }: {
   searchParams: Promise<{ step?: string }>;
 }) {
   const { step } = await searchParams;
   const initialSubstepIndex = step ? Math.max(0, parseInt(step) - 1) : 0;
-  const stepMeta = BEGINNER_STEPS.find((s) => s.id === "match-cross")!;
+  const stepMeta = BEGINNER_STEPS.find((s) => s.id === "corners")!;
 
   return (
     <TutorialLayout
-      stepData={matchCross}
+      stepData={corners}
       stepMeta={stepMeta}
       initialSubstepIndex={initialSubstepIndex}
     />

@@ -9,9 +9,9 @@ export const BEGINNER_STEPS: StepMeta[] = [
     estimatedMinutes: 15,
   },
   {
-    id: "first-layer",
+    id: "corners",
     title: "First Layer Corners",
-    route: "/learn/first-layer",
+    route: "/learn/corners",
     stepNumber: 2,
     estimatedMinutes: 20,
   },
@@ -23,39 +23,23 @@ export const BEGINNER_STEPS: StepMeta[] = [
     estimatedMinutes: 20,
   },
   {
-    id: "top-cross",
-    title: "Top Cross",
-    route: "/learn/top-cross",
+    id: "two-look-oll",
+    title: "OLL",
+    route: "/learn/oll",
     stepNumber: 4,
-    estimatedMinutes: 10,
+    estimatedMinutes: 25,
   },
   {
-    id: "match-cross",
-    title: "Match Cross",
-    route: "/learn/match-cross",
+    id: "two-look-pll",
+    title: "PLL",
+    route: "/learn/pll",
     stepNumber: 5,
-    estimatedMinutes: 10,
-  },
-  {
-    id: "match-corners",
-    title: "Match Corners",
-    route: "/learn/match-corners",
-    stepNumber: 6,
-    estimatedMinutes: 15,
-  },
-  {
-    id: "solve",
-    title: "Solve",
-    route: "/learn/solve",
-    stepNumber: 7,
-    estimatedMinutes: 15,
+    estimatedMinutes: 20,
   },
 ];
 
 export { cross } from "./cross";
-export { firstLayer } from "./first-layer";
+export { corners } from "./corners";
 export { secondLayer } from "./second-layer";
-export { topCross } from "./top-cross";
-export { matchCross } from "./match-cross";
-export { matchCorners } from "./match-corners";
-export { solve } from "./solve";
+export { twoLookOll } from "./two-look-oll";
+export { twoLookPll } from "./two-look-pll";
