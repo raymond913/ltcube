@@ -27,8 +27,16 @@
 }
 
 :root {
+  color-scheme: light;
   --background: #FFFFFF;
   --foreground: #1E293B;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #FFFFFF;
+    --foreground: #1E293B;
+  }
 }
 
 body {
