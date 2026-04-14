@@ -19,12 +19,14 @@ const PLL_SECTIONS: SectionDef[] = [
 export default async function PllPage({
   searchParams,
 }: {
-  searchParams: Promise<{ step?: string }>;
+  searchParams: Promise<{ step?: string; case?: string }>;
 }) {
-  const { step } = await searchParams;
+  const { step, case: caseId } = await searchParams;
   const stepMeta = BEGINNER_STEPS.find((s) => s.id === "two-look-pll")!;
 
-  const initialActiveId = step
+  const initialActiveId = caseId
+    ? caseId
+    : step
     ? twoLookPll.substeps[Math.max(0, parseInt(step) - 1)]?.id
     : undefined;
 

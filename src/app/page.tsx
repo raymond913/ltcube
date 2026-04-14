@@ -43,7 +43,7 @@ export default function HomePage() {
 
       {/* Full-viewport panel — sits in the main content area next to the sidebar */}
       <div
-        className="fixed inset-0 md:left-64 z-10 overflow-hidden flex flex-col items-center justify-center"
+        className="fixed inset-0 z-10 overflow-hidden flex flex-col items-center justify-center"
         style={{
           background:
             "radial-gradient(ellipse 80% 60% at 50% 35%, #1e003d 0%, #0a0018 45%, #000000 100%)",

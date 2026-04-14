@@ -27,12 +27,14 @@ const OLL_SECTIONS: SectionDef[] = [
 export default async function OllPage({
   searchParams,
 }: {
-  searchParams: Promise<{ step?: string }>;
+  searchParams: Promise<{ step?: string; case?: string }>;
 }) {
-  const { step } = await searchParams;
+  const { step, case: caseId } = await searchParams;
   const stepMeta = BEGINNER_STEPS.find((s) => s.id === "two-look-oll")!;
 
-  const initialActiveId = step
+  const initialActiveId = caseId
+    ? caseId
+    : step
     ? twoLookOll.substeps[Math.max(0, parseInt(step) - 1)]?.id
     : undefined;
 
