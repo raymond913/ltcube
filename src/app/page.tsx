@@ -4,8 +4,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-const CubeViewer = dynamic(
-  () => import("@/components/cube/CubeViewer").then((m) => m.CubeViewer),
+const HeroCube = dynamic(
+  () => import("@/components/landing/HeroCube").then((m) => m.HeroCube),
   {
     ssr: false,
     loading: () => (
@@ -74,7 +74,7 @@ export default function HomePage() {
                 </div>
               }
             >
-              <CubeViewer size={300} interactive />
+              <HeroCube size={300} />
             </Suspense>
           </div>
 
