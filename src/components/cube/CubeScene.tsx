@@ -283,7 +283,7 @@ interface CubeSceneProps {
   /** Accepted for API compatibility with CubeViewer — not used for rendering in this architecture. */
   cubeState?: CubeFaces;
   /** Position keys ("x,y,z") of cubies to render normally; all others render as black body with no stickers. When undefined or empty, all cubies render normally. */
-  highlightedCubies?: string[];
+  visibleCubies?: string[];
   onReady?: () => void;
   /** Camera view mode: "default" = standard angle, "white-up" = top-down showing white face */
   viewMode?: "default" | "white-up";
@@ -291,33 +291,29 @@ interface CubeSceneProps {
   arrows?: Arrow[];
 }
 
-function applyAppearance(cubies: THREE.Group[], highlightedKeys: Set<string>): void {
+function applyAppearance(cubies: THREE.Group[], visibleKeys: Set<string>): void {
   cubies.forEach((cubie, idx) => {
     const [x, y, z] = CUBIE_POSITIONS[idx];
     const key = `${x},${y},${z}`;
-    const isHighlighted = highlightedKeys.size === 0 || highlightedKeys.has(key);
+    const isVisible = visibleKeys.size === 0 || visibleKeys.has(key);
     cubie.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
       const mat = obj.material as THREE.MeshStandardMaterial;
-      if (!isHighlighted) {
-        if (obj.userData.isSticker) {
-          mat.opacity = 0;
-          mat.transparent = true;
-        } else {
-          mat.color.set("#1E1E1E");
-          mat.opacity = 1;
-          mat.transparent = false;
-        }
+      if (!isVisible) {
+        mat.color.set(obj.userData.isSticker ? (obj.userData.originalColor as string) : "#3A3A3A");
+        mat.opacity = 0.25;
+        mat.transparent = true;
       } else {
         mat.color.set((obj.userData.originalColor as string) ?? "#1E1E1E");
         mat.opacity = 1;
         mat.transparent = false;
       }
+      mat.needsUpdate = true;
     });
   });
 }
 
-function AnimatedScene({ interactive, highlightedCubies, viewMode, arrows }: CubeSceneProps) {
+function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSceneProps) {
   const { scene, camera } = useThree();
   const orbitRef = useRef<any>(null);
 
@@ -327,8 +323,8 @@ function AnimatedScene({ interactive, highlightedCubies, viewMode, arrows }: Cub
   const moveLogRef     = useRef<string[]>([]);
 
   // ---- Highlighted cubies state -------------------------------------------
-  const highlightedCubiesRef = useRef<string[]>([]);
-  highlightedCubiesRef.current = highlightedCubies ?? [];
+  const visibleCubiesRef = useRef<string[]>([]);
+  visibleCubiesRef.current = visibleCubies ?? [];
 
   const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
 
@@ -465,7 +461,7 @@ function AnimatedScene({ interactive, highlightedCubies, viewMode, arrows }: Cub
       }
 
       // Re-apply appearance after cubies have been repositioned
-      applyAppearance(cubies, new Set(highlightedCubiesRef.current));
+      applyAppearance(cubies, new Set(visibleCubiesRef.current));
     };
 
     registerInstantHandler(handler);
@@ -516,12 +512,12 @@ function AnimatedScene({ interactive, highlightedCubies, viewMode, arrows }: Cub
     return () => unsub();
   }, [scene]);
 
-  // ---- Appearance: update cubie materials when highlightedCubies changes --
+  // ---- Appearance: update cubie materials when visibleCubies changes --
   useEffect(() => {
     if (cubiesRef.current.length) {
-      applyAppearance(cubiesRef.current, new Set(highlightedCubies ?? []));
+      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []));
     }
-  }, [highlightedCubies]);
+  }, [visibleCubies]);
 
   // ---- Camera view mode animation -----------------------------------------
   useEffect(() => {
@@ -568,7 +564,7 @@ function AnimatedScene({ interactive, highlightedCubies, viewMode, arrows }: Cub
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, highlightedCubies, onReady, viewMode, arrows }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows }: CubeSceneProps) {
   return (
     <Canvas
       camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
@@ -579,7 +575,7 @@ export function CubeScene({ interactive, cubeState, highlightedCubies, onReady, 
       <AnimatedScene
         interactive={interactive}
         cubeState={cubeState}
-        highlightedCubies={highlightedCubies}
+        visibleCubies={visibleCubies}
         viewMode={viewMode}
         arrows={arrows}
       />

@@ -27,18 +27,21 @@ Next.js App Router, TypeScript, React Three Fiber, Tailwind CSS v4, Zustand + lo
 - Body material: roughness 0.7, metalness 0.1
 - Cubie gap: 0.06 units
 - Lighting: ambient 0.5, directional [5,8,6] at 0.7, fill [-3,-2,-4] at 0.3
-- Gray-out system: grayedOut cubies render in #9CA3AF at 0.6 opacity
+- Ghost system: non-visibleCubies render as transparent ghost (body #3A3A3A + stickers at 0.25 opacity, transparent: true)
 - Persistent cubie architecture: colors never reassigned, cubies carry stickers permanently
 
 ## Cube Colors
 R(+X): #DC2626, L(-X): #EA580C, U(+Y): #EAB308, D(-Y): #FFFFFF, F(+Z): #2563EB, B(-Z): #16A34A
 
 ## Tutorial Design
-- Cross: white on top (x2 prefix), short intuitive moves (1-4 moves), gray out irrelevant pieces
-- Corners: short example moves (3-6 moves), gray out irrelevant pieces
-- Second Layer: "Edge Goes Right" / "Edge Goes Left" / "Edge Stuck & Flipped"
-- OLL/PLL: standard algorithms, no gray-out, F2L solved in starting state
+- Cross: white on top (x2 prefix), short intuitive moves (1-4 moves), visibleCubies ghosts irrelevant pieces
+- Corners: short example moves (3-6 moves), visibleCubies ghosts irrelevant pieces
+- Second Layer: "Edge Goes Right" / "Edge Goes Left" / "Edge in Wrong Slot" / "Edge Flipped in Slot"
+- OLL: 10 cases in recognition order — 3 edge orientation (Dot, Small L, Line) then 7 corner orientation (Sune, Anti-Sune, H, Pi, U, T, L)
+- PLL: 6 cases in recognition order — 2 corner perms (Adjacent, Diagonal) then 4 edge perms (Ua, Ub, H, Z)
+- OLL/PLL: no visibleCubies (all pieces visible), F2L solved in starting state
 - initialState = inverse of algorithm, guarantees playing the algorithm solves the case
+- visibleCubies prop flows: TutorialLayout → AlgorithmPlayer → CubeViewer → CubeScene.applyAppearance
 
 ## 3D Cube Architecture
 - 26 persistent THREE.Group cubie objects — colors NEVER reassigned
@@ -59,5 +62,5 @@ Light/clean theme. White/#F8FAFC backgrounds, blue #2563EB accent, Inter font.
 /, /learn, /learn/white-cross, /learn/white-corners, /learn/second-layer, /learn/oll, /learn/pll, /trainer, /progress, /reference
 
 ## Build Status
-Phases 1-4: ✅ (with pivot revisions in progress)
-Phase 5-7: pending
+Phases 1-5: ✅ (tutorial data, ghost system, visibleCubies wiring complete)
+Phase 6-7: pending

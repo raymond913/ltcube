@@ -67,7 +67,7 @@ export function TutorialLayout({
             showViewToggle={showViewToggle}
             arrows={activeSubstep.arrows}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
-              ? { highlightedCubies: activeSubstep.visibleCubies }
+              ? { visibleCubies: activeSubstep.visibleCubies }
               : {})}
           />
         </div>

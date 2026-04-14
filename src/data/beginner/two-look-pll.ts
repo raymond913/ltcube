@@ -13,20 +13,20 @@ export const twoLookPll: TutorialStep = {
   ],
   substeps: [
     {
-      id: "pll-adj",
-      title: "Adjacent Swap",
+      id: "pll-adjacent",
+      title: "Adjacent Corner Swap (with headlights)",
       explanation:
-        "Two adjacent corners are swapped. Hold the cube so the two swapped corners are at the UFR and UBR positions (front-right and back-right), then apply Adjacent Swap.",
+        "Find a side with two matching corners (headlights). Hold them at the back. The other two corners need to swap.",
       algorithm: "R U R' U' R' F R2 U' R' U' R U R' F'",
       algorithmName: "Adjacent Swap",
       initialState: "F R U' R' U R U R2' F' R U R U' R'",
       highlightPieces: ["UFR", "UBR"],
     },
     {
-      id: "pll-diag",
-      title: "Diagonal Swap",
+      id: "pll-diagonal",
+      title: "Diagonal Corner Swap (no headlights)",
       explanation:
-        "Two diagonal corners are swapped. Any AUF is fine. Apply Diagonal Swap — it's the only case where no two adjacent corners match.",
+        "No matching corners on any side. Two diagonal corners need to swap.",
       algorithm: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
       algorithmName: "Diagonal Swap",
       initialState: "F R' F' R U R U' R' F R' U' R U R U' R' F'",
@@ -34,17 +34,17 @@ export const twoLookPll: TutorialStep = {
     },
     {
       id: "pll-ua",
-      title: "Ua Perm",
+      title: "Ua Perm — 3-edge cycle clockwise",
       explanation:
         "Three edges cycle counter-clockwise. Hold the cube so the one correct edge is at the back (UB), then apply Ua.",
       algorithm: "R U' R U R U R U' R' U' R2",
       algorithmName: "Ua Perm",
-      initialState: "R2' U U R U R U R' U R' U' R'",
+      initialState: "R2' U R U R U' R' U' R' U' R",
       highlightPieces: ["UF", "UL", "UR"],
     },
     {
       id: "pll-ub",
-      title: "Ub Perm",
+      title: "Ub Perm — 3-edge cycle counter-clockwise",
       explanation:
         "Three edges cycle clockwise. Hold the cube so the one correct edge is at the back (UB), then apply Ub.",
       algorithm: "R2 U R U R' U' R' U' R' U R'",
@@ -54,7 +54,7 @@ export const twoLookPll: TutorialStep = {
     },
     {
       id: "pll-h",
-      title: "H Perm",
+      title: "H Perm — opposite edges swap",
       explanation:
         "Opposite edges are swapped in pairs. Both UF↔UB and UL↔UR are swapped. Any AUF. Apply H Perm.",
       algorithm: "M2 U M2 U2 M2 U M2",
@@ -64,7 +64,7 @@ export const twoLookPll: TutorialStep = {
     },
     {
       id: "pll-z",
-      title: "Z Perm",
+      title: "Z Perm — adjacent edges swap",
       explanation:
         "Adjacent edges are swapped in pairs. UF↔UR and UB↔UL are swapped. Hold the cube so one matched pair is at the front-right, then apply Z Perm.",
       algorithm: "M2 U M2 U M' U2 M2 U2 M'",

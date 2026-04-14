@@ -3,58 +3,69 @@ import type { TutorialStep } from "@/lib/tutorialTypes";
 export const corners: TutorialStep = {
   id: "corners",
   title: "White Corners",
-  description:
-    "Now fill in the four white corner pieces to complete the first layer. Every corner is solved using one repeated algorithm: R U R' U'. The number of repetitions depends on the corner's orientation.",
-  concepts: [
-    "Corner orientation: the white sticker can face right, up, or front",
-    "R U R' U' (the Sexy Move) inserts a corner from above its slot",
-    "A corner trapped in the bottom layer must be extracted with R U R' first",
-  ],
+  description: "Fill in the four white corner pieces to complete the first layer. Short algorithms insert each corner from the D layer into its slot.",
+  concepts: ["corner orientation: white faces right, front, or down", "R' D' R insert", "F D F' insert", "extract twisted corner"],
   substeps: [
     {
-      id: "wco-white-right",
-      title: "Corner below slot — white faces right",
-      explanation:
-        "The white-blue-red corner is in the bottom layer below its slot. The white sticker faces the right side. Use R' D' R to slot it in.",
+      id: "co-white-right",
+      title: "Corner below slot, white on right",
+      explanation: "The corner is in the D layer below its slot with white facing right. R' D' R slots it in directly.",
       algorithm: "R' D' R",
       initialState: "R' D R",
-      arrows: [
-        { from: [1, -1, -1], to: [1, -1, 1] },
+      highlightPieces: ["white-blue-red", "white-center", "blue-center", "red-center"],
+      visibleCubies: [
+        "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0",
+        "0,0,1", "1,0,0",
+        "1,-1,1", "1,-1,-1",
       ],
-      tip: "This is the most common corner case. Get comfortable with R' D' R.",
+      arrows: [
+        { from: [1, -1, -1], to: [1, -1, 1], color: "#EAB308" },
+      ],
     },
     {
-      id: "wco-white-front",
-      title: "Corner below slot — white faces front",
-      explanation:
-        "Same corner, but now white faces the front. Use F D F' to insert.",
+      id: "co-white-front",
+      title: "Corner below slot, white on front",
+      explanation: "Same corner, white is facing the front instead. F D F' does the job.",
       algorithm: "F D F'",
       initialState: "F D' F'",
-      arrows: [
-        { from: [-1, -1, 1], to: [1, -1, 1] },
+      highlightPieces: ["white-blue-red", "white-center", "blue-center", "red-center"],
+      visibleCubies: [
+        "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0",
+        "0,0,1", "1,0,0",
+        "1,-1,1", "-1,-1,1",
       ],
-      tip: "Notice how this is a mirror of the first case — F D F' instead of R' D' R.",
+      arrows: [
+        { from: [-1, -1, 1], to: [1, -1, 1], color: "#EAB308" },
+      ],
     },
     {
-      id: "wco-white-down",
-      title: "Corner below slot — white faces down",
-      explanation:
-        "The tricky case — white faces downward. Use R' D R F D2 F' to reorient and insert.",
+      id: "co-white-down",
+      title: "Corner below slot, white facing down",
+      explanation: "White faces downward — the trickiest orientation. R' D R kicks it to a better spot, then F D2 F' inserts it.",
       algorithm: "R' D R F D2 F'",
       initialState: "F D2' R' D' R F'",
-      arrows: [
-        { from: [-1, -1, -1], to: [1, -1, 1] },
+      highlightPieces: ["white-blue-red", "white-center", "blue-center", "red-center"],
+      visibleCubies: [
+        "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0",
+        "0,0,1", "1,0,0",
+        "1,-1,1", "-1,-1,1",
       ],
-      tip: "This is the longest corner case. The first 3 moves kick it out, the last 3 slot it correctly.",
+      arrows: [
+        { from: [-1, -1, 1], to: [1, -1, 1], color: "#EAB308" },
+      ],
     },
     {
-      id: "wco-stuck-twisted",
-      title: "Corner in slot but twisted",
-      explanation:
-        "The corner is in the right place but rotated wrong. Use R' D R to pop it out to the bottom layer, then solve it normally.",
+      id: "co-twisted",
+      title: "Corner in slot, twisted",
+      explanation: "The corner is physically in the right slot but rotated wrong. Extract it with R' D R, rotate with D', then reinsert.",
       algorithm: "R' D R D' R' D' R",
       initialState: "R' D R D R' D' R",
-      tip: "If a corner is twisted in place, always extract it first — don't try to fix it in place.",
+      highlightPieces: ["white-blue-red", "white-center", "blue-center", "red-center"],
+      visibleCubies: [
+        "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0",
+        "0,0,1", "1,0,0",
+        "1,-1,1",
+      ],
     },
   ],
 };

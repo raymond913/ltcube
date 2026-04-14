@@ -26,7 +26,7 @@ interface CubeViewerProps {
   /** Override cube state (uses store state if omitted) */
   cubeState?: CubeFaces;
   /** Position keys ("x,y,z") of cubies to show normally; all others render as black body with no stickers. */
-  highlightedCubies?: string[];
+  visibleCubies?: string[];
   /** Called once when the Canvas is mounted and ready */
   onReady?: () => void;
   /** Camera view mode */
@@ -40,7 +40,7 @@ export function CubeViewer({
   interactive = true,
   className = "",
   cubeState,
-  highlightedCubies,
+  visibleCubies,
   onReady,
   viewMode,
   arrows,
@@ -53,7 +53,7 @@ export function CubeViewer({
       <CubeScene
         interactive={interactive}
         cubeState={cubeState}
-        highlightedCubies={highlightedCubies}
+        visibleCubies={visibleCubies}
         onReady={onReady}
         viewMode={viewMode}
         arrows={arrows}

@@ -67,7 +67,7 @@ interface AlgorithmPlayerProps {
   initialStateAlg?: string;
   initialState?: CubeFaces;
   /** Position keys ("x,y,z") of cubies to highlight; shown at step 0 / after completion */
-  highlightedCubies?: string[];
+  visibleCubies?: string[];
   title?: string;
   description?: string;
   showViewToggle?: boolean;
@@ -82,7 +82,7 @@ export function AlgorithmPlayer({
   algorithm,
   initialStateAlg,
   initialState,
-  highlightedCubies,
+  visibleCubies,
   title,
   description,
   showViewToggle,
@@ -259,7 +259,7 @@ export function AlgorithmPlayer({
         <CubeViewer
           size={300}
           interactive
-          highlightedCubies={showTeachingState ? highlightedCubies : undefined}
+          visibleCubies={showTeachingState ? visibleCubies : undefined}
           viewMode={viewMode}
           arrows={showTeachingState ? arrows : undefined}
         />
