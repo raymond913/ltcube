@@ -1,13 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  /* Base colors */
-  --color-background: #FFFFFF;
-  --color-surface: #F8FAFC;
-  --color-text: #1E293B;
+  /* Surfaces */
+  --color-background: #F4F6FB;
+  --color-surface: #FFFFFF;
+  --color-text: #0F172A;
   --color-muted: #64748B;
+  --color-subtle: #94A3B8;
+  --color-border: #E2E8F0;
 
-  /* Primary accent */
+  /* Primary */
   --color-primary: #2563EB;
   --color-primary-hover: #1D4ED8;
 
@@ -19,30 +21,71 @@
   --color-cube-yellow: #EAB308;
   --color-cube-white: #FFFFFF;
 
-  /* Typography */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Step accent colors */
+  --color-step-cross: #2563EB;
+  --color-step-corners: #16A34A;
+  --color-step-layer: #EA580C;
+  --color-step-oll: #CA8A04;
+  --color-step-pll: #9333EA;
 
-  /* Spacing */
+  /* Typography */
+  --font-sans: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+
   --spacing-sidebar: 16rem;
 }
 
 :root {
   color-scheme: light;
-  --background: #FFFFFF;
-  --foreground: #1E293B;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #FFFFFF;
-    --foreground: #1E293B;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  background-color: #F4F6FB;
+  background-image: radial-gradient(circle, #CBD5E0 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: #0F172A;
+  font-family: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Refined scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Page fade-in */
+@keyframes ltc-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ltc-page {
+  animation: ltc-page-in 0.25s ease-out both;
 }
