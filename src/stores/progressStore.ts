@@ -9,12 +9,19 @@ interface TrainerStats {
   lastSessionDate: string | null;
 }
 
+interface SessionRecord {
+  date: string;
+  accuracy: number;
+}
+
 interface ProgressState {
   completedSteps: string[];
   learnedCases: string[];
   trainerStats: TrainerStats;
   streakCount: number;
   bestStreak: number;
+  sessionHistory: SessionRecord[];
+  activityDates: string[];
 
   // Actions
   completeStep: (id: string) => void;
@@ -32,6 +39,10 @@ const defaultStats: TrainerStats = {
   lastSessionDate: null,
 };
 
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export const useProgressStore = create<ProgressState>()(
   persist(
     (set, get) => ({
@@ -40,11 +51,19 @@ export const useProgressStore = create<ProgressState>()(
       trainerStats: defaultStats,
       streakCount: 0,
       bestStreak: 0,
+      sessionHistory: [],
+      activityDates: [],
 
       completeStep: (id) => {
-        const { completedSteps } = get();
+        const { completedSteps, activityDates } = get();
         if (!completedSteps.includes(id)) {
-          set({ completedSteps: [...completedSteps, id] });
+          const today = todayStr();
+          set({
+            completedSteps: [...completedSteps, id],
+            activityDates: activityDates.includes(today)
+              ? activityDates
+              : [...activityDates, today],
+          });
         }
       },
 
@@ -56,11 +75,12 @@ export const useProgressStore = create<ProgressState>()(
       },
 
       recordTrainerSession: (correct, total, avgTime) => {
-        const { trainerStats } = get();
+        const { trainerStats, sessionHistory, activityDates } = get();
         const sessions = trainerStats.totalSessions + 1;
-        // Running weighted average for avgTimeMs
         const newAvg =
           (trainerStats.avgTimeMs * trainerStats.totalSessions + avgTime) / sessions;
+        const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+        const today = todayStr();
 
         set({
           trainerStats: {
@@ -70,6 +90,13 @@ export const useProgressStore = create<ProgressState>()(
             avgTimeMs: Math.round(newAvg),
             lastSessionDate: new Date().toISOString(),
           },
+          sessionHistory: [
+            ...sessionHistory.slice(-19),
+            { date: today, accuracy },
+          ],
+          activityDates: activityDates.includes(today)
+            ? activityDates
+            : [...activityDates, today],
         });
       },
 
@@ -80,7 +107,7 @@ export const useProgressStore = create<ProgressState>()(
           ? new Date(trainerStats.lastSessionDate).toDateString()
           : null;
 
-        if (lastSession === today) return; // already updated today
+        if (lastSession === today) return;
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -100,6 +127,8 @@ export const useProgressStore = create<ProgressState>()(
           trainerStats: defaultStats,
           streakCount: 0,
           bestStreak: 0,
+          sessionHistory: [],
+          activityDates: [],
         });
       },
     }),
