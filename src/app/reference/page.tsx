@@ -193,12 +193,6 @@ const ALL_SECTIONS = [OLL_SECTION, PLL_SECTION, BEGINNER_SECTION];
 // Helpers
 // ---------------------------------------------------------------------------
 
-function flatCases(section: Section): CaseEntry[] {
-  return section.subsections.flatMap((s) => s.cases);
-}
-
-const ALL_CASES = ALL_SECTIONS.flatMap(flatCases);
-
 function matchesSearch(entry: CaseEntry, q: string): boolean {
   if (!q) return true;
   const lower = q.toLowerCase();
