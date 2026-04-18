@@ -5,7 +5,7 @@ export default function NotFound() {
     <div
       className="flex flex-col items-center justify-center min-h-screen gap-8 text-center px-6"
       style={{
-        backgroundColor: "oklch(99% 0.004 250)",
+        backgroundColor: "var(--color-background)",
         backgroundImage: "radial-gradient(circle, oklch(87% 0.008 250) 1px, transparent 1px)",
         backgroundSize: "28px 28px",
       }}
@@ -40,13 +40,13 @@ export default function NotFound() {
         </p>
         <h1
           className="text-2xl font-semibold"
-          style={{ color: "oklch(18% 0.01 250)" }}
+          style={{ color: "var(--color-text)" }}
         >
           Page not found
         </h1>
         <p
           className="max-w-xs leading-relaxed text-sm"
-          style={{ color: "oklch(50% 0.012 250)" }}
+          style={{ color: "var(--color-muted)" }}
         >
           That page doesn&apos;t exist — but the cube does. Let&apos;s get you back on track.
         </p>

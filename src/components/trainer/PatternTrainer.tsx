@@ -251,10 +251,10 @@ export function PatternTrainer() {
     <div className="flex flex-col items-center gap-6 w-full max-w-lg mx-auto">
       {/* Score + round */}
       <div className="flex w-full items-center justify-between">
-        <span className="text-sm font-medium" style={{ color: "oklch(50% 0.012 250)" }}>
+        <span className="text-sm font-medium" style={{ color: "var(--color-muted)" }}>
           Round {roundIndex + 1} / {ROUNDS}
         </span>
-        <span className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+        <span className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
           Score: {results.filter((r) => r.correct).length} / {results.length}
         </span>
       </div>
@@ -263,7 +263,7 @@ export function PatternTrainer() {
       {timed && phase === "quiz" && (
         <div
           className="w-full h-2 rounded-full overflow-hidden"
-          style={{ background: "oklch(91% 0.008 250)" }}
+          style={{ background: "var(--color-border-subtle)" }}
         >
           <div
             className="h-full rounded-full transition-none"
@@ -341,9 +341,9 @@ export function PatternTrainer() {
               onClick={() => handleAnswer(c, roundIndex, rounds)}
               className="ltc-hover-choice min-h-[44px] rounded-lg px-4 py-3 text-sm font-medium text-left transition-all duration-150"
               style={{
-                background: "oklch(100% 0 0)",
-                border: "1px solid oklch(89% 0.01 250)",
-                color: "oklch(18% 0.01 250)",
+                background: "var(--color-surface-elevated)",
+                border: "1px solid var(--color-border)",
+                color: "var(--color-text)",
               }}
             >
               {c.title}
@@ -359,7 +359,7 @@ export function PatternTrainer() {
             onClick={() => setShowSolution((s) => !s)}
             className="ltc-hover-blue flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150"
             style={{
-              background: "oklch(100% 0 0)",
+              background: "var(--color-surface-elevated)",
               border: "1px solid #2563EB",
               color: "#2563EB",
             }}
@@ -404,7 +404,7 @@ function SetupScreen({
   return (
     <div className="flex flex-col gap-6 w-full max-w-lg mx-auto">
       <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: "var(--color-text)" }}>
           Choose category
         </h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -416,14 +416,14 @@ function SetupScreen({
               style={
                 category === key
                   ? {
-                      background: "oklch(94% 0.04 255)",
+                      background: "var(--color-primary-light)",
                       border: "1px solid #2563EB",
                       color: "#2563EB",
                     }
                   : {
-                      background: "oklch(100% 0 0)",
-                      border: "1px solid oklch(89% 0.01 250)",
-                      color: "oklch(18% 0.01 250)",
+                      background: "var(--color-surface-elevated)",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-text)",
                     }
               }
             >
@@ -434,7 +434,7 @@ function SetupScreen({
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: "var(--color-text)" }}>
           Timer
         </h2>
         <div className="flex gap-2">
@@ -451,14 +451,14 @@ function SetupScreen({
               style={
                 timed === val
                   ? {
-                      background: "oklch(94% 0.04 255)",
+                      background: "var(--color-primary-light)",
                       border: "1px solid #2563EB",
                       color: "#2563EB",
                     }
                   : {
-                      background: "oklch(100% 0 0)",
-                      border: "1px solid oklch(89% 0.01 250)",
-                      color: "oklch(18% 0.01 250)",
+                      background: "var(--color-surface-elevated)",
+                      border: "1px solid var(--color-border)",
+                      color: "var(--color-text)",
                     }
               }
             >
@@ -507,40 +507,40 @@ function ResultsScreen({
       <div
         className="rounded-xl p-6 flex flex-col gap-4"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
         }}
       >
-        <h2 className="text-xl font-bold" style={{ color: "oklch(18% 0.01 250)" }}>Results</h2>
+        <h2 className="text-xl font-bold" style={{ color: "var(--color-text)" }}>Results</h2>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="font-display text-3xl font-bold" style={{ color: "#2563EB" }}>
               {correct}/{total}
             </p>
-            <p className="text-xs mt-1" style={{ color: "oklch(50% 0.012 250)" }}>Correct</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>Correct</p>
           </div>
           <div>
-            <p className="font-display text-3xl font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+            <p className="font-display text-3xl font-bold" style={{ color: "var(--color-text)" }}>
               {pct}%
             </p>
-            <p className="text-xs mt-1" style={{ color: "oklch(50% 0.012 250)" }}>Accuracy</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>Accuracy</p>
           </div>
           <div>
-            <p className="font-display text-3xl font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+            <p className="font-display text-3xl font-bold" style={{ color: "var(--color-text)" }}>
               {avgSec}s
             </p>
-            <p className="text-xs mt-1" style={{ color: "oklch(50% 0.012 250)" }}>Avg time</p>
+            <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>Avg time</p>
           </div>
         </div>
 
         {missedUniq.length > 0 && (
           <div>
-            <p className="text-sm font-semibold mb-2" style={{ color: "oklch(18% 0.01 250)" }}>
+            <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-text)" }}>
               Cases to review
             </p>
             <ul className="flex flex-col gap-1.5">
               {missedUniq.map((r) => (
-                <li key={r.caseId} className="flex items-center gap-2 text-sm" style={{ color: "oklch(50% 0.012 250)" }}>
+                <li key={r.caseId} className="flex items-center gap-2 text-sm" style={{ color: "var(--color-muted)" }}>
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#DC2626" }} />
                   {r.caseTitle}
                 </li>
@@ -562,9 +562,9 @@ function ResultsScreen({
           onClick={onChangeSettings}
           className="ltc-hover-subtle flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150"
           style={{
-            background: "oklch(100% 0 0)",
-            border: "1px solid oklch(89% 0.01 250)",
-            color: "oklch(18% 0.01 250)",
+            background: "var(--color-surface-elevated)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text)",
           }}
         >
           Change Settings

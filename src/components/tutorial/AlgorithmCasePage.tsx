@@ -66,11 +66,11 @@ export function AlgorithmCasePage({
         </p>
         <h1
           className="text-2xl font-bold mt-0.5"
-          style={{ color: "oklch(18% 0.01 250)" }}
+          style={{ color: "var(--color-text)" }}
         >
           {stepData.title}
         </h1>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
           {stepData.description}
         </p>
       </div>
@@ -84,8 +84,8 @@ export function AlgorithmCasePage({
         <div
           className="sticky top-0 z-10 border-b py-3 md:static md:border-0 md:py-0 md:sticky md:top-6 md:z-auto flex flex-col gap-4"
           style={{
-            borderBottomColor: "oklch(89% 0.01 250)",
-            backgroundColor: "oklch(99% 0.004 250)",
+            borderBottomColor: "var(--color-border)",
+            backgroundColor: "var(--color-background)",
           }}
         >
           <AlgorithmPlayer
@@ -99,15 +99,15 @@ export function AlgorithmCasePage({
           <div
             className="hidden md:flex flex-col gap-2 rounded-xl px-4 py-3"
             style={{
-              background: "oklch(100% 0 0)",
+              background: "var(--color-surface-elevated)",
               border: `1px solid ${typeTheme.border}`,
               boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
           >
-            <p className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+            <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
               {activeSubstep.algorithmName ?? activeSubstep.title}
             </p>
-            <p className="text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
             {activeSubstep.algorithm && (
@@ -115,8 +115,8 @@ export function AlgorithmCasePage({
                 className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
                 style={{
                   color: "#2563EB",
-                  background: "oklch(94% 0.04 255)",
-                  border: "1px solid oklch(87% 0.06 255)",
+                  background: "var(--color-primary-light)",
+                  border: "1px solid var(--color-primary-light-border)",
                 }}
               >
                 {activeSubstep.algorithm}
@@ -161,11 +161,11 @@ export function AlgorithmCasePage({
                 <div>
                   <h2
                     className="text-base font-semibold"
-                    style={{ color: "oklch(18% 0.01 250)" }}
+                    style={{ color: "var(--color-text)" }}
                   >
                     {section.title}
                   </h2>
-                  <p className="text-sm mt-0.5" style={{ color: "oklch(50% 0.012 250)" }}>
+                  <p className="text-sm mt-0.5" style={{ color: "var(--color-muted)" }}>
                     {section.description}
                   </p>
                 </div>
@@ -183,8 +183,8 @@ export function AlgorithmCasePage({
                         onClick={() => setActiveId(sub.id)}
                         className={`flex flex-col items-center gap-2 rounded-xl p-3 text-left transition-all duration-150 ${!isActive ? "ltc-hover-lift-bordered" : ""}`}
                         style={{
-                          background: isActive ? typeTheme.bg : "oklch(100% 0 0)",
-                          border: `1px solid ${isActive ? typeTheme.border : "oklch(89% 0.01 250)"}`,
+                          background: isActive ? typeTheme.bg : "var(--color-surface-elevated)",
+                          border: `1px solid ${isActive ? typeTheme.border : "var(--color-border)"}`,
                           boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
                           transform: isActive ? "translateY(-1px)" : "translateY(0)",
                           ["--ltc-hover-border" as string]: typeTheme.border,
@@ -208,7 +208,7 @@ export function AlgorithmCasePage({
                         {/* Algorithm preview */}
                         {sub.algorithm && (
                           <code
-                            className="font-mono w-full text-2xs leading-relaxed line-clamp-2 break-all text-center"
+                            className="font-mono w-full text-xs leading-relaxed line-clamp-2 break-all text-center"
                             style={{
                                           color: isActive ? typeTheme.color : "oklch(55% 0.01 250)",
                             }}
@@ -228,15 +228,15 @@ export function AlgorithmCasePage({
           <div
             className="md:hidden rounded-xl px-4 py-3 flex flex-col gap-2"
             style={{
-              background: "oklch(100% 0 0)",
+              background: "var(--color-surface-elevated)",
               border: `1px solid ${typeTheme.border}`,
               boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
           >
-            <p className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+            <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
               {activeSubstep.algorithmName ?? activeSubstep.title}
             </p>
-            <p className="text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
             {activeSubstep.algorithm && (
@@ -244,8 +244,8 @@ export function AlgorithmCasePage({
                 className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
                 style={{
                   color: "#2563EB",
-                  background: "oklch(94% 0.04 255)",
-                  border: "1px solid oklch(87% 0.06 255)",
+                  background: "var(--color-primary-light)",
+                  border: "1px solid var(--color-primary-light-border)",
                 }}
               >
                 {activeSubstep.algorithm}
@@ -256,7 +256,7 @@ export function AlgorithmCasePage({
           {/* Prev / Next step navigation */}
           <div
             className="flex items-center justify-between gap-3 pt-4"
-            style={{ borderTop: "1px solid oklch(89% 0.01 250)" }}
+            style={{ borderTop: "1px solid var(--color-border)" }}
           >
             <div>
               {prevStep ? (
@@ -264,9 +264,9 @@ export function AlgorithmCasePage({
                   href={prevStep.route}
                   className="rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
                   style={{
-                    background: "oklch(100% 0 0)",
-                    border: "1px solid oklch(89% 0.01 250)",
-                    color: "oklch(50% 0.012 250)",
+                    background: "var(--color-surface-elevated)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-muted)",
                   }}
                 >
                   ← {prevStep.title}

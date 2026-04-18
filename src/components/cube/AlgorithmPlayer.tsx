@@ -209,10 +209,10 @@ export function AlgorithmPlayer({
 
   return (
     <div
-      className="w-full max-w-[500px] mx-auto flex flex-col gap-0 focus:outline-none"
+      className="w-full max-w-[500px] mx-auto flex flex-col gap-0 focus-visible:outline-none"
       style={{
-        background: "oklch(100% 0 0)",
-        border: "1px solid oklch(89% 0.01 250)",
+        background: "var(--color-surface-elevated)",
+        border: "1px solid var(--color-border)",
         borderRadius: "18px",
         boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
         overflow: "hidden",
@@ -224,18 +224,18 @@ export function AlgorithmPlayer({
       {(title || description) && (
         <div
           className="px-5 pt-4 pb-3"
-          style={{ borderBottom: "1px solid oklch(91% 0.008 250)" }}
+          style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
         >
           {title && (
             <p
               className="font-display font-semibold text-sm leading-tight"
-              style={{ color: "oklch(18% 0.01 250)" }}
+              style={{ color: "var(--color-text)" }}
             >
               {title}
             </p>
           )}
           {description && (
-            <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+            <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {description}
             </p>
           )}
@@ -254,10 +254,10 @@ export function AlgorithmPlayer({
         {showViewToggle && (
           <button
             onClick={() => setViewMode((v) => v === "white-up" ? "default" : "white-up")}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150"
+            className="rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
             style={{
-              background: viewMode === "white-up" ? "oklch(94% 0.04 255)" : "oklch(97% 0.003 250)",
-              border: `1px solid ${viewMode === "white-up" ? "oklch(87% 0.06 255)" : "oklch(89% 0.01 250)"}`,
+              background: viewMode === "white-up" ? "var(--color-primary-light)" : "oklch(97% 0.003 250)",
+              border: `1px solid ${viewMode === "white-up" ? "var(--color-primary-light-border)" : "var(--color-border)"}`,
               color: viewMode === "white-up" ? "#2563EB" : "oklch(52% 0.012 250)",
             }}
           >
@@ -267,11 +267,11 @@ export function AlgorithmPlayer({
       </div>
 
       {/* ── Thin progress bar ── */}
-      <div className="mx-5 mb-3" style={{ height: "2px", background: "oklch(91% 0.008 250)", borderRadius: "1px" }}>
+      <div className="mx-5 mb-3" style={{ height: "2px", background: "var(--color-border-subtle)", borderRadius: "1px", overflow: "hidden" }}>
         <div
-          className="h-full rounded-full transition-all duration-300"
+          className="h-full w-full rounded-full transition-transform duration-300 origin-left"
           style={{
-            width: `${progressPct}%`,
+            transform: `scaleX(${progressPct / 100})`,
             background: "#2563EB",
           }}
         />
@@ -281,8 +281,8 @@ export function AlgorithmPlayer({
       <div
         className="flex flex-col gap-2 mx-5 mb-3 px-3 py-3 rounded-xl"
         style={{
-          background: "oklch(97.5% 0.005 250)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
         }}
       >
         {/* Dot navigator — each button has padding for 44px touch target */}
@@ -359,7 +359,7 @@ export function AlgorithmPlayer({
       {/* ── Transport controls ── */}
       <div
         className="flex items-center justify-between gap-3 px-5 pt-3 pb-4 flex-wrap"
-        style={{ borderTop: "1px solid oklch(91% 0.008 250)" }}
+        style={{ borderTop: "1px solid var(--color-border-subtle)" }}
       >
         {/* Playback buttons */}
         <div className="flex items-center gap-1.5">
@@ -374,8 +374,8 @@ export function AlgorithmPlayer({
               width: "40px",
               height: "40px",
               background: "oklch(97% 0.003 250)",
-              border: "1px solid oklch(89% 0.01 250)",
-              color: "oklch(50% 0.012 250)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-muted)",
             }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -393,8 +393,8 @@ export function AlgorithmPlayer({
             style={{
               width: "44px",
               height: "44px",
-              backgroundColor: isPlaying ? "oklch(94% 0.04 255)" : "#2563EB",
-              border: isPlaying ? "1px solid oklch(87% 0.06 255)" : "none",
+              backgroundColor: isPlaying ? "var(--color-primary-light)" : "#2563EB",
+              border: isPlaying ? "1px solid var(--color-primary-light-border)" : "none",
               color: isPlaying ? "#2563EB" : "#fff",
               boxShadow: !isPlaying && !isAtEnd ? "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(37,99,235,0.3)" : "none",
             }}
@@ -422,8 +422,8 @@ export function AlgorithmPlayer({
               width: "40px",
               height: "40px",
               background: "oklch(97% 0.003 250)",
-              border: "1px solid oklch(89% 0.01 250)",
-              color: "oklch(50% 0.012 250)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-muted)",
             }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -441,7 +441,7 @@ export function AlgorithmPlayer({
               width: "40px",
               height: "40px",
               background: "oklch(97% 0.003 250)",
-              border: "1px solid oklch(89% 0.01 250)",
+              border: "1px solid var(--color-border)",
               color: "oklch(62% 0.01 250)",
             }}
           >
@@ -457,7 +457,7 @@ export function AlgorithmPlayer({
           className="flex items-center rounded-xl overflow-hidden"
           style={{
             background: "oklch(97% 0.003 250)",
-            border: "1px solid oklch(89% 0.01 250)",
+            border: "1px solid var(--color-border)",
           }}
         >
           {SPEEDS.map((s) => (

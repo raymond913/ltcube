@@ -29,7 +29,7 @@ export default function HomePage() {
     <div
       className="min-h-screen w-full flex flex-col items-center justify-center px-6 py-16 relative"
       style={{
-        backgroundColor: "oklch(99% 0.004 250)",
+        backgroundColor: "var(--color-background)",
         backgroundImage: "radial-gradient(circle, oklch(87% 0.008 250) 1px, transparent 1px)",
         backgroundSize: "28px 28px",
       }}
@@ -54,13 +54,13 @@ export default function HomePage() {
         <div className="flex flex-col gap-3">
           <h1
             className="text-4xl md:text-5xl font-bold leading-tight tracking-tight"
-            style={{ color: "oklch(18% 0.01 250)" }}
+            style={{ color: "var(--color-text)" }}
           >
             Learn to solve<br />the Rubik&apos;s Cube
           </h1>
           <p
             className="text-base md:text-lg leading-relaxed max-w-sm mx-auto"
-            style={{ color: "oklch(50% 0.012 250)" }}
+            style={{ color: "var(--color-muted)" }}
           >
             Interactive 3D tutorials. Step through every algorithm on a live cube. Beginner-friendly — done in an afternoon.
           </p>

@@ -58,8 +58,8 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
     <div
       className="ltc-hover-lift-lg group flex flex-col rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer"
       style={{
-        background: "oklch(100% 0 0)",
-        border: "1px solid oklch(89% 0.01 250)",
+        background: "var(--color-surface-elevated)",
+        border: "1px solid var(--color-border)",
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         ["--ltc-hover-border" as string]: theme.border,
       }}
@@ -67,7 +67,7 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
       {/* Diagram area */}
       <div
         className="flex items-center justify-center py-5"
-        style={{ background: "oklch(97.5% 0.005 250)" }}
+        style={{ background: "var(--color-surface)" }}
       >
         <CaseRecognition substepId={entry.id} type={entry.type as "oll" | "pll"} size={120} />
       </div>
@@ -83,7 +83,7 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
           </span>
           <span
             className="text-sm font-semibold truncate"
-            style={{ color: "oklch(18% 0.01 250)" }}
+            style={{ color: "var(--color-text)" }}
           >
             {entry.name}
           </span>
@@ -93,8 +93,8 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
           className="font-mono block text-xs break-all leading-relaxed rounded-lg px-2.5 py-1.5"
           style={{
             color: "#2563EB",
-            background: "oklch(94% 0.04 255)",
-            border: "1px solid oklch(87% 0.06 255)",
+            background: "var(--color-primary-light)",
+            border: "1px solid var(--color-primary-light-border)",
           }}
         >
           {entry.algorithm}
@@ -145,11 +145,11 @@ export default function ReferencePage() {
         </p>
         <h1
           className="text-3xl font-bold tracking-tight"
-          style={{ color: "oklch(18% 0.01 250)" }}
+          style={{ color: "var(--color-text)" }}
         >
           Algorithm Reference
         </h1>
-        <p className="text-sm mt-1" style={{ color: "oklch(50% 0.012 250)" }}>
+        <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>
           10 OLL cases · 6 PLL cases — click any card to open the interactive tutorial
         </p>
       </div>
@@ -160,8 +160,8 @@ export default function ReferencePage() {
         <div
           className="flex gap-1 rounded-xl p-1"
           style={{
-            background: "oklch(97.5% 0.005 250)",
-            border: "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
           }}
         >
           {FILTER_TABS.map((t) => {
@@ -172,7 +172,7 @@ export default function ReferencePage() {
                 onClick={() => setFilter(t.id)}
                 className="rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-all duration-150"
                 style={{
-                  background: isActive ? "oklch(100% 0 0)" : "transparent",
+                  background: isActive ? "var(--color-surface-elevated)" : "transparent",
                   color: isActive ? t.color : "oklch(55% 0.01 250)",
                   border: isActive ? `1px solid ${t.color}22` : "1px solid transparent",
                   boxShadow: isActive ? "0 1px 4px rgba(0,0,0,0.06)" : "none",
@@ -204,9 +204,9 @@ export default function ReferencePage() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-xl pl-8 pr-3 py-2 text-sm transition-all duration-200"
             style={{
-              background: "oklch(100% 0 0)",
-              border: "1px solid oklch(89% 0.01 250)",
-              color: "oklch(18% 0.01 250)",
+              background: "var(--color-surface-elevated)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text)",
               outline: "none",
               fontFamily: "inherit",
             }}
@@ -215,7 +215,7 @@ export default function ReferencePage() {
               (e.target as HTMLInputElement).style.boxShadow = "0 0 0 3px rgba(37,99,235,0.12)";
             }}
             onBlur={(e) => {
-              (e.target as HTMLInputElement).style.borderColor = "oklch(89% 0.01 250)";
+              (e.target as HTMLInputElement).style.borderColor = "var(--color-border)";
               (e.target as HTMLInputElement).style.boxShadow = "none";
             }}
           />
@@ -241,7 +241,7 @@ export default function ReferencePage() {
               <span className="text-xs" style={{ color: "oklch(60% 0.01 250)" }}>
                 {ollCases.length} case{ollCases.length !== 1 ? "s" : ""}
               </span>
-              <div className="flex-1 h-px" style={{ background: "oklch(89% 0.01 250)" }} />
+              <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
               <Link
                 href="/learn/oll"
                 className="ltc-hover-primary-color text-xs font-medium transition-colors duration-150"
@@ -275,7 +275,7 @@ export default function ReferencePage() {
               <span className="text-xs" style={{ color: "oklch(60% 0.01 250)" }}>
                 {pllCases.length} case{pllCases.length !== 1 ? "s" : ""}
               </span>
-              <div className="flex-1 h-px" style={{ background: "oklch(89% 0.01 250)" }} />
+              <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
               <Link
                 href="/learn/pll"
                 className="ltc-hover-primary-color text-xs font-medium transition-colors duration-150"
@@ -297,7 +297,7 @@ export default function ReferencePage() {
           <div className="flex flex-col items-center gap-3 py-20 text-center">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl"
-              style={{ background: "oklch(94% 0.04 255)", border: "1px solid oklch(87% 0.06 255)" }}
+              style={{ background: "var(--color-primary-light)", border: "1px solid var(--color-primary-light-border)" }}
             >
               🔍
             </div>

@@ -90,11 +90,11 @@ export default function LearnPage() {
         </p>
         <h1
           className="text-3xl font-bold tracking-tight"
-          style={{ color: "oklch(18% 0.01 250)" }}
+          style={{ color: "var(--color-text)" }}
         >
           Layer by Layer
         </h1>
-        <p className="text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+        <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
           Five steps to solve the cube. Work through them in order — each builds on the last.
         </p>
       </div>
@@ -103,21 +103,21 @@ export default function LearnPage() {
       <div
         className="rounded-2xl p-5"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}
       >
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+          <span className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
             Your Progress
           </span>
           <span
             className="text-xs font-semibold rounded-full px-2.5 py-1"
             style={{
               color: "#2563EB",
-              background: "oklch(94% 0.04 255)",
-              border: "1px solid oklch(87% 0.06 255)",
+              background: "var(--color-primary-light)",
+              border: "1px solid var(--color-primary-light-border)",
             }}
           >
             {completedCount} of {BEGINNER_STEPS.length} steps
@@ -134,11 +134,13 @@ export default function LearnPage() {
                 key={step.id}
                 href={step.route}
                 title={step.title}
-                className="flex-1 h-2 rounded-full transition-all duration-300 hover:opacity-75"
-                style={{
-                  backgroundColor: done ? meta.color : "oklch(91% 0.008 250)",
-                }}
-              />
+                className="flex-1 flex items-center py-3 -my-3 hover:opacity-75 transition-opacity duration-200"
+              >
+                <span
+                  className="block w-full h-2 rounded-full transition-colors duration-300"
+                  style={{ backgroundColor: done ? meta.color : "var(--color-border-subtle)" }}
+                />
+              </Link>
             );
           })}
         </div>
@@ -173,7 +175,7 @@ export default function LearnPage() {
               >
                 {group.label}
               </span>
-              <div className="flex-1 h-px" style={{ background: "oklch(89% 0.01 250)" }} />
+              <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
             </div>
 
             <ol className="flex flex-col gap-2">
@@ -188,8 +190,8 @@ export default function LearnPage() {
                       href={step.route}
                       className="ltc-hover-lift group flex items-center gap-4 rounded-xl p-4 transition-all duration-200"
                       style={{
-                        background: isDone ? meta.bg : "oklch(100% 0 0)",
-                        border: `1px solid ${isDone ? meta.border : "oklch(89% 0.01 250)"}`,
+                        background: isDone ? meta.bg : "var(--color-surface-elevated)",
+                        border: `1px solid ${isDone ? meta.border : "var(--color-border)"}`,
                         boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
                       }}
                     >
@@ -216,7 +218,7 @@ export default function LearnPage() {
                           </span>
                           <p
                             className="font-semibold text-sm"
-                            style={{ color: "oklch(18% 0.01 250)" }}
+                            style={{ color: "var(--color-text)" }}
                           >
                             {step.title}
                           </p>
@@ -248,8 +250,8 @@ export default function LearnPage() {
                       <span
                         className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all"
                         style={{
-                          background: "oklch(94% 0.04 255)",
-                          border: "1px solid oklch(87% 0.06 255)",
+                          background: "var(--color-primary-light)",
+                          border: "1px solid var(--color-primary-light-border)",
                           color: "#2563EB",
                         }}
                       >
@@ -269,11 +271,11 @@ export default function LearnPage() {
         <div
           className="rounded-2xl p-6 text-center"
           style={{
-            background: "oklch(94% 0.04 255)",
+            background: "var(--color-primary-light)",
             border: "1px dashed oklch(82% 0.08 255)",
           }}
         >
-          <p className="text-sm mb-4" style={{ color: "oklch(50% 0.012 250)" }}>
+          <p className="text-sm mb-4" style={{ color: "var(--color-muted)" }}>
             Start with the White Cross — it&apos;s the foundation of everything.
           </p>
           <Link

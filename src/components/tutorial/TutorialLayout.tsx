@@ -64,8 +64,8 @@ export function TutorialLayout({
         <div
           className="sticky top-0 z-10 border-b py-3 px-0 md:static md:border-0 md:py-0 md:sticky md:top-6 md:z-auto"
           style={{
-            borderBottomColor: "oklch(89% 0.01 250)",
-            backgroundColor: "oklch(99% 0.004 250)",
+            borderBottomColor: "var(--color-border)",
+            backgroundColor: "var(--color-background)",
           }}
         >
           <AlgorithmPlayer
@@ -87,8 +87,8 @@ export function TutorialLayout({
           <div
             className="rounded-2xl p-5"
             style={{
-              background: "oklch(100% 0 0)",
-              border: "1px solid oklch(89% 0.01 250)",
+              background: "var(--color-surface-elevated)",
+              border: "1px solid var(--color-border)",
               boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
           >
@@ -118,13 +118,13 @@ export function TutorialLayout({
             </div>
             <h1
               className="text-xl font-bold"
-              style={{ color: "oklch(18% 0.01 250)" }}
+              style={{ color: "var(--color-text)" }}
             >
               {stepData.title}
             </h1>
             <p
               className="text-sm mt-1 leading-relaxed"
-              style={{ color: "oklch(50% 0.012 250)" }}
+              style={{ color: "var(--color-muted)" }}
             >
               {stepData.description}
             </p>
@@ -134,8 +134,8 @@ export function TutorialLayout({
           <div
             className="rounded-2xl p-4"
             style={{
-              background: "oklch(100% 0 0)",
-              border: "1px solid oklch(89% 0.01 250)",
+              background: "var(--color-surface-elevated)",
+              border: "1px solid var(--color-border)",
               boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
           >
@@ -150,7 +150,7 @@ export function TutorialLayout({
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left transition-all w-full"
                     style={{
                       background: isActive ? `${accentColor}10` : "transparent",
-                      color: isActive ? accentColor : "oklch(50% 0.012 250)",
+                      color: isActive ? accentColor : "var(--color-muted)",
                       fontWeight: isActive ? 600 : 400,
                       border: isActive ? `1px solid ${accentColor}22` : "1px solid transparent",
                     }}
@@ -158,7 +158,7 @@ export function TutorialLayout({
                     <span
                       className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center font-bold text-2xs transition-all"
                       style={{
-                        borderColor: isCompleted ? accentColor : isActive ? accentColor : "oklch(82% 0.01 250)",
+                        borderColor: isCompleted ? accentColor : isActive ? accentColor : "var(--color-border-bright)",
                         background: isCompleted ? accentColor : isActive ? `${accentColor}15` : "transparent",
                         color: isCompleted ? "#fff" : isActive ? accentColor : "oklch(65% 0.01 250)",
                       }}
@@ -176,8 +176,8 @@ export function TutorialLayout({
           <div
             className="rounded-2xl p-5"
             style={{
-              background: "oklch(100% 0 0)",
-              border: "1px solid oklch(89% 0.01 250)",
+              background: "var(--color-surface-elevated)",
+              border: "1px solid var(--color-border)",
               boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
           >
@@ -199,9 +199,9 @@ export function TutorialLayout({
                   onClick={() => goToSubstep(activeIdx - 1)}
                   className="ltc-hover-prev rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
                   style={{
-                    background: "oklch(100% 0 0)",
-                    border: "1px solid oklch(89% 0.01 250)",
-                    color: "oklch(50% 0.012 250)",
+                    background: "var(--color-surface-elevated)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-muted)",
                   }}
                 >
                   ← Previous
@@ -211,9 +211,9 @@ export function TutorialLayout({
                   href={prevStep.route}
                   className="rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
                   style={{
-                    background: "oklch(100% 0 0)",
-                    border: "1px solid oklch(89% 0.01 250)",
-                    color: "oklch(50% 0.012 250)",
+                    background: "var(--color-surface-elevated)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-muted)",
                   }}
                 >
                   ← {prevStep.title}
@@ -282,15 +282,15 @@ export function TutorialLayout({
       {showAlgorithmGrid && (
         <div
           className="mt-12 pt-8"
-          style={{ borderTop: "1px solid oklch(89% 0.01 250)" }}
+          style={{ borderTop: "1px solid var(--color-border)" }}
         >
           <h2
             className="text-lg font-bold mb-1"
-            style={{ color: "oklch(18% 0.01 250)" }}
+            style={{ color: "var(--color-text)" }}
           >
             All Cases
           </h2>
-          <p className="text-sm mb-4" style={{ color: "oklch(50% 0.012 250)" }}>
+          <p className="text-sm mb-4" style={{ color: "var(--color-muted)" }}>
             Click Play on any card to load it into the player above.
           </p>
           <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" }}>

@@ -34,11 +34,11 @@ export default function TrainerPage() {
         </p>
         <h1
           className="text-3xl font-bold tracking-tight"
-          style={{ color: "oklch(18% 0.01 250)" }}
+          style={{ color: "var(--color-text)" }}
         >
           Trainer
         </h1>
-        <p className="mt-1 text-sm" style={{ color: "oklch(50% 0.012 250)" }}>
+        <p className="mt-1 text-sm" style={{ color: "var(--color-muted)" }}>
           Drill pattern recognition and build solve speed.
         </p>
       </div>
@@ -47,8 +47,8 @@ export default function TrainerPage() {
       <div
         className="flex rounded-2xl p-1 gap-1"
         style={{
-          background: "oklch(97.5% 0.005 250)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
         }}
       >
         {TABS.map((t) => {
@@ -59,8 +59,8 @@ export default function TrainerPage() {
               onClick={() => setTab(t.id)}
               className="flex-1 flex flex-col gap-0.5 rounded-xl px-4 py-3 text-left transition-all duration-200"
               style={{
-                background: isActive ? "oklch(100% 0 0)" : "transparent",
-                border: isActive ? "1px solid oklch(89% 0.01 250)" : "1px solid transparent",
+                background: isActive ? "var(--color-surface-elevated)" : "transparent",
+                border: isActive ? "1px solid var(--color-border)" : "1px solid transparent",
                 boxShadow: isActive ? "0 1px 4px rgba(0,0,0,0.06)" : "none",
               }}
             >
@@ -79,7 +79,7 @@ export default function TrainerPage() {
       </div>
 
       {/* Divider */}
-      <div className="h-px" style={{ background: "oklch(89% 0.01 250)" }} />
+      <div className="h-px" style={{ background: "var(--color-border)" }} />
 
       {/* Content */}
       {tab === "pattern" ? <PatternTrainer /> : <SolveAlong />}

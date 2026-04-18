@@ -142,26 +142,26 @@ export function SolveAlong() {
       <div className="flex flex-col items-center gap-6 w-full max-w-lg mx-auto py-8">
         <div className="text-center">
           <div className="text-5xl mb-4">🎉</div>
-          <h2 className="text-2xl font-bold mb-2" style={{ color: "oklch(18% 0.01 250)" }}>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text)" }}>
             You solved it!
           </h2>
-          <p style={{ color: "oklch(50% 0.012 250)" }}>Excellent work completing all 5 stages.</p>
+          <p style={{ color: "var(--color-muted)" }}>Excellent work completing all 5 stages.</p>
         </div>
         <div
           className="w-full rounded-xl p-4"
           style={{
-            background: "oklch(100% 0 0)",
-            border: "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface-elevated)",
+            border: "1px solid var(--color-border)",
           }}
         >
-          <p className="text-sm font-semibold mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+          <p className="text-sm font-semibold mb-3" style={{ color: "var(--color-text)" }}>
             Stages completed
           </p>
           <div className="flex flex-col gap-2">
             {STAGES.map((s) => (
               <div key={s.id} className="flex items-center gap-3 text-sm">
                 <span className="font-bold" style={{ color: "#15803D" }}>✓</span>
-                <span style={{ color: "oklch(18% 0.01 250)" }}>{s.name}</span>
+                <span style={{ color: "var(--color-text)" }}>{s.name}</span>
               </div>
             ))}
           </div>
@@ -183,12 +183,12 @@ export function SolveAlong() {
         <div
           className="rounded-xl p-5 flex flex-col gap-4"
           style={{
-            background: "oklch(100% 0 0)",
-            border: "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface-elevated)",
+            border: "1px solid var(--color-border)",
           }}
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+            <h2 className="text-base font-semibold" style={{ color: "var(--color-text)" }}>
               Scramble
             </h2>
             <button
@@ -203,18 +203,18 @@ export function SolveAlong() {
           <div
             className="font-mono text-sm rounded-lg px-4 py-3 tracking-wide break-all"
             style={{
-              background: "oklch(97.5% 0.005 250)",
-              border: "1px solid oklch(89% 0.01 250)",
-              color: "oklch(18% 0.01 250)",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text)",
             }}
           >
             {usingCustom
-              ? (customInput.trim() || <span style={{ color: "oklch(68% 0.008 250)" }}>Enter moves above…</span>)
+              ? (customInput.trim() || <span style={{ color: "var(--color-dim)" }}>Enter moves above…</span>)
               : scramble}
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "oklch(50% 0.012 250)" }}>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-muted)" }}>
               Paste custom scramble (optional)
             </label>
             <input
@@ -224,9 +224,9 @@ export function SolveAlong() {
               placeholder="R U R' U' R' F R2 U' R' U' R U R' F'…"
               className="w-full rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
               style={{
-                background: "oklch(100% 0 0)",
-                border: "1px solid oklch(89% 0.01 250)",
-                color: "oklch(18% 0.01 250)",
+                background: "var(--color-surface-elevated)",
+                border: "1px solid var(--color-border)",
+                color: "var(--color-text)",
               }}
             />
           </div>
@@ -236,7 +236,7 @@ export function SolveAlong() {
             disabled={isAnimating}
             className="ltc-hover-blue min-h-[44px] w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
             style={{
-              background: "oklch(100% 0 0)",
+              background: "var(--color-surface-elevated)",
               border: "1px solid #2563EB",
               color: "#2563EB",
             }}
@@ -247,7 +247,7 @@ export function SolveAlong() {
 
         <div
           className="rounded-xl overflow-hidden"
-          style={{ border: "1px solid oklch(89% 0.01 250)" }}
+          style={{ border: "1px solid var(--color-border)" }}
         >
           <CubeViewer size={300} interactive />
         </div>
@@ -283,7 +283,7 @@ export function SolveAlong() {
                   ? "#15803D"
                   : i === stageIndex
                   ? "#2563EB"
-                  : "oklch(91% 0.008 250)",
+                  : "var(--color-border-subtle)",
             }}
           />
         ))}
@@ -293,16 +293,16 @@ export function SolveAlong() {
       <div
         className="rounded-xl p-5"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
         }}
       >
         <div className="flex items-start justify-between gap-3 mb-2">
           <div>
-            <p className="text-xs font-medium mb-0.5" style={{ color: "oklch(50% 0.012 250)" }}>
+            <p className="text-xs font-medium mb-0.5" style={{ color: "var(--color-muted)" }}>
               Stage {stageIndex + 1} of {STAGES.length}
             </p>
-            <h2 className="text-lg font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+            <h2 className="text-lg font-bold" style={{ color: "var(--color-text)" }}>
               {stage.name}
             </h2>
           </div>
@@ -319,14 +319,14 @@ export function SolveAlong() {
             </span>
           )}
         </div>
-        <p className="text-sm font-medium mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+        <p className="text-sm font-medium mb-3" style={{ color: "var(--color-text)" }}>
           {stage.instruction}
         </p>
         <div
           className="rounded-lg px-4 py-3"
           style={{
-            background: "oklch(94% 0.04 255)",
-            border: "1px solid oklch(87% 0.06 255)",
+            background: "var(--color-primary-light)",
+            border: "1px solid var(--color-primary-light-border)",
           }}
         >
           <p className="text-xs font-semibold mb-1" style={{ color: "#2563EB" }}>Tip</p>
@@ -337,7 +337,7 @@ export function SolveAlong() {
       {/* Cube */}
       <div
         className="rounded-xl overflow-hidden"
-        style={{ border: "1px solid oklch(89% 0.01 250)" }}
+        style={{ border: "1px solid var(--color-border)" }}
       >
         <CubeViewer size={300} interactive />
       </div>
@@ -353,9 +353,9 @@ export function SolveAlong() {
                 color: "#15803D",
               }
             : {
-                background: "oklch(97.5% 0.005 250)",
-                border: "1px solid oklch(89% 0.01 250)",
-                color: "oklch(50% 0.012 250)",
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
+                color: "var(--color-muted)",
               }
         }
       >
@@ -370,9 +370,9 @@ export function SolveAlong() {
           onClick={handleReset}
           className="ltc-hover-subtle min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
           style={{
-            background: "oklch(100% 0 0)",
-            border: "1px solid oklch(89% 0.01 250)",
-            color: "oklch(50% 0.012 250)",
+            background: "var(--color-surface-elevated)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-muted)",
           }}
         >
           Reset to start

@@ -56,7 +56,7 @@ function AccuracyChart({ sessions }: { sessions: { date: string; accuracy: numbe
         const y = pad.t + plotH - (v / 100) * plotH;
         return (
           <g key={v}>
-            <line x1={pad.l} y1={y} x2={pad.l + plotW} y2={y} stroke="oklch(89% 0.01 250)" strokeWidth="1" />
+            <line x1={pad.l} y1={y} x2={pad.l + plotW} y2={y} stroke="var(--color-border)" strokeWidth="1" />
             <text x={pad.l - 4} y={y + 4} fontSize="8" fill="oklch(62% 0.01 250)" textAnchor="end">{v}%</text>
           </g>
         );
@@ -95,7 +95,7 @@ function CalendarGrid({ activityDates }: { activityDates: string[] }) {
           title={date}
           className="w-6 h-6 rounded-md transition-all duration-200"
           style={{
-            background: active ? "#2563EB" : "oklch(91% 0.008 250)",
+            background: active ? "#2563EB" : "var(--color-border-subtle)",
           }}
         />
       ))}
@@ -108,14 +108,14 @@ function StatCard({ value, label, sub, accentColor }: { value: React.ReactNode; 
     <div
       className="rounded-2xl p-4 flex flex-col gap-1"
       style={{
-        background: "oklch(100% 0 0)",
-        border: `1px solid ${accentColor ? `${accentColor}20` : "oklch(89% 0.01 250)"}`,
+        background: "var(--color-surface-elevated)",
+        border: `1px solid ${accentColor ? `${accentColor}20` : "var(--color-border)"}`,
         boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
       }}
     >
       <p
         className="font-display text-3xl font-bold"
-        style={{ color: accentColor ?? "oklch(18% 0.01 250)" }}
+        style={{ color: accentColor ?? "var(--color-text)" }}
       >
         {value}
       </p>
@@ -170,11 +170,11 @@ export default function ProgressPage() {
         </p>
         <h1
           className="text-3xl font-bold tracking-tight"
-          style={{ color: "oklch(18% 0.01 250)" }}
+          style={{ color: "var(--color-text)" }}
         >
           Progress
         </h1>
-        <p className="text-sm mt-1" style={{ color: "oklch(50% 0.012 250)" }}>
+        <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>
           Your learning journey at a glance.
         </p>
       </div>
@@ -195,14 +195,14 @@ export default function ProgressPage() {
         <div
           className="rounded-2xl p-4 flex flex-col gap-1"
           style={{
-            background: "oklch(100% 0 0)",
-            border: streakCount > 0 ? "1px solid rgba(234,88,12,0.2)" : "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface-elevated)",
+            border: streakCount > 0 ? "1px solid rgba(234,88,12,0.2)" : "1px solid var(--color-border)",
             boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
           }}
         >
           <p
             className="font-display text-3xl font-bold"
-            style={{ color: streakCount > 0 ? "#C2410C" : "oklch(18% 0.01 250)" }}
+            style={{ color: streakCount > 0 ? "#C2410C" : "var(--color-text)" }}
           >
             {streakCount}
             <span
@@ -225,15 +225,15 @@ export default function ProgressPage() {
       <section
         className="rounded-2xl p-5 flex flex-col gap-4"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}
       >
         <div className="flex items-center justify-between">
           <h2
             className="text-base font-bold"
-            style={{ color: "oklch(18% 0.01 250)" }}
+            style={{ color: "var(--color-text)" }}
           >
             Learning Steps
           </h2>
@@ -243,7 +243,7 @@ export default function ProgressPage() {
         </div>
 
         {/* Progress bar */}
-        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: "oklch(91% 0.008 250)" }}>
+        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: "var(--color-border-subtle)" }}>
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{ width: `${progressPct}%`, backgroundColor: "#2563EB" }}
@@ -261,20 +261,20 @@ export default function ProgressPage() {
                 onClick={() => router.push(step.route)}
                 className="ltc-hover-shadow flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-150"
                 style={{
-                  background: isDone ? step.bg : isActive ? "oklch(97.5% 0.005 250)" : "oklch(99% 0.004 250)",
-                  border: `1px solid ${isDone ? `${step.color}25` : isActive ? `${step.color}18` : "oklch(89% 0.01 250)"}`,
+                  background: isDone ? step.bg : isActive ? "var(--color-surface)" : "var(--color-background)",
+                  border: `1px solid ${isDone ? `${step.color}25` : isActive ? `${step.color}18` : "var(--color-border)"}`,
                 }}
               >
                 <span
                   className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
                   style={{
-                    background: isDone ? step.color : isActive ? `${step.color}15` : "oklch(91% 0.008 250)",
+                    background: isDone ? step.color : isActive ? `${step.color}15` : "var(--color-border-subtle)",
                     color: isDone ? "#fff" : isActive ? step.color : "oklch(62% 0.01 250)",
                   }}
                 >
                   {isDone ? "✓" : i + 1}
                 </span>
-                <span className="flex-1 font-medium text-sm" style={{ color: "oklch(18% 0.01 250)" }}>
+                <span className="flex-1 font-medium text-sm" style={{ color: "var(--color-text)" }}>
                   {step.title}
                 </span>
                 <span
@@ -295,13 +295,13 @@ export default function ProgressPage() {
       <section
         className="rounded-2xl p-5 flex flex-col gap-4"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+          <h2 className="text-base font-bold" style={{ color: "var(--color-text)" }}>
             Cases Mastered
           </h2>
           <span className="text-xs font-semibold" style={{ color: "#2563EB" }}>
@@ -326,8 +326,8 @@ export default function ProgressPage() {
                     onClick={() => router.push("/learn/oll")}
                     className="hover:opacity-75 rounded-lg border p-2 text-center transition-all duration-150"
                     style={{
-                      borderColor: learned ? "rgba(180,83,9,0.3)" : "oklch(89% 0.01 250)",
-                      background: learned ? "rgba(180,83,9,0.07)" : "oklch(97.5% 0.005 250)",
+                      borderColor: learned ? "rgba(180,83,9,0.3)" : "var(--color-border)",
+                      background: learned ? "rgba(180,83,9,0.07)" : "var(--color-surface)",
                     }}
                   >
                     <div
@@ -362,8 +362,8 @@ export default function ProgressPage() {
                     onClick={() => router.push("/learn/pll")}
                     className="hover:opacity-75 rounded-lg border p-2 text-center transition-all duration-150"
                     style={{
-                      borderColor: learned ? "rgba(124,58,237,0.3)" : "oklch(89% 0.01 250)",
-                      background: learned ? "rgba(124,58,237,0.07)" : "oklch(97.5% 0.005 250)",
+                      borderColor: learned ? "rgba(124,58,237,0.3)" : "var(--color-border)",
+                      background: learned ? "rgba(124,58,237,0.07)" : "var(--color-surface)",
                     }}
                   >
                     <div
@@ -394,19 +394,19 @@ export default function ProgressPage() {
       <section
         className="rounded-2xl p-5 flex flex-col gap-4"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}
       >
-        <h2 className="text-base font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+        <h2 className="text-base font-bold" style={{ color: "var(--color-text)" }}>
           Trainer Stats
         </h2>
         {trainerStats.totalSessions === 0 ? (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
-              style={{ background: "oklch(94% 0.04 255)", border: "1px solid oklch(87% 0.06 255)" }}
+              style={{ background: "var(--color-primary-light)", border: "1px solid var(--color-primary-light-border)" }}
             >
               ⚡
             </div>
@@ -463,13 +463,13 @@ export default function ProgressPage() {
       <section
         className="rounded-2xl p-5 flex flex-col gap-4"
         style={{
-          background: "oklch(100% 0 0)",
-          border: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+          <h2 className="text-base font-bold" style={{ color: "var(--color-text)" }}>
             Activity
           </h2>
           <div className="flex gap-2">
@@ -485,22 +485,22 @@ export default function ProgressPage() {
                 <p className="text-sm font-bold leading-none" style={{ color: "#C2410C" }}>
                   {streakCount}
                 </p>
-                <p className="text-2xs leading-none" style={{ color: "#C2410C" }}>streak</p>
+                <p className="text-xs leading-none" style={{ color: "#C2410C" }}>streak</p>
               </div>
             </div>
             <div
               className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
               style={{
-                background: "oklch(97.5% 0.005 250)",
-                border: "1px solid oklch(89% 0.01 250)",
+                background: "var(--color-surface)",
+                border: "1px solid var(--color-border)",
               }}
             >
               <span className="text-base">🏆</span>
               <div>
-                <p className="text-sm font-bold leading-none" style={{ color: "oklch(18% 0.01 250)" }}>
+                <p className="text-sm font-bold leading-none" style={{ color: "var(--color-text)" }}>
                   {bestStreak}
                 </p>
-                <p className="text-2xs leading-none" style={{ color: "oklch(60% 0.01 250)" }}>best</p>
+                <p className="text-xs leading-none" style={{ color: "oklch(60% 0.01 250)" }}>best</p>
               </div>
             </div>
           </div>

@@ -84,9 +84,10 @@ function NavItem({
     return (
       <Link
         href={href}
+        aria-current={isActive ? "page" : undefined}
         className={`flex items-center gap-2.5 pl-8 pr-3 py-2 text-xs font-medium rounded-lg transition-all duration-150 ${!isActive ? "ltc-hover-subtle" : ""}`}
         style={{
-          color: isActive ? dotColor : "oklch(50% 0.012 250)",
+          color: isActive ? dotColor : "var(--color-muted)",
           backgroundColor: isActive ? `${dotColor}12` : "transparent",
         }}
       >
@@ -102,10 +103,11 @@ function NavItem({
   return (
     <Link
       href={href}
+      aria-current={isActive ? "page" : undefined}
       className={`relative flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${!isActive ? "ltc-hover-subtle" : ""}`}
       style={{
         color: isActive ? "#2563EB" : "oklch(40% 0.012 250)",
-        backgroundColor: isActive ? "oklch(94% 0.04 255)" : "transparent",
+        backgroundColor: isActive ? "var(--color-primary-light)" : "transparent",
       }}
     >
       {icon && (
@@ -142,7 +144,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       )}
 
-      <div className="my-2 mx-3 h-px" style={{ background: "oklch(89% 0.01 250)" }} />
+      <div className="my-2 mx-3 h-px" style={{ background: "var(--color-border)" }} />
 
       <NavItem href="/trainer"   label="Trainer"   icon={<IconTrainer />} />
       <NavItem href="/reference" label="Reference" icon={<IconReference />} />
@@ -155,8 +157,8 @@ export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const sidebarStyle = {
-    background: "oklch(100% 0 0)",
-    borderRight: "1px solid oklch(89% 0.01 250)",
+    background: "var(--color-surface-elevated)",
+    borderRight: "1px solid var(--color-border)",
   };
 
   return (
@@ -170,20 +172,20 @@ export function Sidebar() {
         <Link
           href="/"
           className="group flex items-center gap-3 px-5 py-5 transition-all duration-200"
-          style={{ borderBottom: "1px solid oklch(91% 0.008 250)" }}
+          style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
         >
           <div
             className="flex-shrink-0 rounded-xl p-1 transition-all duration-200"
             style={{
-              background: "oklch(94% 0.04 255)",
-              border: "1px solid oklch(87% 0.06 255)",
+              background: "var(--color-primary-light)",
+              border: "1px solid var(--color-primary-light-border)",
             }}
           >
             <CubeIcon />
           </div>
           <p
             className="font-display text-base font-bold tracking-tight"
-            style={{ color: "oklch(18% 0.01 250)" }}
+            style={{ color: "var(--color-text)" }}
           >
             LTCube
           </p>
@@ -197,7 +199,7 @@ export function Sidebar() {
         <div
           className="px-5 py-4 text-2xs"
           style={{
-            borderTop: "1px solid oklch(91% 0.008 250)",
+            borderTop: "1px solid var(--color-border-subtle)",
             color: "oklch(72% 0.008 250)",
           }}
         >
@@ -209,23 +211,23 @@ export function Sidebar() {
       <div
         className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14"
         style={{
-          background: "oklch(100% 0 0)",
-          borderBottom: "1px solid oklch(89% 0.01 250)",
+          background: "var(--color-surface-elevated)",
+          borderBottom: "1px solid var(--color-border)",
         }}
       >
         <Link href="/" className="flex items-center gap-2.5">
           <div
             className="flex-shrink-0 rounded-lg p-0.5"
             style={{
-              background: "oklch(94% 0.04 255)",
-              border: "1px solid oklch(87% 0.06 255)",
+              background: "var(--color-primary-light)",
+              border: "1px solid var(--color-primary-light-border)",
             }}
           >
             <CubeIcon />
           </div>
           <span
             className="font-display text-base font-bold tracking-tight"
-            style={{ color: "oklch(18% 0.01 250)" }}
+            style={{ color: "var(--color-text)" }}
           >
             LTCube
           </span>
@@ -236,8 +238,8 @@ export function Sidebar() {
           aria-label="Toggle navigation"
           className="p-3 rounded-lg transition-all duration-150"
           style={{
-            color: "oklch(50% 0.012 250)",
-            border: "1px solid oklch(89% 0.01 250)",
+            color: "var(--color-muted)",
+            border: "1px solid var(--color-border)",
           }}
         >
           {mobileOpen ? (
@@ -257,8 +259,8 @@ export function Sidebar() {
         <div
           className="md:hidden fixed top-14 left-0 right-0 z-20"
           style={{
-            background: "oklch(100% 0 0)",
-            borderBottom: "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface-elevated)",
+            borderBottom: "1px solid var(--color-border)",
           }}
         >
           <SidebarContent onNavigate={() => setMobileOpen(false)} />

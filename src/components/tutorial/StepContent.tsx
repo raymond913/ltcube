@@ -8,7 +8,7 @@ interface StepContentProps {
 export function StepContent({ substep, onNextExample }: StepContentProps) {
   return (
     <div className="flex flex-col gap-4" style={{ maxWidth: "65ch" }}>
-      <h2 className="text-xl font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+      <h2 className="text-xl font-semibold" style={{ color: "var(--color-text)" }}>
         {substep.title}
       </h2>
 
@@ -20,8 +20,8 @@ export function StepContent({ substep, onNextExample }: StepContentProps) {
         <div
           className="flex gap-3 rounded-lg px-4 py-3"
           style={{
-            background: "oklch(94% 0.04 255)",
-            border: "1px solid oklch(87% 0.06 255)",
+            background: "var(--color-primary-light)",
+            border: "1px solid var(--color-primary-light-border)",
           }}
         >
           <span className="flex-shrink-0 mt-0.5" style={{ color: "#2563EB" }}>
@@ -39,19 +39,19 @@ export function StepContent({ substep, onNextExample }: StepContentProps) {
         <div
           className="rounded-lg px-4 py-3"
           style={{
-            background: "oklch(97.5% 0.005 250)",
-            border: "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
           }}
         >
           {substep.algorithmName && (
             <p
               className="text-xs font-semibold uppercase tracking-wider mb-1.5"
-              style={{ color: "oklch(50% 0.012 250)" }}
+              style={{ color: "var(--color-muted)" }}
             >
               {substep.algorithmName}
             </p>
           )}
-          <code className="font-mono text-sm tracking-wide break-all" style={{ color: "oklch(18% 0.01 250)" }}>
+          <code className="font-mono text-sm tracking-wide break-all" style={{ color: "var(--color-text)" }}>
             {substep.algorithm}
           </code>
         </div>
@@ -62,8 +62,8 @@ export function StepContent({ substep, onNextExample }: StepContentProps) {
           onClick={onNextExample}
           className="ltc-hover-blue self-start rounded-lg px-4 py-2 text-sm font-medium transition-colors"
           style={{
-            background: "oklch(100% 0 0)",
-            border: "1px solid oklch(89% 0.01 250)",
+            background: "var(--color-surface-elevated)",
+            border: "1px solid var(--color-border)",
             color: "#2563EB",
             boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
           }}
