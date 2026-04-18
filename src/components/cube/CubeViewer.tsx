@@ -9,8 +9,11 @@ const CubeScene = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center w-full h-full bg-[#F8FAFC] rounded-xl">
-        <span className="text-sm text-[#64748B]">Loading 3D view…</span>
+      <div
+        className="flex items-center justify-center w-full h-full rounded-xl"
+        style={{ background: "var(--color-surface)" }}
+      >
+        <span className="text-sm" style={{ color: "var(--color-muted)" }}>Loading 3D view…</span>
       </div>
     ),
   }
