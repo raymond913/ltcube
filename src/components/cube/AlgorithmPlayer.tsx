@@ -277,6 +277,15 @@ export function AlgorithmPlayer({
         />
       </div>
 
+      {/* Screen-reader live region for step changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {currentStep === 0
+          ? "Start position"
+          : currentStep >= moves.length
+          ? `Done. All ${moves.length} moves complete.`
+          : `Move ${currentStep} of ${moves.length}: ${moves[currentStep - 1]?.notation}`}
+      </div>
+
       {/* ── Algorithm notation + step counter ── */}
       <div
         className="flex flex-col gap-2 mx-5 mb-3 px-3 py-3 rounded-xl"
@@ -340,7 +349,7 @@ export function AlgorithmPlayer({
                     fontWeight: isCurrent ? 700 : 400,
                     transition: "all 0.15s ease",
                   }}
-                  className="hover:opacity-70 disabled:cursor-not-allowed"
+                  className="hover:opacity-70 disabled:cursor-not-allowed px-0.5 py-0.5 rounded"
                 >
                   {m.notation}
                 </button>

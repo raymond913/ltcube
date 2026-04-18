@@ -259,7 +259,7 @@ export default function ProgressPage() {
               <button
                 key={step.id}
                 onClick={() => router.push(step.route)}
-                className="ltc-hover-shadow flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-150"
+                className="ltc-hover-shadow flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-[box-shadow,background] duration-150"
                 style={{
                   background: isDone ? step.bg : isActive ? "var(--color-surface)" : "var(--color-background)",
                   border: `1px solid ${isDone ? `${step.color}25` : isActive ? `${step.color}18` : "var(--color-border)"}`,
@@ -324,7 +324,7 @@ export default function ProgressPage() {
                   <button
                     key={c.id}
                     onClick={() => router.push("/learn/oll")}
-                    className="hover:opacity-75 rounded-lg border p-2 text-center transition-all duration-150"
+                    className="hover:opacity-75 rounded-lg border py-2.5 px-1.5 text-center transition-all duration-150 min-h-[40px]"
                     style={{
                       borderColor: learned ? "rgba(180,83,9,0.3)" : "var(--color-border)",
                       background: learned ? "rgba(180,83,9,0.07)" : "var(--color-surface)",
@@ -335,7 +335,7 @@ export default function ProgressPage() {
                       style={{ background: learned ? "#B45309" : "oklch(82% 0.01 250)" }}
                     />
                     <p
-                      className="text-2xs font-medium leading-tight"
+                      className="text-xs font-medium leading-tight"
                       style={{ color: learned ? "#B45309" : "oklch(62% 0.01 250)" }}
                     >
                       {c.title}
@@ -360,7 +360,7 @@ export default function ProgressPage() {
                   <button
                     key={c.id}
                     onClick={() => router.push("/learn/pll")}
-                    className="hover:opacity-75 rounded-lg border p-2 text-center transition-all duration-150"
+                    className="hover:opacity-75 rounded-lg border py-2.5 px-1.5 text-center transition-all duration-150 min-h-[40px]"
                     style={{
                       borderColor: learned ? "rgba(124,58,237,0.3)" : "var(--color-border)",
                       background: learned ? "rgba(124,58,237,0.07)" : "var(--color-surface)",
@@ -371,7 +371,7 @@ export default function ProgressPage() {
                       style={{ background: learned ? "#7C3AED" : "oklch(82% 0.01 250)" }}
                     />
                     <p
-                      className="text-2xs font-medium leading-tight"
+                      className="text-xs font-medium leading-tight"
                       style={{ color: learned ? "#7C3AED" : "oklch(62% 0.01 250)" }}
                     >
                       {c.title}

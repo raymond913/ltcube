@@ -289,6 +289,12 @@ export function SolveAlong() {
         ))}
       </div>
 
+      {/* Screen-reader live region for stage changes */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {`Stage ${stageIndex + 1} of ${STAGES.length}: ${stage.name}. ${stage.instruction}`}
+        {stagePassed ? " Stage solved." : ""}
+      </div>
+
       {/* Stage header */}
       <div
         className="rounded-xl p-5"

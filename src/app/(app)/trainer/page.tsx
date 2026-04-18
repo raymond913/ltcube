@@ -57,7 +57,7 @@ export default function TrainerPage() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className="flex-1 flex flex-col gap-0.5 rounded-xl px-4 py-3 text-left transition-all duration-200"
+              className="flex-1 flex flex-col gap-0.5 rounded-xl px-4 py-3 text-left transition-[background,border-color,box-shadow] duration-200"
               style={{
                 background: isActive ? "var(--color-surface-elevated)" : "transparent",
                 border: isActive ? "1px solid var(--color-border)" : "1px solid transparent",

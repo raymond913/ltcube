@@ -147,7 +147,7 @@ export function TutorialLayout({
                     key={sub.id}
                     onClick={() => goToSubstep(idx)}
                     aria-current={isActive ? "step" : undefined}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left transition-all w-full"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left transition-[background,color,border-color,font-weight] duration-150 w-full"
                     style={{
                       background: isActive ? `${accentColor}10` : "transparent",
                       color: isActive ? accentColor : "var(--color-muted)",

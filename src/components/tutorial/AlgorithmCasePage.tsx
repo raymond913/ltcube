@@ -181,7 +181,7 @@ export function AlgorithmCasePage({
                       <button
                         key={sub.id}
                         onClick={() => setActiveId(sub.id)}
-                        className={`flex flex-col items-center gap-2 rounded-xl p-3 text-left transition-all duration-150 ${!isActive ? "ltc-hover-lift-bordered" : ""}`}
+                        className={`flex flex-col items-center gap-2 rounded-xl p-3 text-left transition-[transform,box-shadow,border-color,background] duration-150 ${!isActive ? "ltc-hover-lift-bordered" : ""}`}
                         style={{
                           background: isActive ? typeTheme.bg : "var(--color-surface-elevated)",
                           border: `1px solid ${isActive ? typeTheme.border : "var(--color-border)"}`,

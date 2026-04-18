@@ -297,6 +297,15 @@ export function PatternTrainer() {
         )}
       </div>
 
+      {/* Screen-reader live region for feedback */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {phase === "feedback" && (isCorrect
+          ? `Correct! ${currentCase?.algorithmName}`
+          : `${selected === null ? "Time's up." : "Incorrect."} Answer: ${currentCase?.title}`
+        )}
+        {phase === "quiz" && currentCase && `Question ${roundIndex + 1}: Identify the case`}
+      </div>
+
       {/* Feedback message */}
       {phase === "feedback" && (
         <div
