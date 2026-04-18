@@ -29,7 +29,7 @@ export const twoLookPll: TutorialStep = {
         "No matching corners on any side. Two diagonal corners need to swap.",
       algorithm: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
       algorithmName: "Diagonal Swap",
-      initialState: "F R' F' R U R U' R' F R' U' R U R U' R' F'",
+      initialState: "F R' F' R U R U' R' F R U' R' U R U R' F'",
       highlightPieces: ["UFR", "UBL"],
     },
     {
@@ -39,7 +39,7 @@ export const twoLookPll: TutorialStep = {
         "Three edges cycle counter-clockwise. Hold the cube so the one correct edge is at the back (UB), then apply Ua.",
       algorithm: "R U' R U R U R U' R' U' R2",
       algorithmName: "Ua Perm",
-      initialState: "R2' U R U R U' R' U' R' U' R",
+      initialState: "R2 U R U R' U' R' U' R' U R'",
       highlightPieces: ["UF", "UL", "UR"],
     },
     {

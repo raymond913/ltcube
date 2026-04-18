@@ -96,7 +96,7 @@ export const twoLookOll: TutorialStep = {
       id: "oll-t",
       title: "T Pattern",
       explanation:
-        "Two adjacent corners have yellow on top and they are diagonal from each other. Hold the cube so the correct corners are at UFR and UBL, then apply T.",
+        "Two diagonally opposite corners have yellow on top. Hold the cube so those corners are at front-left and back-right, then apply T.",
       algorithm: "r U R' U' r' F R F'",
       algorithmName: "T",
       initialState: "F R' F' r U R U' r'",
@@ -106,10 +106,10 @@ export const twoLookOll: TutorialStep = {
       id: "oll-l",
       title: "L Pattern (Big L)",
       explanation:
-        "The L case: two adjacent corners have yellow on top. Hold the cube so the two correct corners are at the front, then apply L.",
-      algorithm: "F R U R' U' F'",
+        "Yellow forms an L-shape on the top face — one corner and two adjacent edges are yellow. Hold the cube so the L's corner is at the back-right, then apply L.",
+      algorithm: "r U2 R' U' R U' r'",
       algorithmName: "L",
-      initialState: "F U R U' R' F'",
+      initialState: "r U R' U R U2 r'",
       highlightPieces: ["UFR", "UBR"],
     },
   ],
