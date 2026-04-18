@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const LEARN_STEPS = [
-  { href: "/learn/white-cross",  label: "White Cross",         color: "#2563EB" },
+  { href: "/learn/cross",        label: "White Cross",         color: "#2563EB" },
   { href: "/learn/corners",      label: "First Layer Corners", color: "#15803D" },
   { href: "/learn/second-layer", label: "Second Layer",        color: "#C2410C" },
   { href: "/learn/oll",          label: "OLL",                 color: "#B45309" },
