@@ -5,21 +5,21 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const LEARN_STEPS = [
-  { href: "/learn/white-cross",    label: "White Cross",          color: "#2563EB" },
-  { href: "/learn/white-corners",  label: "First Layer Corners",  color: "#16A34A" },
-  { href: "/learn/second-layer",   label: "Second Layer",         color: "#EA580C" },
-  { href: "/learn/oll",            label: "OLL",                  color: "#CA8A04" },
-  { href: "/learn/pll",            label: "PLL",                  color: "#9333EA" },
+  { href: "/learn/white-cross",  label: "White Cross",         color: "#2563EB" },
+  { href: "/learn/corners",      label: "First Layer Corners", color: "#15803D" },
+  { href: "/learn/second-layer", label: "Second Layer",        color: "#C2410C" },
+  { href: "/learn/oll",          label: "OLL",                 color: "#B45309" },
+  { href: "/learn/pll",          label: "PLL",                 color: "#7C3AED" },
 ];
 
 function CubeIcon() {
   return (
-    <svg viewBox="0 0 28 28" width="28" height="28" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+    <svg viewBox="0 0 28 28" width="26" height="26" xmlns="http://www.w3.org/2000/svg" aria-hidden>
       <rect x="1"  y="1"  width="8" height="8" rx="1.5" fill="#DC2626" />
       <rect x="10" y="1"  width="8" height="8" rx="1.5" fill="#EAB308" />
       <rect x="19" y="1"  width="8" height="8" rx="1.5" fill="#2563EB" />
       <rect x="1"  y="10" width="8" height="8" rx="1.5" fill="#EA580C" />
-      <rect x="10" y="10" width="8" height="8" rx="1.5" fill="#FFFFFF"  opacity="0.9" />
+      <rect x="10" y="10" width="8" height="8" rx="1.5" fill="#D1D5DB" opacity="0.9" />
       <rect x="19" y="10" width="8" height="8" rx="1.5" fill="#16A34A" />
       <rect x="1"  y="19" width="8" height="8" rx="1.5" fill="#2563EB" />
       <rect x="10" y="19" width="8" height="8" rx="1.5" fill="#16A34A" />
@@ -57,9 +57,9 @@ function IconReference() {
 function IconProgress() {
   return (
     <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor">
-      <rect x="1.5" y="9"  width="3" height="5.5" rx="0.75" />
-      <rect x="6.5" y="6"  width="3" height="8.5" rx="0.75" />
-      <rect x="11.5" y="2.5" width="3" height="12" rx="0.75" />
+      <rect x="1.5" y="9"    width="3" height="5.5" rx="0.75" />
+      <rect x="6.5" y="6"    width="3" height="8.5" rx="0.75" />
+      <rect x="11.5" y="2.5" width="3" height="12"  rx="0.75" />
     </svg>
   );
 }
@@ -84,15 +84,15 @@ function NavItem({
     return (
       <Link
         href={href}
-        className="flex items-center gap-2.5 pl-8 pr-3 py-1.5 text-xs font-medium rounded-md transition-all"
+        className={`flex items-center gap-2.5 pl-8 pr-3 py-2 text-xs font-medium rounded-lg transition-all duration-150 ${!isActive ? "ltc-hover-subtle" : ""}`}
         style={{
-          color: isActive ? dotColor ?? "#60a5fa" : "rgba(255,255,255,0.4)",
-          backgroundColor: isActive ? "rgba(255,255,255,0.07)" : "transparent",
+          color: isActive ? dotColor : "oklch(50% 0.012 250)",
+          backgroundColor: isActive ? `${dotColor}12` : "transparent",
         }}
       >
         <span
-          className="flex-shrink-0 w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: isActive ? dotColor : "rgba(255,255,255,0.25)" }}
+          className="flex-shrink-0 w-1.5 h-1.5 rounded-full transition-all duration-150"
+          style={{ backgroundColor: isActive ? dotColor : "oklch(80% 0.01 250)" }}
         />
         {label}
       </Link>
@@ -102,21 +102,16 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="relative flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all"
+      className={`relative flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${!isActive ? "ltc-hover-subtle" : ""}`}
       style={{
-        color: isActive ? "#FFFFFF" : "rgba(255,255,255,0.5)",
-        backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+        color: isActive ? "#2563EB" : "oklch(40% 0.012 250)",
+        backgroundColor: isActive ? "oklch(94% 0.04 255)" : "transparent",
       }}
     >
-      {isActive && (
-        <span
-          className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r-full bg-[#60a5fa]"
-        />
-      )}
       {icon && (
         <span
-          className="flex-shrink-0"
-          style={{ opacity: isActive ? 1 : 0.6 }}
+          className="flex-shrink-0 transition-all duration-150"
+          style={{ color: isActive ? "#2563EB" : "oklch(62% 0.01 250)" }}
         >
           {icon}
         </span>
@@ -132,9 +127,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <nav className="flex flex-col gap-0.5 px-3 py-4" onClick={onNavigate}>
-      <p className="px-3 pb-1 text-[10px] font-semibold tracking-[0.1em] uppercase text-white/20">
-        Learn
-      </p>
       <NavItem href="/learn" label="Learn" icon={<IconLearn />} />
       {learnActive && (
         <div className="flex flex-col gap-0 my-0.5 pb-1">
@@ -150,20 +142,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       )}
 
-      <div className="my-1 mx-3 h-px bg-white/5" />
+      <div className="my-2 mx-3 h-px" style={{ background: "oklch(89% 0.01 250)" }} />
 
-      <p className="px-3 pt-1 pb-1 text-[10px] font-semibold tracking-[0.1em] uppercase text-white/20">
-        Practice
-      </p>
-      <NavItem href="/trainer" label="Trainer" icon={<IconTrainer />} />
-
-      <div className="my-1 mx-3 h-px bg-white/5" />
-
-      <p className="px-3 pt-1 pb-1 text-[10px] font-semibold tracking-[0.1em] uppercase text-white/20">
-        Tools
-      </p>
+      <NavItem href="/trainer"   label="Trainer"   icon={<IconTrainer />} />
       <NavItem href="/reference" label="Reference" icon={<IconReference />} />
-      <NavItem href="/progress" label="Progress" icon={<IconProgress />} />
+      <NavItem href="/progress"  label="Progress"  icon={<IconProgress />} />
     </nav>
   );
 }
@@ -171,37 +154,39 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const sidebarBg = {
-    background: "rgba(9,9,11,0.92)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    borderRight: "1px solid rgba(255,255,255,0.06)",
+  const sidebarStyle = {
+    background: "oklch(100% 0 0)",
+    borderRight: "1px solid oklch(89% 0.01 250)",
   };
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* ── Desktop sidebar ── */}
       <aside
         className="hidden md:flex fixed inset-y-0 left-0 w-64 flex-col z-20"
-        style={sidebarBg}
+        style={sidebarStyle}
       >
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-3 px-5 py-5 group"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+          className="group flex items-center gap-3 px-5 py-5 transition-all duration-200"
+          style={{ borderBottom: "1px solid oklch(91% 0.008 250)" }}
         >
-          <div className="flex-shrink-0">
+          <div
+            className="flex-shrink-0 rounded-xl p-1 transition-all duration-200"
+            style={{
+              background: "oklch(94% 0.04 255)",
+              border: "1px solid oklch(87% 0.06 255)",
+            }}
+          >
             <CubeIcon />
           </div>
-          <div>
-            <p className="text-base font-bold tracking-tight text-white leading-none" style={{ fontFamily: "var(--font-syne), sans-serif" }}>
-              LTCube
-            </p>
-            <p className="text-[10px] text-white/30 mt-0.5 leading-none">
-              Cube Learning
-            </p>
-          </div>
+          <p
+            className="font-display text-base font-bold tracking-tight"
+            style={{ color: "oklch(18% 0.01 250)" }}
+          >
+            LTCube
+          </p>
         </Link>
 
         <div className="flex-1 overflow-y-auto">
@@ -210,26 +195,38 @@ export function Sidebar() {
 
         {/* Footer */}
         <div
-          className="px-5 py-4 text-[10px] text-white/15"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+          className="px-5 py-4 text-2xs"
+          style={{
+            borderTop: "1px solid oklch(91% 0.008 250)",
+            color: "oklch(72% 0.008 250)",
+          }}
         >
           Built by Ray
         </div>
       </aside>
 
-      {/* Mobile header */}
+      {/* ── Mobile header ── */}
       <div
         className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14"
         style={{
-          background: "rgba(9,9,11,0.95)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          background: "oklch(100% 0 0)",
+          borderBottom: "1px solid oklch(89% 0.01 250)",
         }}
       >
         <Link href="/" className="flex items-center gap-2.5">
-          <CubeIcon />
-          <span className="text-base font-bold text-white tracking-tight" style={{ fontFamily: "var(--font-syne), sans-serif" }}>
+          <div
+            className="flex-shrink-0 rounded-lg p-0.5"
+            style={{
+              background: "oklch(94% 0.04 255)",
+              border: "1px solid oklch(87% 0.06 255)",
+            }}
+          >
+            <CubeIcon />
+          </div>
+          <span
+            className="font-display text-base font-bold tracking-tight"
+            style={{ color: "oklch(18% 0.01 250)" }}
+          >
             LTCube
           </span>
         </Link>
@@ -237,7 +234,11 @@ export function Sidebar() {
         <button
           onClick={() => setMobileOpen((o) => !o)}
           aria-label="Toggle navigation"
-          className="p-2 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/5 transition-colors"
+          className="p-3 rounded-lg transition-all duration-150"
+          style={{
+            color: "oklch(50% 0.012 250)",
+            border: "1px solid oklch(89% 0.01 250)",
+          }}
         >
           {mobileOpen ? (
             <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
@@ -251,15 +252,13 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* ── Mobile dropdown ── */}
       {mobileOpen && (
         <div
           className="md:hidden fixed top-14 left-0 right-0 z-20"
           style={{
-            background: "rgba(9,9,11,0.97)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            background: "oklch(100% 0 0)",
+            borderBottom: "1px solid oklch(89% 0.01 250)",
           }}
         >
           <SidebarContent onNavigate={() => setMobileOpen(false)} />

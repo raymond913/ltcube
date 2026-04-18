@@ -1,26 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { AlgorithmPlayer } from "@/components/cube/AlgorithmPlayer";
 import { CaseRecognition } from "./CaseRecognition";
 import { useProgressStore } from "@/stores/progressStore";
-import { CubeEngine, parseAlgorithm, type CubeFaces } from "@/lib/cubeEngine";
 import { BEGINNER_STEPS } from "@/data/beginner";
 import type { TutorialStep, StepMeta, Substep } from "@/lib/tutorialTypes";
 
-function scrambleToState(scramble: string): CubeFaces {
-  const engine = new CubeEngine();
-  if (scramble) {
-    const moves = parseAlgorithm(scramble);
-    for (const move of moves) engine.applyMove(move);
-  }
-  return engine.getState();
-}
-
 export interface SectionDef {
   title: string;
-  /** Short sentence shown above the case grid. */
   description: string;
   substepIds: string[];
 }
@@ -32,6 +21,11 @@ interface AlgorithmCasePageProps {
   diagramType: "oll" | "pll";
   initialActiveId?: string;
 }
+
+const TYPE_COLORS = {
+  oll: { color: "#B45309", bg: "rgba(180,83,9,0.07)", border: "rgba(180,83,9,0.22)" },
+  pll: { color: "#7C3AED", bg: "rgba(124,58,237,0.07)", border: "rgba(124,58,237,0.22)" },
+};
 
 export function AlgorithmCasePage({
   stepData,
@@ -46,11 +40,6 @@ export function AlgorithmCasePage({
   const activeSubstep: Substep =
     stepData.substeps.find((s) => s.id === activeId) ?? stepData.substeps[0];
 
-  const initialCubeState = useMemo(
-    () => scrambleToState(activeSubstep.initialState),
-    [activeSubstep.initialState],
-  );
-
   const algorithmToPlay = activeSubstep.solutionMoves ?? activeSubstep.algorithm ?? "";
 
   const { completeStep, completedSteps } = useProgressStore();
@@ -63,15 +52,27 @@ export function AlgorithmCasePage({
       ? BEGINNER_STEPS[currentStepIdx + 1]
       : null;
 
+  const typeTheme = TYPE_COLORS[diagramType];
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="ltc-page flex flex-col gap-8">
       {/* Page header */}
       <div>
-        <span className="text-sm font-medium text-[#2563EB]">
+        <p
+          className="text-xs font-semibold tracking-widest uppercase mb-1"
+          style={{ color: "#2563EB" }}
+        >
           Step {stepMeta.stepNumber} of {BEGINNER_STEPS.length}
-        </span>
-        <h1 className="text-2xl font-bold text-[#1E293B] mt-0.5">{stepData.title}</h1>
-        <p className="text-[#64748B] mt-1 leading-relaxed">{stepData.description}</p>
+        </p>
+        <h1
+          className="text-2xl font-bold mt-0.5"
+          style={{ color: "oklch(18% 0.01 250)" }}
+        >
+          {stepData.title}
+        </h1>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+          {stepData.description}
+        </p>
       </div>
 
       {/* Two-panel layout */}
@@ -80,22 +81,44 @@ export function AlgorithmCasePage({
         style={{ gridTemplateColumns: "minmax(300px, 420px) 1fr" }}
       >
         {/* LEFT — sticky player + active-case detail */}
-        <div className="sticky top-0 z-10 bg-white border-b border-[#E2E8F0] py-3 md:static md:border-0 md:py-0 md:sticky md:top-6 md:z-auto flex flex-col gap-4">
+        <div
+          className="sticky top-0 z-10 border-b py-3 md:static md:border-0 md:py-0 md:sticky md:top-6 md:z-auto flex flex-col gap-4"
+          style={{
+            borderBottomColor: "oklch(89% 0.01 250)",
+            backgroundColor: "oklch(99% 0.004 250)",
+          }}
+        >
           <AlgorithmPlayer
             key={activeSubstep.id}
             algorithm={algorithmToPlay}
-            initialState={initialCubeState}
+            initialStateAlg={activeSubstep.initialState}
             title={activeSubstep.algorithmName ?? activeSubstep.title}
           />
 
           {/* Active-case explanation */}
-          <div className="hidden md:flex flex-col gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-            <p className="text-sm font-semibold text-[#1E293B]">
+          <div
+            className="hidden md:flex flex-col gap-2 rounded-xl px-4 py-3"
+            style={{
+              background: "oklch(100% 0 0)",
+              border: `1px solid ${typeTheme.border}`,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+            }}
+          >
+            <p className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
               {activeSubstep.algorithmName ?? activeSubstep.title}
             </p>
-            <p className="text-sm text-[#475569] leading-relaxed">{activeSubstep.explanation}</p>
+            <p className="text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+              {activeSubstep.explanation}
+            </p>
             {activeSubstep.algorithm && (
-              <code className="mt-1 font-mono text-xs text-[#1E293B] tracking-wide break-all">
+              <code
+                className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
+                style={{
+                  color: "#2563EB",
+                  background: "oklch(94% 0.04 255)",
+                  border: "1px solid oklch(87% 0.06 255)",
+                }}
+              >
                 {activeSubstep.algorithm}
               </code>
             )}
@@ -105,11 +128,22 @@ export function AlgorithmCasePage({
           <button
             onClick={() => completeStep(stepData.id)}
             disabled={isCompleted}
-            className={`hidden md:block w-full rounded-lg border py-2.5 text-sm font-semibold transition-colors ${
+            className={`hidden md:block w-full rounded-xl py-2.5 text-sm font-semibold transition-all duration-150 ${!isCompleted ? "ltc-hover-primary" : ""}`}
+            style={
               isCompleted
-                ? "border-[#BBF7D0] bg-[#F0FDF4] text-[#16A34A] cursor-default"
-                : "border-[#2563EB] bg-white text-[#2563EB] hover:bg-[#EFF6FF]"
-            }`}
+                ? {
+                    background: "rgba(21,128,61,0.07)",
+                    color: "#15803D",
+                    border: "2px solid rgba(21,128,61,0.22)",
+                    cursor: "default",
+                  }
+                : {
+                    backgroundColor: "#2563EB",
+                    color: "#fff",
+                    border: "2px solid transparent",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(37,99,235,0.25)",
+                  }
+            }
           >
             {isCompleted ? "✓ Step Completed" : "Mark as Complete"}
           </button>
@@ -125,8 +159,15 @@ export function AlgorithmCasePage({
             return (
               <div key={section.title} className="flex flex-col gap-3">
                 <div>
-                  <h2 className="text-base font-semibold text-[#1E293B]">{section.title}</h2>
-                  <p className="text-sm text-[#64748B] mt-0.5">{section.description}</p>
+                  <h2
+                    className="text-base font-semibold"
+                    style={{ color: "oklch(18% 0.01 250)" }}
+                  >
+                    {section.title}
+                  </h2>
+                  <p className="text-sm mt-0.5" style={{ color: "oklch(50% 0.012 250)" }}>
+                    {section.description}
+                  </p>
                 </div>
 
                 {/* Case cards grid */}
@@ -140,11 +181,14 @@ export function AlgorithmCasePage({
                       <button
                         key={sub.id}
                         onClick={() => setActiveId(sub.id)}
-                        className={`flex flex-col items-center gap-2 rounded-xl border bg-white p-3 text-left transition-all ${
-                          isActive
-                            ? "border-[#2563EB] shadow-md ring-1 ring-[#2563EB]/20"
-                            : "border-[#E2E8F0] shadow-sm hover:border-[#93C5FD] hover:shadow-md"
-                        }`}
+                        className={`flex flex-col items-center gap-2 rounded-xl p-3 text-left transition-all duration-150 ${!isActive ? "ltc-hover-lift-bordered" : ""}`}
+                        style={{
+                          background: isActive ? typeTheme.bg : "oklch(100% 0 0)",
+                          border: `1px solid ${isActive ? typeTheme.border : "oklch(89% 0.01 250)"}`,
+                          boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
+                          transform: isActive ? "translateY(-1px)" : "translateY(0)",
+                          ["--ltc-hover-border" as string]: typeTheme.border,
+                        }}
                       >
                         {/* Recognition diagram */}
                         <CaseRecognition
@@ -155,16 +199,20 @@ export function AlgorithmCasePage({
 
                         {/* Case name */}
                         <span
-                          className={`text-xs font-semibold leading-tight text-center ${
-                            isActive ? "text-[#2563EB]" : "text-[#1E293B]"
-                          }`}
+                          className="text-xs font-semibold leading-tight text-center"
+                          style={{ color: isActive ? typeTheme.color : "oklch(40% 0.01 250)" }}
                         >
                           {sub.algorithmName ?? sub.title}
                         </span>
 
                         {/* Algorithm preview */}
                         {sub.algorithm && (
-                          <code className="w-full font-mono text-[10px] text-[#94A3B8] leading-relaxed line-clamp-2 break-all text-center">
+                          <code
+                            className="font-mono w-full text-2xs leading-relaxed line-clamp-2 break-all text-center"
+                            style={{
+                                          color: isActive ? typeTheme.color : "oklch(55% 0.01 250)",
+                            }}
+                          >
                             {sub.algorithm}
                           </code>
                         )}
@@ -177,25 +225,49 @@ export function AlgorithmCasePage({
           })}
 
           {/* Mobile: explanation for active case */}
-          <div className="md:hidden rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 flex flex-col gap-2">
-            <p className="text-sm font-semibold text-[#1E293B]">
+          <div
+            className="md:hidden rounded-xl px-4 py-3 flex flex-col gap-2"
+            style={{
+              background: "oklch(100% 0 0)",
+              border: `1px solid ${typeTheme.border}`,
+              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+            }}
+          >
+            <p className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
               {activeSubstep.algorithmName ?? activeSubstep.title}
             </p>
-            <p className="text-sm text-[#475569] leading-relaxed">{activeSubstep.explanation}</p>
+            <p className="text-sm leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+              {activeSubstep.explanation}
+            </p>
             {activeSubstep.algorithm && (
-              <code className="mt-1 font-mono text-xs text-[#1E293B] tracking-wide break-all">
+              <code
+                className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
+                style={{
+                  color: "#2563EB",
+                  background: "oklch(94% 0.04 255)",
+                  border: "1px solid oklch(87% 0.06 255)",
+                }}
+              >
                 {activeSubstep.algorithm}
               </code>
             )}
           </div>
 
           {/* Prev / Next step navigation */}
-          <div className="flex items-center justify-between gap-3 pt-4 border-t border-[#E2E8F0]">
+          <div
+            className="flex items-center justify-between gap-3 pt-4"
+            style={{ borderTop: "1px solid oklch(89% 0.01 250)" }}
+          >
             <div>
               {prevStep ? (
                 <Link
                   href={prevStep.route}
-                  className="rounded-lg border border-[#E2E8F0] bg-white px-4 py-2 text-sm font-medium text-[#1E293B] hover:bg-[#F8FAFC] transition-colors shadow-sm"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
+                  style={{
+                    background: "oklch(100% 0 0)",
+                    border: "1px solid oklch(89% 0.01 250)",
+                    color: "oklch(50% 0.012 250)",
+                  }}
                 >
                   ← {prevStep.title}
                 </Link>
@@ -207,7 +279,11 @@ export function AlgorithmCasePage({
               {nextStep ? (
                 <Link
                   href={nextStep.route}
-                  className="rounded-lg bg-[#2563EB] px-4 py-2 text-sm font-medium text-white hover:bg-[#1D4ED8] transition-colors shadow-sm"
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
+                  style={{
+                    backgroundColor: "#2563EB",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                  }}
                 >
                   Next: {nextStep.title} →
                 </Link>
@@ -221,11 +297,22 @@ export function AlgorithmCasePage({
           <button
             onClick={() => completeStep(stepData.id)}
             disabled={isCompleted}
-            className={`md:hidden w-full rounded-lg border py-2.5 text-sm font-semibold transition-colors ${
+            className={`md:hidden w-full rounded-xl py-3 text-sm font-bold transition-all duration-150 ${!isCompleted ? "ltc-hover-primary" : ""}`}
+            style={
               isCompleted
-                ? "border-[#BBF7D0] bg-[#F0FDF4] text-[#16A34A] cursor-default"
-                : "border-[#2563EB] bg-white text-[#2563EB] hover:bg-[#EFF6FF]"
-            }`}
+                ? {
+                    background: "rgba(21,128,61,0.07)",
+                    color: "#15803D",
+                    border: "2px solid rgba(21,128,61,0.22)",
+                    cursor: "default",
+                  }
+                : {
+                    backgroundColor: "#2563EB",
+                    color: "#fff",
+                    border: "2px solid transparent",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(37,99,235,0.25)",
+                  }
+            }
           >
             {isCompleted ? "✓ Step Completed" : "Mark as Complete"}
           </button>

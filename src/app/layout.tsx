@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Figtree, Fira_Code } from "next/font/google";
 import "./globals.css";
 
-const syne = Syne({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-bricolage",
   weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const figtree = Figtree({
   subsets: ["latin"],
-  variable: "--font-dm",
+  variable: "--font-figtree",
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const firaCode = Fira_Code({
+  subsets: ["latin"],
+  variable: "--font-fira",
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -43,7 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${syne.variable} ${dmSans.variable} h-full`}>
+    <html lang="en" className={`${bricolage.variable} ${figtree.variable} ${firaCode.variable} h-full`}>
       <body className="h-full antialiased">
         {children}
       </body>

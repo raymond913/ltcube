@@ -1,39 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces */
-  --color-background: #F4F6FB;
-  --color-surface: #FFFFFF;
-  --color-text: #0F172A;
-  --color-muted: #64748B;
-  --color-subtle: #94A3B8;
-  --color-border: #E2E8F0;
+  /* === LIGHT CANVAS PALETTE === */
+  --color-background:       oklch(99% 0.004 250);
+  --color-surface:          oklch(97.5% 0.005 250);
+  --color-surface-elevated: oklch(100% 0 0);
+  --color-border:           oklch(89% 0.01 250);
+  --color-border-bright:    oklch(82% 0.015 250);
 
-  /* Primary */
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
+  /* Primary — cube blue */
+  --color-primary:          #2563EB;
+  --color-primary-hover:    #1D4ED8;
+  --color-primary-light:    oklch(94% 0.04 255);
 
-  /* Cube face colors */
-  --color-cube-red: #DC2626;
+  /* Text */
+  --color-text:             oklch(18% 0.01 250);
+  --color-muted:            oklch(50% 0.012 250);
+  --color-dim:              oklch(68% 0.008 250);
+
+  /* Cube face colors — unchanged */
+  --color-cube-red:    #DC2626;
   --color-cube-orange: #EA580C;
-  --color-cube-blue: #2563EB;
-  --color-cube-green: #16A34A;
+  --color-cube-blue:   #2563EB;
+  --color-cube-green:  #16A34A;
   --color-cube-yellow: #EAB308;
-  --color-cube-white: #FFFFFF;
+  --color-cube-white:  #FFFFFF;
 
-  /* Step accent colors */
-  --color-step-cross: #2563EB;
-  --color-step-corners: #16A34A;
-  --color-step-layer: #EA580C;
-  --color-step-oll: #CA8A04;
-  --color-step-pll: #9333EA;
+  /* Step accent colors — darkened for light bg readability */
+  --color-step-cross:   #2563EB;
+  --color-step-corners: #15803D;
+  --color-step-layer:   #C2410C;
+  --color-step-oll:     #B45309;
+  --color-step-pll:     #7C3AED;
 
   /* Typography */
-  --font-sans: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-figtree),   ui-sans-serif,  system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif,  system-ui, sans-serif;
+  --font-mono:    var(--font-fira),      'Fira Code',    ui-monospace, monospace;
 
   --spacing-sidebar: 16rem;
 }
+
+/* ======================================================
+   BASE
+====================================================== */
 
 :root {
   color-scheme: light;
@@ -44,20 +54,61 @@ html {
 }
 
 body {
-  background-color: #F4F6FB;
-  background-image: radial-gradient(circle, #CBD5E0 1px, transparent 1px);
-  background-size: 24px 24px;
-  color: #0F172A;
-  font-family: var(--font-dm), ui-sans-serif, system-ui, sans-serif;
+  background-color: oklch(99% 0.004 250);
+  color: oklch(18% 0.01 250);
+  font-family: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-kerning: normal;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.15;
 }
 
-/* Refined scrollbar */
+code, kbd, samp, pre {
+  font-family: var(--font-fira), 'Fira Code', ui-monospace, monospace;
+}
+
+/* ======================================================
+   ANIMATIONS
+====================================================== */
+
+@keyframes ltc-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ltc-celebration {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.05); }
+  60%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ltc-progress-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes ltc-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+.ltc-page {
+  animation: ltc-page-in 0.2s ease-out both;
+}
+
+.ltc-cube-float {
+  animation: ltc-float 3.5s ease-in-out infinite;
+}
+
+/* ======================================================
+   SCROLLBAR
+====================================================== */
+
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -66,26 +117,106 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: oklch(85% 0.01 250);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #2563EB;
 }
 
-/* Focus ring */
+/* ======================================================
+   TYPOGRAPHY UTILITIES
+====================================================== */
+
+@layer utilities {
+  /* 10px — for compact badge labels and secondary metadata */
+  .text-2xs {
+    font-size: 0.625rem;
+    line-height: 1rem;
+  }
+
+  /* ── Hover utilities ──────────────────────────────────────────
+     Use !important so CSS hover overrides resting inline styles.
+  ─────────────────────────────────────────────────────────────── */
+
+  /* Primary blue button bg */
+  .ltc-hover-primary:hover { background-color: #1D4ED8 !important; }
+
+  /* Primary blue text link */
+  .ltc-hover-primary-color:hover { color: #1D4ED8 !important; }
+
+  /* Neutral subtle bg (nav items, ghost buttons) */
+  .ltc-hover-subtle:hover { background-color: oklch(95% 0.006 250) !important; }
+
+  /* Blue-tinted bg (outline buttons, secondary CTAs) */
+  .ltc-hover-blue:hover { background: oklch(94% 0.04 255) !important; }
+
+  /* Card lift — translate + shadow */
+  .ltc-hover-lift:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+  }
+
+  /* Larger card lift — reference cards */
+  .ltc-hover-lift-lg:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.1) !important;
+    border-color: var(--ltc-hover-border, oklch(80% 0.01 250)) !important;
+  }
+
+  /* Lift + dynamic border color (set --ltc-hover-border inline) */
+  .ltc-hover-lift-bordered:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    border-color: var(--ltc-hover-border, oklch(80% 0.01 250)) !important;
+  }
+
+  /* Subtle shadow only (progress step items) */
+  .ltc-hover-shadow:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important; }
+
+  /* Transport / icon buttons (bg + color, disabled-aware) */
+  .ltc-hover-transport:hover:not(:disabled) {
+    background: oklch(93% 0.006 250) !important;
+    color: oklch(25% 0.01 250) !important;
+  }
+
+  /* Prev / secondary bordered button (border + text color) */
+  .ltc-hover-prev:hover {
+    border-color: oklch(80% 0.015 250) !important;
+    color: oklch(25% 0.01 250) !important;
+  }
+
+  /* Quiz choice buttons (bg + border) */
+  .ltc-hover-choice:hover {
+    background: oklch(94% 0.04 255) !important;
+    border-color: #2563EB !important;
+  }
+}
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ltc-page {
+    animation: none;
+  }
+  .ltc-cube-float {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ======================================================
+   FOCUS
+====================================================== */
+
 *:focus-visible {
   outline: 2px solid #2563EB;
   outline-offset: 2px;
   border-radius: 4px;
-}
-
-/* Page fade-in */
-@keyframes ltc-page-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.ltc-page {
-  animation: ltc-page-in 0.25s ease-out both;
 }

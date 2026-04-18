@@ -4,33 +4,33 @@ import { useRouter } from "next/navigation";
 import { useProgressStore } from "@/stores/progressStore";
 
 const STEPS = [
-  { id: "white-cross",   title: "White Cross",    route: "/learn/white-cross",   color: "#2563EB", bg: "#EFF6FF" },
-  { id: "white-corners", title: "White Corners",  route: "/learn/white-corners", color: "#16A34A", bg: "#F0FDF4" },
-  { id: "second-layer",  title: "Second Layer",   route: "/learn/second-layer",  color: "#EA580C", bg: "#FFF7ED" },
-  { id: "two-look-oll",  title: "2-Look OLL",     route: "/learn/oll",           color: "#CA8A04", bg: "#FEFCE8" },
-  { id: "two-look-pll",  title: "2-Look PLL",     route: "/learn/pll",           color: "#9333EA", bg: "#FDF4FF" },
+  { id: "white-cross",   title: "White Cross",    route: "/learn/white-cross",   color: "#2563EB",  bg: "rgba(37,99,235,0.07)"   },
+  { id: "white-corners", title: "White Corners",  route: "/learn/white-corners", color: "#15803D",  bg: "rgba(21,128,61,0.07)"   },
+  { id: "second-layer",  title: "Second Layer",   route: "/learn/second-layer",  color: "#C2410C",  bg: "rgba(194,65,12,0.07)"   },
+  { id: "two-look-oll",  title: "2-Look OLL",     route: "/learn/oll",           color: "#B45309",  bg: "rgba(180,83,9,0.07)"    },
+  { id: "two-look-pll",  title: "2-Look PLL",     route: "/learn/pll",           color: "#7C3AED",  bg: "rgba(124,58,237,0.07)"  },
 ];
 
 const OLL_CASES = [
-  { id: "oll-dot",       title: "Dot" },
-  { id: "oll-l-shape",   title: "L Shape" },
-  { id: "oll-line",      title: "Line" },
-  { id: "oll-sune",      title: "Sune" },
-  { id: "oll-antisune",  title: "Anti-Sune" },
-  { id: "oll-h",         title: "H Pattern" },
-  { id: "oll-pi",        title: "Pi" },
-  { id: "oll-u",         title: "U Pattern" },
-  { id: "oll-t",         title: "T Pattern" },
-  { id: "oll-l",         title: "L Pattern" },
+  { id: "oll-dot",      title: "Dot"       },
+  { id: "oll-l-shape",  title: "L Shape"   },
+  { id: "oll-line",     title: "Line"      },
+  { id: "oll-sune",     title: "Sune"      },
+  { id: "oll-antisune", title: "Anti-Sune" },
+  { id: "oll-h",        title: "H"         },
+  { id: "oll-pi",       title: "Pi"        },
+  { id: "oll-u",        title: "U"         },
+  { id: "oll-t",        title: "T"         },
+  { id: "oll-l",        title: "L"         },
 ];
 
 const PLL_CASES = [
-  { id: "pll-adjacent",  title: "Adjacent" },
-  { id: "pll-diagonal",  title: "Diagonal" },
-  { id: "pll-ua",        title: "Ua Perm" },
-  { id: "pll-ub",        title: "Ub Perm" },
-  { id: "pll-h",         title: "H Perm" },
-  { id: "pll-z",         title: "Z Perm" },
+  { id: "pll-adjacent", title: "Adjacent" },
+  { id: "pll-diagonal", title: "Diagonal" },
+  { id: "pll-ua",       title: "Ua"       },
+  { id: "pll-ub",       title: "Ub"       },
+  { id: "pll-h",        title: "H"        },
+  { id: "pll-z",        title: "Z"        },
 ];
 
 function AccuracyChart({ sessions }: { sessions: { date: string; accuracy: number }[] }) {
@@ -56,8 +56,8 @@ function AccuracyChart({ sessions }: { sessions: { date: string; accuracy: numbe
         const y = pad.t + plotH - (v / 100) * plotH;
         return (
           <g key={v}>
-            <line x1={pad.l} y1={y} x2={pad.l + plotW} y2={y} stroke="#E2E8F0" strokeWidth="1" />
-            <text x={pad.l - 4} y={y + 4} fontSize="8" fill="#94A3B8" textAnchor="end">{v}%</text>
+            <line x1={pad.l} y1={y} x2={pad.l + plotW} y2={y} stroke="oklch(89% 0.01 250)" strokeWidth="1" />
+            <text x={pad.l - 4} y={y + 4} fontSize="8" fill="oklch(62% 0.01 250)" textAnchor="end">{v}%</text>
           </g>
         );
       })}
@@ -72,7 +72,7 @@ function AccuracyChart({ sessions }: { sessions: { date: string; accuracy: numbe
       {sessions.map((s, i) => {
         const x = pad.l + (i / (sessions.length - 1)) * plotW;
         const y = pad.t + plotH - (s.accuracy / 100) * plotH;
-        return <circle key={i} cx={x} cy={y} r="3" fill="#2563EB" stroke="white" strokeWidth="1.5" />;
+        return <circle key={i} cx={x} cy={y} r="3" fill="#2563EB" />;
       })}
     </svg>
   );
@@ -93,10 +93,34 @@ function CalendarGrid({ activityDates }: { activityDates: string[] }) {
         <div
           key={date}
           title={date}
-          className="w-6 h-6 rounded-md transition-colors"
-          style={{ backgroundColor: active ? "#16A34A" : "#E2E8F0" }}
+          className="w-6 h-6 rounded-md transition-all duration-200"
+          style={{
+            background: active ? "#2563EB" : "oklch(91% 0.008 250)",
+          }}
         />
       ))}
+    </div>
+  );
+}
+
+function StatCard({ value, label, sub, accentColor }: { value: React.ReactNode; label: string; sub?: string; accentColor?: string }) {
+  return (
+    <div
+      className="rounded-2xl p-4 flex flex-col gap-1"
+      style={{
+        background: "oklch(100% 0 0)",
+        border: `1px solid ${accentColor ? `${accentColor}20` : "oklch(89% 0.01 250)"}`,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      }}
+    >
+      <p
+        className="font-display text-3xl font-bold"
+        style={{ color: accentColor ?? "oklch(18% 0.01 250)" }}
+      >
+        {value}
+      </p>
+      <p className="text-xs font-medium" style={{ color: "oklch(55% 0.01 250)" }}>{label}</p>
+      {sub && <p className="mt-auto pt-1 text-xs" style={{ color: "oklch(65% 0.008 250)" }}>{sub}</p>}
     </div>
   );
 }
@@ -138,44 +162,94 @@ export default function ProgressPage() {
     <div className="ltc-page flex flex-col gap-6 max-w-3xl">
       {/* Header */}
       <div>
-        <p className="text-xs font-semibold tracking-widest uppercase text-[#2563EB] mb-1">Dashboard</p>
-        <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">Progress</h1>
-        <p className="text-[#64748B] text-sm mt-1">Your learning journey at a glance.</p>
+        <p
+          className="text-xs font-semibold tracking-widest uppercase mb-1"
+          style={{ color: "#2563EB" }}
+        >
+          Dashboard
+        </p>
+        <h1
+          className="text-3xl font-bold tracking-tight"
+          style={{ color: "oklch(18% 0.01 250)" }}
+        >
+          Progress
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "oklch(50% 0.012 250)" }}>
+          Your learning journey at a glance.
+        </p>
       </div>
 
       {/* Hero stat row */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4 shadow-sm flex flex-col gap-1">
-          <p className="text-3xl font-bold text-[#0F172A]">{completedCount}<span className="text-lg text-[#94A3B8] font-medium">/5</span></p>
-          <p className="text-xs text-[#64748B] font-medium">Steps done</p>
-          <div className="mt-auto pt-2 h-1 w-full rounded-full bg-[#E2E8F0] overflow-hidden">
-            <div className="h-full rounded-full bg-[#2563EB] transition-all" style={{ width: `${progressPct}%` }} />
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4 shadow-sm flex flex-col gap-1">
-          <p className="text-3xl font-bold text-[#0F172A]">
-            {accuracy !== null ? `${accuracy}%` : <span className="text-2xl text-[#CBD5E1]">—</span>}
+        <StatCard
+          value={<>{completedCount}<span className="text-lg font-medium" style={{ color: "oklch(62% 0.01 250)" }}>/5</span></>}
+          label="Steps done"
+          accentColor="#2563EB"
+        />
+        <StatCard
+          value={accuracy !== null ? `${accuracy}%` : <span className="text-2xl" style={{ color: "oklch(82% 0.01 250)" }}>—</span>}
+          label="Trainer accuracy"
+          sub={trainerStats.totalAnswers > 0 ? `${trainerStats.totalAnswers} answers` : "No data yet"}
+          accentColor={accuracy !== null ? "#15803D" : undefined}
+        />
+        <div
+          className="rounded-2xl p-4 flex flex-col gap-1"
+          style={{
+            background: "oklch(100% 0 0)",
+            border: streakCount > 0 ? "1px solid rgba(234,88,12,0.2)" : "1px solid oklch(89% 0.01 250)",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+          }}
+        >
+          <p
+            className="font-display text-3xl font-bold"
+            style={{ color: streakCount > 0 ? "#C2410C" : "oklch(18% 0.01 250)" }}
+          >
+            {streakCount}
+            <span
+              className="text-lg font-medium"
+              style={{ color: streakCount > 0 ? "#C2410C" : "oklch(62% 0.01 250)" }}
+            >
+              {" "}day{streakCount !== 1 ? "s" : ""}
+            </span>
           </p>
-          <p className="text-xs text-[#64748B] font-medium">Trainer accuracy</p>
-          <p className="mt-auto pt-1 text-[11px] text-[#94A3B8]">
-            {trainerStats.totalAnswers > 0 ? `${trainerStats.totalAnswers} answers` : "No data yet"}
+          <p className="text-xs font-medium flex items-center gap-1" style={{ color: "oklch(55% 0.01 250)" }}>
+            {streakCount > 0 && "🔥 "}Current streak
           </p>
-        </div>
-        <div className="bg-white rounded-2xl border border-[#E2E8F0] p-4 shadow-sm flex flex-col gap-1">
-          <p className="text-3xl font-bold" style={{ color: streakCount > 0 ? "#EA580C" : "#0F172A" }}>
-            {streakCount}<span className="text-lg text-[#94A3B8] font-medium"> day{streakCount !== 1 ? "s" : ""}</span>
+          <p className="mt-auto pt-1 text-xs" style={{ color: "oklch(65% 0.008 250)" }}>
+            Best: {bestStreak} days
           </p>
-          <p className="text-xs text-[#64748B] font-medium">Current streak</p>
-          <p className="mt-auto pt-1 text-[11px] text-[#94A3B8]">Best: {bestStreak} days</p>
         </div>
       </div>
 
-      {/* Learning Progress */}
-      <section className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm flex flex-col gap-4">
+      {/* Learning Steps */}
+      <section
+        className="rounded-2xl p-5 flex flex-col gap-4"
+        style={{
+          background: "oklch(100% 0 0)",
+          border: "1px solid oklch(89% 0.01 250)",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+        }}
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-[#0F172A]">Learning Steps</h2>
-          <span className="text-xs text-[#64748B]">{completedCount} / 5 completed</span>
+          <h2
+            className="text-base font-bold"
+            style={{ color: "oklch(18% 0.01 250)" }}
+          >
+            Learning Steps
+          </h2>
+          <span className="text-xs" style={{ color: "oklch(62% 0.01 250)" }}>
+            {completedCount} / 5 completed
+          </span>
         </div>
+
+        {/* Progress bar */}
+        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: "oklch(91% 0.008 250)" }}>
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${progressPct}%`, backgroundColor: "#2563EB" }}
+          />
+        </div>
+
         <div className="flex flex-col gap-2">
           {STEPS.map((step, i) => {
             const status = stepStatus(step.id);
@@ -185,22 +259,30 @@ export default function ProgressPage() {
               <button
                 key={step.id}
                 onClick={() => router.push(step.route)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all hover:shadow-sm"
+                className="ltc-hover-shadow flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-150"
                 style={{
-                  backgroundColor: isDone ? step.bg : isActive ? "#FAFAFA" : "#F8FAFC",
-                  borderColor: isDone ? step.color + "50" : isActive ? step.color + "30" : "#E2E8F0",
-                  borderLeftColor: step.color,
-                  borderLeftWidth: "3px",
+                  background: isDone ? step.bg : isActive ? "oklch(97.5% 0.005 250)" : "oklch(99% 0.004 250)",
+                  border: `1px solid ${isDone ? `${step.color}25` : isActive ? `${step.color}18` : "oklch(89% 0.01 250)"}`,
                 }}
               >
                 <span
                   className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                  style={{ backgroundColor: isDone ? step.color : isActive ? step.color + "20" : "#E2E8F0", color: isDone ? "#fff" : isActive ? step.color : "#94A3B8" }}
+                  style={{
+                    background: isDone ? step.color : isActive ? `${step.color}15` : "oklch(91% 0.008 250)",
+                    color: isDone ? "#fff" : isActive ? step.color : "oklch(62% 0.01 250)",
+                  }}
                 >
                   {isDone ? "✓" : i + 1}
                 </span>
-                <span className="flex-1 font-medium text-[#0F172A] text-sm">{step.title}</span>
-                <span className="text-xs font-semibold" style={{ color: isDone ? step.color : isActive ? step.color : "#CBD5E1" }}>
+                <span className="flex-1 font-medium text-sm" style={{ color: "oklch(18% 0.01 250)" }}>
+                  {step.title}
+                </span>
+                <span
+                  className="text-xs font-semibold"
+                  style={{
+                    color: isDone ? step.color : isActive ? step.color : "oklch(75% 0.008 250)",
+                  }}
+                >
                   {isDone ? "Complete" : isActive ? "Up next" : "Locked"}
                 </span>
               </button>
@@ -210,17 +292,31 @@ export default function ProgressPage() {
       </section>
 
       {/* Cases Mastered */}
-      <section className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm flex flex-col gap-4">
+      <section
+        className="rounded-2xl p-5 flex flex-col gap-4"
+        style={{
+          background: "oklch(100% 0 0)",
+          border: "1px solid oklch(89% 0.01 250)",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+        }}
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-[#0F172A]">Cases Mastered</h2>
-          <span className="text-xs text-[#64748B]">
+          <h2 className="text-base font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+            Cases Mastered
+          </h2>
+          <span className="text-xs font-semibold" style={{ color: "#2563EB" }}>
             {learnedCases.length} / 16
           </span>
         </div>
 
         <div className="flex flex-col gap-3">
           <div>
-            <p className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest mb-2">OLL — 10 cases</p>
+            <p
+              className="text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "oklch(62% 0.01 250)" }}
+            >
+              OLL — 10 cases
+            </p>
             <div className="grid grid-cols-5 gap-1.5">
               {OLL_CASES.map((c) => {
                 const learned = caseStatus(c.id) === "learned";
@@ -228,14 +324,22 @@ export default function ProgressPage() {
                   <button
                     key={c.id}
                     onClick={() => router.push("/learn/oll")}
-                    className="rounded-lg border p-2 text-center transition-all hover:opacity-80"
+                    className="hover:opacity-75 rounded-lg border p-2 text-center transition-all duration-150"
                     style={{
-                      borderColor: learned ? "#16A34A50" : "#E2E8F0",
-                      backgroundColor: learned ? "#F0FDF4" : "#F8FAFC",
+                      borderColor: learned ? "rgba(180,83,9,0.3)" : "oklch(89% 0.01 250)",
+                      background: learned ? "rgba(180,83,9,0.07)" : "oklch(97.5% 0.005 250)",
                     }}
                   >
-                    <div className="w-2 h-2 rounded-full mx-auto mb-1" style={{ backgroundColor: learned ? "#16A34A" : "#CBD5E1" }} />
-                    <p className="text-[10px] font-medium text-[#0F172A] leading-tight">{c.title}</p>
+                    <div
+                      className="w-2 h-2 rounded-full mx-auto mb-1"
+                      style={{ background: learned ? "#B45309" : "oklch(82% 0.01 250)" }}
+                    />
+                    <p
+                      className="text-2xs font-medium leading-tight"
+                      style={{ color: learned ? "#B45309" : "oklch(62% 0.01 250)" }}
+                    >
+                      {c.title}
+                    </p>
                   </button>
                 );
               })}
@@ -243,7 +347,12 @@ export default function ProgressPage() {
           </div>
 
           <div>
-            <p className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest mb-2">PLL — 6 cases</p>
+            <p
+              className="text-xs font-bold uppercase tracking-widest mb-2"
+              style={{ color: "oklch(62% 0.01 250)" }}
+            >
+              PLL — 6 cases
+            </p>
             <div className="grid grid-cols-6 gap-1.5">
               {PLL_CASES.map((c) => {
                 const learned = caseStatus(c.id) === "learned";
@@ -251,14 +360,22 @@ export default function ProgressPage() {
                   <button
                     key={c.id}
                     onClick={() => router.push("/learn/pll")}
-                    className="rounded-lg border p-2 text-center transition-all hover:opacity-80"
+                    className="hover:opacity-75 rounded-lg border p-2 text-center transition-all duration-150"
                     style={{
-                      borderColor: learned ? "#9333EA50" : "#E2E8F0",
-                      backgroundColor: learned ? "#FDF4FF" : "#F8FAFC",
+                      borderColor: learned ? "rgba(124,58,237,0.3)" : "oklch(89% 0.01 250)",
+                      background: learned ? "rgba(124,58,237,0.07)" : "oklch(97.5% 0.005 250)",
                     }}
                   >
-                    <div className="w-2 h-2 rounded-full mx-auto mb-1" style={{ backgroundColor: learned ? "#9333EA" : "#CBD5E1" }} />
-                    <p className="text-[10px] font-medium text-[#0F172A] leading-tight">{c.title}</p>
+                    <div
+                      className="w-2 h-2 rounded-full mx-auto mb-1"
+                      style={{ background: learned ? "#7C3AED" : "oklch(82% 0.01 250)" }}
+                    />
+                    <p
+                      className="text-2xs font-medium leading-tight"
+                      style={{ color: learned ? "#7C3AED" : "oklch(62% 0.01 250)" }}
+                    >
+                      {c.title}
+                    </p>
                   </button>
                 );
               })}
@@ -267,22 +384,37 @@ export default function ProgressPage() {
         </div>
 
         {learnedCases.length === 0 && (
-          <p className="text-sm text-[#94A3B8] text-center py-1">
+          <p className="text-sm text-center py-1" style={{ color: "oklch(60% 0.01 250)" }}>
             Complete OLL and PLL tutorials to track cases here.
           </p>
         )}
       </section>
 
       {/* Trainer Stats */}
-      <section className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm flex flex-col gap-4">
-        <h2 className="text-base font-bold text-[#0F172A]">Trainer Stats</h2>
+      <section
+        className="rounded-2xl p-5 flex flex-col gap-4"
+        style={{
+          background: "oklch(100% 0 0)",
+          border: "1px solid oklch(89% 0.01 250)",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+        }}
+      >
+        <h2 className="text-base font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+          Trainer Stats
+        </h2>
         {trainerStats.totalSessions === 0 ? (
           <div className="flex flex-col items-center gap-3 py-4 text-center">
-            <div className="w-10 h-10 rounded-full bg-[#F1F5F9] flex items-center justify-center text-lg">⚡</div>
-            <p className="text-sm text-[#64748B]">No sessions yet.</p>
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+              style={{ background: "oklch(94% 0.04 255)", border: "1px solid oklch(87% 0.06 255)" }}
+            >
+              ⚡
+            </div>
+            <p className="text-sm" style={{ color: "oklch(55% 0.01 250)" }}>No sessions yet.</p>
             <button
               onClick={() => router.push("/trainer")}
-              className="text-sm font-semibold text-[#2563EB] hover:underline underline-offset-2"
+              className="ltc-hover-primary-color text-sm font-semibold transition-colors duration-150"
+              style={{ color: "#2563EB" }}
             >
               Start the Trainer →
             </button>
@@ -291,19 +423,35 @@ export default function ProgressPage() {
           <>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { value: trainerStats.totalSessions, label: "Sessions" },
-                { value: accuracy !== null ? `${accuracy}%` : "—", label: "Accuracy" },
-                { value: avgSec !== null ? `${avgSec}s` : "—", label: "Avg Time" },
-              ].map(({ value, label }) => (
-                <div key={label} className="bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] p-3 text-center">
-                  <p className="text-2xl font-bold text-[#0F172A]">{value}</p>
-                  <p className="text-xs text-[#64748B] mt-0.5 font-medium">{label}</p>
+                { value: trainerStats.totalSessions, label: "Sessions",  color: "#2563EB" },
+                { value: accuracy !== null ? `${accuracy}%` : "—", label: "Accuracy", color: "#15803D" },
+                { value: avgSec !== null ? `${avgSec}s` : "—",     label: "Avg Time",  color: "#7C3AED" },
+              ].map(({ value, label, color }) => (
+                <div
+                  key={label}
+                  className="rounded-xl border p-3 text-center"
+                  style={{
+                    background: `${color}07`,
+                    borderColor: `${color}18`,
+                  }}
+                >
+                  <p
+                    className="font-display text-2xl font-bold"
+                    style={{ color }}
+                  >
+                    {value}
+                  </p>
+                  <p className="text-xs mt-0.5 font-medium" style={{ color: "oklch(55% 0.01 250)" }}>
+                    {label}
+                  </p>
                 </div>
               ))}
             </div>
             {sessionHistory.length >= 5 && (
               <div>
-                <p className="text-xs text-[#94A3B8] mb-2 font-medium">Accuracy over last {sessionHistory.length} sessions</p>
+                <p className="text-xs mb-2 font-medium" style={{ color: "oklch(60% 0.01 250)" }}>
+                  Accuracy over last {sessionHistory.length} sessions
+                </p>
                 <AccuracyChart sessions={sessionHistory} />
               </div>
             )}
@@ -311,33 +459,63 @@ export default function ProgressPage() {
         )}
       </section>
 
-      {/* Streak + Calendar */}
-      <section className="bg-white rounded-2xl border border-[#E2E8F0] p-5 shadow-sm flex flex-col gap-4">
+      {/* Activity + Streak */}
+      <section
+        className="rounded-2xl p-5 flex flex-col gap-4"
+        style={{
+          background: "oklch(100% 0 0)",
+          border: "1px solid oklch(89% 0.01 250)",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+        }}
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-[#0F172A]">Activity</h2>
+          <h2 className="text-base font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+            Activity
+          </h2>
           <div className="flex gap-2">
-            <div className="flex items-center gap-1.5 bg-[#FFF7ED] border border-[#FED7AA] rounded-lg px-3 py-1.5">
+            <div
+              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
+              style={{
+                background: "rgba(194,65,12,0.07)",
+                border: "1px solid rgba(194,65,12,0.18)",
+              }}
+            >
               <span className="text-base">🔥</span>
               <div>
-                <p className="text-sm font-bold text-[#EA580C] leading-none">{streakCount}</p>
-                <p className="text-[10px] text-[#9A3412] leading-none">streak</p>
+                <p className="text-sm font-bold leading-none" style={{ color: "#C2410C" }}>
+                  {streakCount}
+                </p>
+                <p className="text-2xs leading-none" style={{ color: "#C2410C" }}>streak</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg px-3 py-1.5">
+            <div
+              className="flex items-center gap-1.5 rounded-xl px-3 py-1.5"
+              style={{
+                background: "oklch(97.5% 0.005 250)",
+                border: "1px solid oklch(89% 0.01 250)",
+              }}
+            >
               <span className="text-base">🏆</span>
               <div>
-                <p className="text-sm font-bold text-[#0F172A] leading-none">{bestStreak}</p>
-                <p className="text-[10px] text-[#64748B] leading-none">best</p>
+                <p className="text-sm font-bold leading-none" style={{ color: "oklch(18% 0.01 250)" }}>
+                  {bestStreak}
+                </p>
+                <p className="text-2xs leading-none" style={{ color: "oklch(60% 0.01 250)" }}>best</p>
               </div>
             </div>
           </div>
         </div>
 
         <div>
-          <p className="text-[11px] text-[#94A3B8] mb-2 font-medium uppercase tracking-widest">Last 30 days</p>
+          <p
+            className="text-xs font-bold uppercase tracking-widest mb-2"
+            style={{ color: "oklch(62% 0.01 250)" }}
+          >
+            Last 30 days
+          </p>
           <CalendarGrid activityDates={activityDates} />
           {activityDates.length === 0 && (
-            <p className="text-sm text-[#94A3B8] mt-3 text-center">
+            <p className="text-sm mt-3 text-center" style={{ color: "oklch(60% 0.01 250)" }}>
               Complete a step or trainer session to start your streak.
             </p>
           )}

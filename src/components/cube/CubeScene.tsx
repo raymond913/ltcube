@@ -327,6 +327,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
   visibleCubiesRef.current = visibleCubies ?? [];
 
   const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
+  const [, setInstantRevision] = useState(0);
 
 
   // ---- Mount: create all 26 cubie objects imperatively --------------------
@@ -464,7 +465,11 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
       applyAppearance(cubies, new Set(visibleCubiesRef.current));
     };
 
+    const hadPending = useCubeStore.getState().pendingInstantAlg !== null;
     registerInstantHandler(handler);
+    if (hadPending) {
+      setInstantRevision((r) => r + 1);
+    }
     return () => unregisterInstantHandler();
   }, [scene]);
 

@@ -8,10 +8,6 @@ import { useProgressStore } from "@/stores/progressStore";
 import { twoLookOll } from "@/data/beginner/two-look-oll";
 import { twoLookPll } from "@/data/beginner/two-look-pll";
 
-// ---------------------------------------------------------------------------
-// Types & data
-// ---------------------------------------------------------------------------
-
 type Category = "oll-edges" | "oll-corners" | "oll-all" | "pll-corners" | "pll-edges" | "pll-all";
 type Phase = "setup" | "quiz" | "feedback" | "results";
 
@@ -102,10 +98,6 @@ function buildRounds(pool: QuizCase[]): QuizCase[] {
   return rounds;
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
 export function PatternTrainer() {
   const [phase, setPhase] = useState<Phase>("setup");
   const [category, setCategory] = useState<Category>("oll-all");
@@ -127,19 +119,16 @@ export function PatternTrainer() {
   const recordTrainerSession = useProgressStore((s) => s.recordTrainerSession);
   const updateStreak = useProgressStore((s) => s.updateStreak);
 
-  // Clear any pending timers
   const clearTimers = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
     if (advanceRef.current) { clearTimeout(advanceRef.current); advanceRef.current = null; }
   }, []);
 
-  // Apply a case to the cube
   const applyCase = useCallback((c: QuizCase) => {
     useCubeStore.getState().reset();
     useCubeStore.getState().applyInstant(c.initialState);
   }, []);
 
-  // Start a quiz round
   const startRound = useCallback((roundIdx: number, roundList: QuizCase[], pool: QuizCase[]) => {
     clearTimers();
     const c = roundList[roundIdx];
@@ -208,7 +197,6 @@ export function PatternTrainer() {
     [],
   );
 
-  // Start quiz
   const startQuiz = useCallback(() => {
     const pool = CATEGORY_CASES[category];
     const roundList = buildRounds(pool);
@@ -218,7 +206,6 @@ export function PatternTrainer() {
     setPhase("quiz");
   }, [category]);
 
-  // Load cube state when entering quiz phase
   useEffect(() => {
     if (phase === "quiz" && rounds.length > 0) {
       startRound(roundIndex, rounds, CATEGORY_CASES[category]);
@@ -226,7 +213,6 @@ export function PatternTrainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, roundIndex, rounds]);
 
-  // Save results when results phase reached
   useEffect(() => {
     if (phase === "results" && results.length > 0) {
       const correct = results.filter((r) => r.correct).length;
@@ -237,14 +223,9 @@ export function PatternTrainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  // Cleanup on unmount
   useEffect(() => () => clearTimers(), [clearTimers]);
 
   const currentCase = rounds[roundIndex];
-
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
 
   if (phase === "setup") {
     return <SetupScreen category={category} timed={timed} onCategoryChange={setCategory} onTimedChange={setTimed} onStart={startQuiz} />;
@@ -266,22 +247,24 @@ export function PatternTrainer() {
     );
   }
 
-  // quiz or feedback
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-lg mx-auto">
       {/* Score + round */}
       <div className="flex w-full items-center justify-between">
-        <span className="text-sm font-medium text-[#64748B]">
+        <span className="text-sm font-medium" style={{ color: "oklch(50% 0.012 250)" }}>
           Round {roundIndex + 1} / {ROUNDS}
         </span>
-        <span className="text-sm font-semibold text-[#1E293B]">
+        <span className="text-sm font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
           Score: {results.filter((r) => r.correct).length} / {results.length}
         </span>
       </div>
 
       {/* Timer bar */}
       {timed && phase === "quiz" && (
-        <div className="w-full h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
+        <div
+          className="w-full h-2 rounded-full overflow-hidden"
+          style={{ background: "oklch(91% 0.008 250)" }}
+        >
           <div
             className="h-full rounded-full transition-none"
             style={{
@@ -292,15 +275,16 @@ export function PatternTrainer() {
         </div>
       )}
 
-      {/* Cube */}
+      {/* Cube with feedback ring */}
       <div
-        className={`rounded-xl overflow-hidden transition-all duration-300 ${
+        className="rounded-xl overflow-hidden transition-all duration-300"
+        style={
           phase === "feedback" && isCorrect === true
-            ? "ring-4 ring-[#16A34A] shadow-lg shadow-green-100"
+            ? { outline: "4px solid #15803D", outlineOffset: "2px" }
             : phase === "feedback" && isCorrect === false
-            ? "ring-4 ring-[#DC2626] shadow-lg shadow-red-100"
-            : ""
-        }`}
+            ? { outline: "4px solid #DC2626", outlineOffset: "2px" }
+            : {}
+        }
       >
         {showSolution && currentCase ? (
           <AlgorithmPlayer
@@ -316,11 +300,20 @@ export function PatternTrainer() {
       {/* Feedback message */}
       {phase === "feedback" && (
         <div
-          className={`w-full rounded-lg px-4 py-3 text-sm font-medium ${
+          className="w-full rounded-lg px-4 py-3 text-sm font-medium"
+          style={
             isCorrect
-              ? "bg-[#F0FDF4] border border-[#86EFAC] text-[#166534]"
-              : "bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B]"
-          }`}
+              ? {
+                  background: "rgba(21,128,61,0.07)",
+                  border: "1px solid rgba(21,128,61,0.22)",
+                  color: "#15803D",
+                }
+              : {
+                  background: "rgba(220,38,38,0.07)",
+                  border: "1px solid rgba(220,38,38,0.22)",
+                  color: "#DC2626",
+                }
+          }
         >
           {isCorrect ? (
             <>
@@ -346,7 +339,12 @@ export function PatternTrainer() {
             <button
               key={c.id}
               onClick={() => handleAnswer(c, roundIndex, rounds)}
-              className="min-h-[44px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-medium text-[#1E293B] hover:bg-[#EFF6FF] hover:border-[#2563EB] transition-colors text-left"
+              className="ltc-hover-choice min-h-[44px] rounded-lg px-4 py-3 text-sm font-medium text-left transition-all duration-150"
+              style={{
+                background: "oklch(100% 0 0)",
+                border: "1px solid oklch(89% 0.01 250)",
+                color: "oklch(18% 0.01 250)",
+              }}
             >
               {c.title}
             </button>
@@ -359,13 +357,19 @@ export function PatternTrainer() {
         <div className="flex gap-3 w-full">
           <button
             onClick={() => setShowSolution((s) => !s)}
-            className="flex-1 min-h-[44px] rounded-lg border border-[#2563EB] bg-white px-4 py-2.5 text-sm font-semibold text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
+            className="ltc-hover-blue flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150"
+            style={{
+              background: "oklch(100% 0 0)",
+              border: "1px solid #2563EB",
+              color: "#2563EB",
+            }}
           >
             {showSolution ? "Hide Solution" : "Watch Solution"}
           </button>
           <button
             onClick={() => advanceRound(roundIndex + 1, rounds)}
-            className="flex-1 min-h-[44px] rounded-lg bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+            className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
+            style={{ backgroundColor: "#2563EB" }}
           >
             {roundIndex + 1 >= ROUNDS ? "See Results" : "Next"}
           </button>
@@ -374,10 +378,6 @@ export function PatternTrainer() {
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Sub-screens
-// ---------------------------------------------------------------------------
 
 function SetupScreen({
   category,
@@ -404,17 +404,28 @@ function SetupScreen({
   return (
     <div className="flex flex-col gap-6 w-full max-w-lg mx-auto">
       <div>
-        <h2 className="text-lg font-semibold text-[#1E293B] mb-3">Choose category</h2>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+          Choose category
+        </h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {cats.map(([key, label]) => (
             <button
               key={key}
               onClick={() => onCategoryChange(key)}
-              className={`min-h-[44px] rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
+              className={`min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150 ${category !== key ? "ltc-hover-subtle" : ""}`}
+              style={
                 category === key
-                  ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
-                  : "border-[#E2E8F0] bg-white text-[#1E293B] hover:bg-[#F1F5F9]"
-              }`}
+                  ? {
+                      background: "oklch(94% 0.04 255)",
+                      border: "1px solid #2563EB",
+                      color: "#2563EB",
+                    }
+                  : {
+                      background: "oklch(100% 0 0)",
+                      border: "1px solid oklch(89% 0.01 250)",
+                      color: "oklch(18% 0.01 250)",
+                    }
+              }
             >
               {label}
             </button>
@@ -423,7 +434,9 @@ function SetupScreen({
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold text-[#1E293B] mb-3">Timer</h2>
+        <h2 className="text-lg font-semibold mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+          Timer
+        </h2>
         <div className="flex gap-2">
           {(
             [
@@ -434,11 +447,20 @@ function SetupScreen({
             <button
               key={String(val)}
               onClick={() => onTimedChange(val)}
-              className={`min-h-[44px] flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors ${
+              className={`min-h-[44px] flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150 ${timed !== val ? "ltc-hover-subtle" : ""}`}
+              style={
                 timed === val
-                  ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
-                  : "border-[#E2E8F0] bg-white text-[#1E293B] hover:bg-[#F1F5F9]"
-              }`}
+                  ? {
+                      background: "oklch(94% 0.04 255)",
+                      border: "1px solid #2563EB",
+                      color: "#2563EB",
+                    }
+                  : {
+                      background: "oklch(100% 0 0)",
+                      border: "1px solid oklch(89% 0.01 250)",
+                      color: "oklch(18% 0.01 250)",
+                    }
+              }
             >
               {label}
             </button>
@@ -448,7 +470,11 @@ function SetupScreen({
 
       <button
         onClick={onStart}
-        className="min-h-[44px] w-full rounded-lg bg-[#2563EB] px-4 py-3 text-base font-semibold text-white hover:bg-[#1D4ED8] transition-colors shadow-sm"
+        className="ltc-hover-primary min-h-[44px] w-full rounded-lg px-4 py-3 text-base font-semibold text-white transition-colors"
+        style={{
+          backgroundColor: "#2563EB",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+        }}
       >
         Start — {ROUNDS} rounds of {CATEGORY_LABELS[category]}
       </button>
@@ -474,35 +500,48 @@ function ResultsScreen({
   const pct = Math.round((correct / total) * 100);
   const avgSec = (avgTimeMs / 1000).toFixed(1);
 
-  // Deduplicate missed cases
   const missedUniq = Array.from(new Map(missed.map((r) => [r.caseId, r])).values());
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-lg mx-auto">
-      <div className="rounded-xl border border-[#E2E8F0] bg-white p-6 flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-[#1E293B]">Results</h2>
+      <div
+        className="rounded-xl p-6 flex flex-col gap-4"
+        style={{
+          background: "oklch(100% 0 0)",
+          border: "1px solid oklch(89% 0.01 250)",
+        }}
+      >
+        <h2 className="text-xl font-bold" style={{ color: "oklch(18% 0.01 250)" }}>Results</h2>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-3xl font-bold text-[#2563EB]">{correct}/{total}</p>
-            <p className="text-xs text-[#64748B] mt-1">Correct</p>
+            <p className="font-display text-3xl font-bold" style={{ color: "#2563EB" }}>
+              {correct}/{total}
+            </p>
+            <p className="text-xs mt-1" style={{ color: "oklch(50% 0.012 250)" }}>Correct</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-[#1E293B]">{pct}%</p>
-            <p className="text-xs text-[#64748B] mt-1">Accuracy</p>
+            <p className="font-display text-3xl font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+              {pct}%
+            </p>
+            <p className="text-xs mt-1" style={{ color: "oklch(50% 0.012 250)" }}>Accuracy</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-[#1E293B]">{avgSec}s</p>
-            <p className="text-xs text-[#64748B] mt-1">Avg time</p>
+            <p className="font-display text-3xl font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+              {avgSec}s
+            </p>
+            <p className="text-xs mt-1" style={{ color: "oklch(50% 0.012 250)" }}>Avg time</p>
           </div>
         </div>
 
         {missedUniq.length > 0 && (
           <div>
-            <p className="text-sm font-semibold text-[#1E293B] mb-2">Cases to review</p>
+            <p className="text-sm font-semibold mb-2" style={{ color: "oklch(18% 0.01 250)" }}>
+              Cases to review
+            </p>
             <ul className="flex flex-col gap-1.5">
               {missedUniq.map((r) => (
-                <li key={r.caseId} className="flex items-center gap-2 text-sm text-[#64748B]">
-                  <span className="w-2 h-2 rounded-full bg-[#DC2626] shrink-0" />
+                <li key={r.caseId} className="flex items-center gap-2 text-sm" style={{ color: "oklch(50% 0.012 250)" }}>
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#DC2626" }} />
                   {r.caseTitle}
                 </li>
               ))}
@@ -514,13 +553,19 @@ function ResultsScreen({
       <div className="flex gap-3">
         <button
           onClick={onTryAgain}
-          className="flex-1 min-h-[44px] rounded-lg bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+          className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
+          style={{ backgroundColor: "#2563EB" }}
         >
           Try Again
         </button>
         <button
           onClick={onChangeSettings}
-          className="flex-1 min-h-[44px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm font-semibold text-[#1E293B] hover:bg-[#F1F5F9] transition-colors"
+          className="ltc-hover-subtle flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150"
+          style={{
+            background: "oklch(100% 0 0)",
+            border: "1px solid oklch(89% 0.01 250)",
+            color: "oklch(18% 0.01 250)",
+          }}
         >
           Change Settings
         </button>

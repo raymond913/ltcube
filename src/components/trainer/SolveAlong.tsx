@@ -7,10 +7,6 @@ import { useProgressStore } from "@/stores/progressStore";
 import { generateScramble } from "@/lib/scrambleGenerator";
 import { detectStage, isCrossSolved, areCornersSolved, isF2LSolved, isOLLSolved, isPLLSolved } from "@/lib/solverHeuristics";
 
-// ---------------------------------------------------------------------------
-// Stage data
-// ---------------------------------------------------------------------------
-
 const STAGES = [
   {
     id: "white-cross",
@@ -49,22 +45,14 @@ const STAGES = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 type Screen = "scramble" | "solving" | "done";
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export function SolveAlong() {
   const [screen, setScreen] = useState<Screen>("scramble");
   const [scramble, setScramble] = useState(() => generateScramble(20));
   const [customInput, setCustomInput] = useState("");
   const [usingCustom, setUsingCustom] = useState(false);
-  const [stageIndex, setStageIndex] = useState(0); // 0-based index into STAGES
+  const [stageIndex, setStageIndex] = useState(0);
   const [detectedStage, setDetectedStage] = useState(0);
   const [autoAdvanced, setAutoAdvanced] = useState(false);
 
@@ -75,14 +63,12 @@ export function SolveAlong() {
 
   const activeScramble = usingCustom ? customInput.trim() : scramble;
 
-  // Detect stage from live cube state
   useEffect(() => {
     if (screen !== "solving") return;
     const stage = detectStage(faces);
     setDetectedStage(stage);
   }, [faces, screen]);
 
-  // Auto-advance when detection passes current stage
   useEffect(() => {
     if (screen !== "solving") return;
     if (detectedStage > stageIndex && !autoAdvanced) {
@@ -151,32 +137,39 @@ export function SolveAlong() {
     setCustomInput("");
   }, []);
 
-  // ---------------------------------------------------------------------------
-  // Screens
-  // ---------------------------------------------------------------------------
-
   if (screen === "done") {
     return (
       <div className="flex flex-col items-center gap-6 w-full max-w-lg mx-auto py-8">
         <div className="text-center">
           <div className="text-5xl mb-4">🎉</div>
-          <h2 className="text-2xl font-bold text-[#1E293B] mb-2">You solved it!</h2>
-          <p className="text-[#64748B]">Excellent work completing all 5 stages.</p>
+          <h2 className="text-2xl font-bold mb-2" style={{ color: "oklch(18% 0.01 250)" }}>
+            You solved it!
+          </h2>
+          <p style={{ color: "oklch(50% 0.012 250)" }}>Excellent work completing all 5 stages.</p>
         </div>
-        <div className="w-full rounded-xl border border-[#E2E8F0] bg-white p-4">
-          <p className="text-sm font-semibold text-[#1E293B] mb-3">Stages completed</p>
+        <div
+          className="w-full rounded-xl p-4"
+          style={{
+            background: "oklch(100% 0 0)",
+            border: "1px solid oklch(89% 0.01 250)",
+          }}
+        >
+          <p className="text-sm font-semibold mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+            Stages completed
+          </p>
           <div className="flex flex-col gap-2">
             {STAGES.map((s) => (
               <div key={s.id} className="flex items-center gap-3 text-sm">
-                <span className="text-[#16A34A] font-bold">✓</span>
-                <span className="text-[#1E293B]">{s.name}</span>
+                <span className="font-bold" style={{ color: "#15803D" }}>✓</span>
+                <span style={{ color: "oklch(18% 0.01 250)" }}>{s.name}</span>
               </div>
             ))}
           </div>
         </div>
         <button
           onClick={handleStartOver}
-          className="w-full min-h-[44px] rounded-lg bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+          className="ltc-hover-primary w-full min-h-[44px] rounded-lg px-4 py-3 text-sm font-semibold text-white transition-colors"
+          style={{ backgroundColor: "#2563EB" }}
         >
           Solve Again
         </button>
@@ -187,48 +180,85 @@ export function SolveAlong() {
   if (screen === "scramble") {
     return (
       <div className="flex flex-col gap-6 w-full max-w-lg mx-auto">
-        <div className="rounded-xl border border-[#E2E8F0] bg-white p-5 flex flex-col gap-4">
+        <div
+          className="rounded-xl p-5 flex flex-col gap-4"
+          style={{
+            background: "oklch(100% 0 0)",
+            border: "1px solid oklch(89% 0.01 250)",
+          }}
+        >
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-[#1E293B]">Scramble</h2>
+            <h2 className="text-base font-semibold" style={{ color: "oklch(18% 0.01 250)" }}>
+              Scramble
+            </h2>
             <button
               onClick={handleGenerateNew}
-              className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] transition-colors"
+              className="ltc-hover-primary-color text-sm font-medium transition-colors"
+              style={{ color: "#2563EB" }}
             >
               Generate new
             </button>
           </div>
 
-          <div className="font-mono text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg px-4 py-3 text-[#1E293B] tracking-wide break-all">
-            {usingCustom ? (customInput.trim() || <span className="text-[#94A3B8]">Enter moves above…</span>) : scramble}
+          <div
+            className="font-mono text-sm rounded-lg px-4 py-3 tracking-wide break-all"
+            style={{
+              background: "oklch(97.5% 0.005 250)",
+              border: "1px solid oklch(89% 0.01 250)",
+              color: "oklch(18% 0.01 250)",
+            }}
+          >
+            {usingCustom
+              ? (customInput.trim() || <span style={{ color: "oklch(68% 0.008 250)" }}>Enter moves above…</span>)
+              : scramble}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#64748B] mb-1.5">Paste custom scramble (optional)</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "oklch(50% 0.012 250)" }}>
+              Paste custom scramble (optional)
+            </label>
             <input
               type="text"
               value={customInput}
               onChange={(e) => { setCustomInput(e.target.value); setUsingCustom(e.target.value.trim().length > 0); }}
               placeholder="R U R' U' R' F R2 U' R' U' R U R' F'…"
-              className="w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm font-mono text-[#1E293B] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+              className="w-full rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+              style={{
+                background: "oklch(100% 0 0)",
+                border: "1px solid oklch(89% 0.01 250)",
+                color: "oklch(18% 0.01 250)",
+              }}
             />
           </div>
 
           <button
             onClick={handleApplyScramble}
             disabled={isAnimating}
-            className="min-h-[44px] w-full rounded-lg border border-[#2563EB] bg-white px-4 py-2.5 text-sm font-semibold text-[#2563EB] hover:bg-[#EFF6FF] disabled:opacity-50 transition-colors"
+            className="ltc-hover-blue min-h-[44px] w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
+            style={{
+              background: "oklch(100% 0 0)",
+              border: "1px solid #2563EB",
+              color: "#2563EB",
+            }}
           >
             Apply to Cube
           </button>
         </div>
 
-        <div className="rounded-xl overflow-hidden border border-[#E2E8F0]">
+        <div
+          className="rounded-xl overflow-hidden"
+          style={{ border: "1px solid oklch(89% 0.01 250)" }}
+        >
           <CubeViewer size={300} interactive />
         </div>
 
         <button
           onClick={handleReady}
-          className="min-h-[44px] w-full rounded-lg bg-[#2563EB] px-4 py-3 text-base font-semibold text-white hover:bg-[#1D4ED8] transition-colors shadow-sm"
+          className="ltc-hover-primary min-h-[44px] w-full rounded-lg px-4 py-3 text-base font-semibold text-white transition-colors"
+          style={{
+            backgroundColor: "#2563EB",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          }}
         >
           I&apos;m Ready
         </button>
@@ -236,61 +266,99 @@ export function SolveAlong() {
     );
   }
 
-  // solving screen
   const stage = STAGES[stageIndex];
   const stagePassed = detectedStage > stageIndex;
 
   return (
     <div className="flex flex-col gap-5 w-full max-w-lg mx-auto">
-      {/* Progress dots */}
+      {/* Progress segments */}
       <div className="flex items-center gap-2">
         {STAGES.map((s, i) => (
           <div
             key={s.id}
-            className={`h-2 flex-1 rounded-full transition-all duration-300 ${
-              i < stageIndex
-                ? "bg-[#16A34A]"
-                : i === stageIndex
-                ? "bg-[#2563EB]"
-                : "bg-[#E2E8F0]"
-            }`}
+            className="h-2 flex-1 rounded-full transition-all duration-300"
+            style={{
+              backgroundColor:
+                i < stageIndex
+                  ? "#15803D"
+                  : i === stageIndex
+                  ? "#2563EB"
+                  : "oklch(91% 0.008 250)",
+            }}
           />
         ))}
       </div>
 
       {/* Stage header */}
-      <div className="rounded-xl border border-[#E2E8F0] bg-white p-5">
+      <div
+        className="rounded-xl p-5"
+        style={{
+          background: "oklch(100% 0 0)",
+          border: "1px solid oklch(89% 0.01 250)",
+        }}
+      >
         <div className="flex items-start justify-between gap-3 mb-2">
           <div>
-            <p className="text-xs font-medium text-[#64748B] mb-0.5">
+            <p className="text-xs font-medium mb-0.5" style={{ color: "oklch(50% 0.012 250)" }}>
               Stage {stageIndex + 1} of {STAGES.length}
             </p>
-            <h2 className="text-lg font-bold text-[#1E293B]">{stage.name}</h2>
+            <h2 className="text-lg font-bold" style={{ color: "oklch(18% 0.01 250)" }}>
+              {stage.name}
+            </h2>
           </div>
           {stagePassed && (
-            <span className="shrink-0 rounded-full bg-[#F0FDF4] border border-[#86EFAC] px-3 py-1 text-xs font-semibold text-[#16A34A]">
+            <span
+              className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold"
+              style={{
+                background: "rgba(21,128,61,0.07)",
+                border: "1px solid rgba(21,128,61,0.22)",
+                color: "#15803D",
+              }}
+            >
               Done ✓
             </span>
           )}
         </div>
-        <p className="text-sm font-medium text-[#1E293B] mb-3">{stage.instruction}</p>
-        <div className="rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] px-4 py-3">
-          <p className="text-xs font-semibold text-[#1E40AF] mb-1">Tip</p>
-          <p className="text-sm text-[#1E40AF]">{stage.tip}</p>
+        <p className="text-sm font-medium mb-3" style={{ color: "oklch(18% 0.01 250)" }}>
+          {stage.instruction}
+        </p>
+        <div
+          className="rounded-lg px-4 py-3"
+          style={{
+            background: "oklch(94% 0.04 255)",
+            border: "1px solid oklch(87% 0.06 255)",
+          }}
+        >
+          <p className="text-xs font-semibold mb-1" style={{ color: "#2563EB" }}>Tip</p>
+          <p className="text-sm" style={{ color: "#2563EB" }}>{stage.tip}</p>
         </div>
       </div>
 
       {/* Cube */}
-      <div className="rounded-xl overflow-hidden border border-[#E2E8F0]">
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{ border: "1px solid oklch(89% 0.01 250)" }}
+      >
         <CubeViewer size={300} interactive />
       </div>
 
       {/* Detection status */}
-      <div className={`rounded-lg border px-4 py-3 text-sm ${
-        stagePassed
-          ? "bg-[#F0FDF4] border-[#86EFAC] text-[#166534]"
-          : "bg-[#F8FAFC] border-[#E2E8F0] text-[#64748B]"
-      }`}>
+      <div
+        className="rounded-lg px-4 py-3 text-sm"
+        style={
+          stagePassed
+            ? {
+                background: "rgba(21,128,61,0.07)",
+                border: "1px solid rgba(21,128,61,0.22)",
+                color: "#15803D",
+              }
+            : {
+                background: "oklch(97.5% 0.005 250)",
+                border: "1px solid oklch(89% 0.01 250)",
+                color: "oklch(50% 0.012 250)",
+              }
+        }
+      >
         {stagePassed
           ? `${stage.name} detected as solved — advancing…`
           : `Solve the cube, then click "I solved this stage" or keep going and detection will advance automatically.`}
@@ -300,13 +368,19 @@ export function SolveAlong() {
       <div className="flex gap-3">
         <button
           onClick={handleReset}
-          className="min-h-[44px] rounded-lg border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm font-semibold text-[#64748B] hover:bg-[#F1F5F9] transition-colors"
+          className="ltc-hover-subtle min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+          style={{
+            background: "oklch(100% 0 0)",
+            border: "1px solid oklch(89% 0.01 250)",
+            color: "oklch(50% 0.012 250)",
+          }}
         >
           Reset to start
         </button>
         <button
           onClick={handleManualAdvance}
-          className="flex-1 min-h-[44px] rounded-lg bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1D4ED8] transition-colors"
+          className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors"
+          style={{ backgroundColor: "#2563EB" }}
         >
           {stageIndex + 1 >= STAGES.length ? "Finish" : "I solved this stage"}
         </button>

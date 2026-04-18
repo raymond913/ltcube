@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { CubeViewer } from "@/components/cube/CubeViewer";
 import {
   CubeEngine,
@@ -16,20 +16,12 @@ import type { Arrow } from "@/lib/tutorialTypes";
 // Pure helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Build a CubeFaces snapshot from an algorithm string applied to a solved cube.
- * Used to derive the initial cube state from a raw scramble/setup string.
- */
 function computeFacesFromAlg(alg: string): CubeFaces {
   const engine = new CubeEngine();
   if (alg) engine.applyAlgorithm(alg);
   return engine.getState();
 }
 
-/**
- * Pre-computes one CubeFaces snapshot per step.
- * Uses a throw-away local engine so the global singleton is untouched.
- */
 export function buildPlaybackState(
   algorithm: string,
   initialState?: CubeFaces,
@@ -52,26 +44,14 @@ export function buildPlaybackState(
 // Component
 // ---------------------------------------------------------------------------
 
-/**
- * @param initialStateAlg  Raw algorithm string applied from solved to reach the
- *   starting state (preferred).  When provided, the 3D cube is set via
- *   `cubeStore.applyInstant()` so CubeScene builds the correct visual state
- *   without triggering the subscribe-reset path.
- *
- * @param initialState  Pre-computed CubeFaces — kept for API compatibility with
- *   non-tutorial callers.  Ignored when `initialStateAlg` is provided.
- *   Must be referentially stable (e.g. from useMemo).
- */
 interface AlgorithmPlayerProps {
   algorithm: string;
   initialStateAlg?: string;
   initialState?: CubeFaces;
-  /** Position keys ("x,y,z") of cubies to highlight; shown at step 0 / after completion */
   visibleCubies?: string[];
   title?: string;
   description?: string;
   showViewToggle?: boolean;
-  /** Arrows shown at step 0 and after algorithm completes (teaching state) */
   arrows?: Arrow[];
 }
 
@@ -91,9 +71,6 @@ export function AlgorithmPlayer({
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const [viewMode, setViewMode] = useState<"default" | "white-up">("default");
 
-  // Derive CubeFaces for the initial step, preferring initialStateAlg.
-  // This is only used for buildPlaybackState — the 3D canvas is updated via
-  // applyInstant (when initialStateAlg is provided) or setState (legacy path).
   const [playback, setPlayback] = useState(() => {
     const initFaces = initialStateAlg !== undefined
       ? computeFacesFromAlg(initialStateAlg)
@@ -101,32 +78,17 @@ export function AlgorithmPlayer({
     return buildPlaybackState(algorithm, initFaces);
   });
 
-  useEffect(() => {
-    const alg = initialStateAlg !== undefined ? initialStateAlg : invertAlgorithm(algorithm);
-    useCubeStore.getState().reset();
-    useCubeStore.getState().applyInstant(alg);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialStateAlg, initialState, algorithm]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<Speed>(1);
 
   const { snapshots, moves } = playback;
 
-  // Teaching state: show highlighted cubies + arrows at step 0 and after completion
   const showTeachingState = !isPlaying && (currentStep === 0 || currentStep >= moves.length);
 
-  // Tracks whether a stepForward animation is in-flight. Prevents the
-  // auto-play effect from re-triggering the same move when isAnimating flips
-  // false before React has processed the setCurrentStep(s+1) state update.
   const stepFiredRef = useRef(false);
 
-  // Re-build snapshots and sync 3D state when algorithm or initial state changes.
-  // useLayoutEffect fires before the browser paint so the cube never flashes solved.
-  useLayoutEffect(() => {
-    const alg = initialStateAlg !== undefined ? initialStateAlg : invertAlgorithm(algorithm);
-    console.log("[AlgorithmPlayer] initialState alg:", alg);
-
+  useEffect(() => {
     const initFaces = initialStateAlg !== undefined
       ? computeFacesFromAlg(initialStateAlg)
       : initialState;
@@ -135,19 +97,36 @@ export function AlgorithmPlayer({
     setCurrentStep(0);
     setIsPlaying(false);
     stepFiredRef.current = false;
-
-    // Reset first to guarantee a clean visual state, then apply setup.
-    useCubeStore.getState().reset();
-    useCubeStore.getState().applyInstant(alg);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [algorithm, initialStateAlg, initialState]);
+  }, [algorithm, initialStateAlg]);
 
-  // Sync speed to store
+  useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 50;
+    const algToApply = initialStateAlg !== undefined
+      ? initialStateAlg
+      : invertAlgorithm(algorithm);
+
+    const tryApply = () => {
+      attempts++;
+      const store = useCubeStore.getState();
+      store.reset();
+      if (algToApply && algToApply.trim() !== '') {
+        store.applyInstant(algToApply);
+      }
+      if (useCubeStore.getState().pendingInstantAlg !== null && attempts < maxAttempts) {
+        setTimeout(tryApply, 50);
+      }
+    };
+
+    setTimeout(tryApply, 100);
+    return () => { attempts = maxAttempts; };
+  }, [initialStateAlg, algorithm]);
+
   useEffect(() => {
     setAnimationSpeed(speed);
   }, [speed, setAnimationSpeed]);
 
-  // Restore speed on unmount so other components aren't affected
   useEffect(() => {
     return () => setAnimationSpeed(1);
   }, [setAnimationSpeed]);
@@ -160,16 +139,10 @@ export function AlgorithmPlayer({
     setCurrentStep((s) => s + 1);
   }, [isAnimating, currentStep, moves, animateMove]);
 
-  // NOTE: The isAnimating guard is necessary but not sufficient — a GSAP tween
-  // that completes mid-flight will call commitAnimatedMove, potentially
-  // overwriting a just-restored snapshot. This window is extremely narrow in
-  // practice and requires simultaneous user input during the animation frame.
   const stepBack = useCallback(() => {
     if (isAnimating || currentStep === 0) return;
     const newStep = currentStep - 1;
     setCurrentStep(newStep);
-    // CubeScene's Zustand subscribe will match newStep's faces against the
-    // move log and replay the correct prefix — no need to call applyInstant here.
     cubeEngine.setState(snapshots[newStep]);
     useCubeStore.setState({ faces: snapshots[newStep] });
   }, [isAnimating, currentStep, snapshots]);
@@ -189,17 +162,12 @@ export function AlgorithmPlayer({
     setCurrentStep(0);
     stepFiredRef.current = false;
     if (initialStateAlg !== undefined) {
-      // applyInstant resets the 3D scene back to the scrambled initial state
-      // and rebuilds the move log so subsequent step-back/reset work correctly.
       useCubeStore.getState().applyInstant(initialStateAlg);
     } else {
       useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
     }
   }, [initialStateAlg, algorithm]);
 
-  // Auto-play loop. stepForward is in deps (not isAnimating directly) because
-  // stepForward closes over isAnimating — changing it here would break the
-  // useCallback memoisation and cause infinite re-renders.
   useEffect(() => {
     if (!isPlaying) return;
     if (currentStep >= moves.length) {
@@ -211,7 +179,6 @@ export function AlgorithmPlayer({
     }
   }, [isPlaying, isAnimating, currentStep, moves.length, stepForward]);
 
-  // Keyboard shortcuts (component must have focus — tabIndex={0} below)
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       switch (e.key) {
@@ -236,26 +203,47 @@ export function AlgorithmPlayer({
     [stepForward, stepBack, reset],
   );
 
+  const progressPct = moves.length > 0 ? (currentStep / moves.length) * 100 : 0;
+  const isAtEnd = currentStep >= moves.length;
+  const isAtStart = currentStep === 0;
+
   return (
     <div
-      className="rounded-xl border border-[#E2E8F0] bg-white shadow-sm p-5 w-full max-w-[500px] mx-auto flex flex-col gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2"
+      className="w-full max-w-[500px] mx-auto flex flex-col gap-0 focus:outline-none"
+      style={{
+        background: "oklch(100% 0 0)",
+        border: "1px solid oklch(89% 0.01 250)",
+        borderRadius: "18px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+        overflow: "hidden",
+      }}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
-      {/* Optional header */}
+      {/* ── Optional header ── */}
       {(title || description) && (
-        <div>
+        <div
+          className="px-5 pt-4 pb-3"
+          style={{ borderBottom: "1px solid oklch(91% 0.008 250)" }}
+        >
           {title && (
-            <p className="font-semibold text-[#1E293B]">{title}</p>
+            <p
+              className="font-display font-semibold text-sm leading-tight"
+              style={{ color: "oklch(18% 0.01 250)" }}
+            >
+              {title}
+            </p>
           )}
           {description && (
-            <p className="mt-0.5 text-sm text-[#64748B]">{description}</p>
+            <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "oklch(50% 0.012 250)" }}>
+              {description}
+            </p>
           )}
         </div>
       )}
 
-      {/* 3D cube */}
-      <div className="flex flex-col items-center gap-2">
+      {/* ── 3D cube ── */}
+      <div className="flex flex-col items-center gap-2 px-5 pt-4 pb-3">
         <CubeViewer
           size={300}
           interactive
@@ -266,20 +254,39 @@ export function AlgorithmPlayer({
         {showViewToggle && (
           <button
             onClick={() => setViewMode((v) => v === "white-up" ? "default" : "white-up")}
-            className={`rounded-md border px-3 py-1 text-xs font-medium transition-colors ${
-              viewMode === "white-up"
-                ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]"
-                : "border-[#E2E8F0] bg-white text-[#64748B] hover:bg-[#F1F5F9]"
-            }`}
+            className="rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150"
+            style={{
+              background: viewMode === "white-up" ? "oklch(94% 0.04 255)" : "oklch(97% 0.003 250)",
+              border: `1px solid ${viewMode === "white-up" ? "oklch(87% 0.06 255)" : "oklch(89% 0.01 250)"}`,
+              color: viewMode === "white-up" ? "#2563EB" : "oklch(52% 0.012 250)",
+            }}
           >
             {viewMode === "white-up" ? "Default view" : "View white face"}
           </button>
         )}
       </div>
 
-      {/* Step dot navigator */}
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap gap-1.5 items-center">
+      {/* ── Thin progress bar ── */}
+      <div className="mx-5 mb-3" style={{ height: "2px", background: "oklch(91% 0.008 250)", borderRadius: "1px" }}>
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{
+            width: `${progressPct}%`,
+            background: "#2563EB",
+          }}
+        />
+      </div>
+
+      {/* ── Algorithm notation + step counter ── */}
+      <div
+        className="flex flex-col gap-2 mx-5 mb-3 px-3 py-3 rounded-xl"
+        style={{
+          background: "oklch(97.5% 0.005 250)",
+          border: "1px solid oklch(89% 0.01 250)",
+        }}
+      >
+        {/* Dot navigator — each button has padding for 44px touch target */}
+        <div className="flex flex-wrap items-center" style={{ gap: "0 2px", margin: "0 -4px" }}>
           {Array.from({ length: moves.length + 1 }, (_, i) => (
             <button
               key={i}
@@ -287,92 +294,181 @@ export function AlgorithmPlayer({
               disabled={isAnimating}
               title={i === 0 ? "Start" : moves[i - 1]?.notation}
               aria-label={i === 0 ? "Go to start" : `Go to move ${i}: ${moves[i - 1]?.notation}`}
-              className={`rounded-full transition-all duration-150 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] ${
-                i === currentStep
-                  ? "w-3.5 h-3.5 bg-[#2563EB] scale-110"
-                  : i < currentStep
-                  ? "w-2.5 h-2.5 bg-[#93C5FD] hover:bg-[#2563EB]"
-                  : "w-2.5 h-2.5 bg-[#E2E8F0] hover:bg-[#CBD5E1]"
-              }`}
-            />
+              className="flex items-center justify-center transition-all duration-150 disabled:cursor-not-allowed"
+              style={{
+                padding: "22px 4px",
+                background: "transparent",
+                border: "none",
+              }}
+            >
+              <span
+                className="block rounded-full transition-all duration-150"
+                style={{
+                  width:  i === currentStep ? "12px" : "8px",
+                  height: i === currentStep ? "12px" : "8px",
+                  background: i === currentStep
+                    ? "#2563EB"
+                    : i < currentStep
+                    ? "oklch(72% 0.01 250)"
+                    : "oklch(87% 0.008 250)",
+                  transform: i === currentStep ? "scale(1.1)" : "scale(1)",
+                }}
+              />
+            </button>
           ))}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-x-1.5 gap-y-0.5 font-mono text-sm leading-relaxed">
+
+        {/* Algorithm tokens + counter */}
+        <div className="flex items-start justify-between gap-2">
+          <div
+            className="font-mono flex flex-wrap gap-x-1.5 gap-y-0.5 text-sm leading-relaxed"
+          >
             {moves.map((m, i) => {
-              let cls = "text-[#1E293B]";
-              if (i < currentStep) cls = "text-[#94A3B8]";
-              else if (i === currentStep) cls = "font-bold text-[#2563EB]";
+              const isPast    = i < currentStep;
+              const isCurrent = i === currentStep;
               return (
                 <button
                   key={i}
                   onClick={() => jumpToStep(i)}
                   disabled={isAnimating}
-                  className={`${cls} hover:underline disabled:cursor-not-allowed`}
+                  style={{
+                    color: isPast
+                      ? "oklch(75% 0.008 250)"
+                      : isCurrent
+                      ? "#2563EB"
+                      : "oklch(40% 0.01 250)",
+                    fontWeight: isCurrent ? 700 : 400,
+                    transition: "all 0.15s ease",
+                  }}
+                  className="hover:opacity-70 disabled:cursor-not-allowed"
                 >
                   {m.notation}
                 </button>
               );
             })}
           </div>
-          <span className="shrink-0 text-xs text-[#94A3B8] whitespace-nowrap">
-            {currentStep} / {moves.length}
+          <span
+            className="font-mono shrink-0 text-xs whitespace-nowrap tabular-nums"
+            style={{ color: "oklch(60% 0.01 250)" }}
+          >
+            {currentStep}&nbsp;/&nbsp;{moves.length}
           </span>
         </div>
       </div>
 
-      {/* Transport controls */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
+      {/* ── Transport controls ── */}
+      <div
+        className="flex items-center justify-between gap-3 px-5 pt-3 pb-4 flex-wrap"
+        style={{ borderTop: "1px solid oklch(91% 0.008 250)" }}
+      >
         {/* Playback buttons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
+          {/* Step back */}
           <button
             onClick={stepBack}
-            disabled={isAnimating || currentStep === 0}
+            disabled={isAnimating || isAtStart}
             aria-label="Step back"
             title="Step back (←)"
-            className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#1E293B] shadow-sm hover:bg-[#F1F5F9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="ltc-hover-transport flex items-center justify-center rounded-xl transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              width: "40px",
+              height: "40px",
+              background: "oklch(97% 0.003 250)",
+              border: "1px solid oklch(89% 0.01 250)",
+              color: "oklch(50% 0.012 250)",
+            }}
           >
-            |◄
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M3 3h1.5v4.5L13 3v10L4.5 8.5V13H3z" />
+            </svg>
           </button>
+
+          {/* Play / Pause */}
           <button
             onClick={() => setIsPlaying((p) => !p)}
-            disabled={!isPlaying && currentStep >= moves.length}
+            disabled={!isPlaying && isAtEnd}
             aria-label={isPlaying ? "Pause" : "Play"}
             title="Play / Pause (Space)"
-            className="rounded-md bg-[#2563EB] px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1D4ED8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center justify-center rounded-xl font-semibold transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.04] active:scale-[0.97]"
+            style={{
+              width: "44px",
+              height: "44px",
+              backgroundColor: isPlaying ? "oklch(94% 0.04 255)" : "#2563EB",
+              border: isPlaying ? "1px solid oklch(87% 0.06 255)" : "none",
+              color: isPlaying ? "#2563EB" : "#fff",
+              boxShadow: !isPlaying && !isAtEnd ? "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(37,99,235,0.3)" : "none",
+            }}
           >
-            {isPlaying ? "⏸" : "▶"}
+            {isPlaying ? (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="3" y="2" width="4" height="12" rx="1" />
+                <rect x="9" y="2" width="4" height="12" rx="1" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 2.5l10 5.5-10 5.5z" />
+              </svg>
+            )}
           </button>
+
+          {/* Step forward */}
           <button
             onClick={() => void stepForward()}
-            disabled={isAnimating || currentStep >= moves.length}
+            disabled={isAnimating || isAtEnd}
             aria-label="Step forward"
             title="Step forward (→)"
-            className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#1E293B] shadow-sm hover:bg-[#F1F5F9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="ltc-hover-transport flex items-center justify-center rounded-xl transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{
+              width: "40px",
+              height: "40px",
+              background: "oklch(97% 0.003 250)",
+              border: "1px solid oklch(89% 0.01 250)",
+              color: "oklch(50% 0.012 250)",
+            }}
           >
-            ►|
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M13 3h-1.5v4.5L3 3v10l8.5-4.5V13H13z" />
+            </svg>
           </button>
+
+          {/* Reset */}
           <button
             onClick={reset}
             aria-label="Reset"
             title="Reset (R)"
-            className="rounded-md border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-semibold text-[#64748B] shadow-sm hover:bg-[#F1F5F9] transition-colors"
+            className="ltc-hover-transport flex items-center justify-center rounded-xl transition-all duration-150"
+            style={{
+              width: "40px",
+              height: "40px",
+              background: "oklch(97% 0.003 250)",
+              border: "1px solid oklch(89% 0.01 250)",
+              color: "oklch(62% 0.01 250)",
+            }}
           >
-            ⟲
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 8a5 5 0 1 0 1-3" />
+              <path d="M3 3v3h3" />
+            </svg>
           </button>
         </div>
 
-        {/* Speed selector */}
-        <div className="flex items-center gap-1">
+        {/* Speed selector — pill group */}
+        <div
+          className="flex items-center rounded-xl overflow-hidden"
+          style={{
+            background: "oklch(97% 0.003 250)",
+            border: "1px solid oklch(89% 0.01 250)",
+          }}
+        >
           {SPEEDS.map((s) => (
             <button
               key={s}
               onClick={() => setSpeed(s)}
-              className={`rounded px-2 py-1 text-xs font-semibold transition-colors ${
-                speed === s
-                  ? "bg-[#2563EB] text-white"
-                  : "border border-[#E2E8F0] bg-white text-[#64748B] hover:bg-[#F1F5F9]"
-              }`}
+              className="font-mono px-2.5 py-2.5 text-xs font-semibold transition-all duration-150"
+              style={{
+                background: speed === s ? "#2563EB" : "transparent",
+                color: speed === s ? "#fff" : "oklch(52% 0.012 250)",
+              }}
             >
               {s}x
             </button>
