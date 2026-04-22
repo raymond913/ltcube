@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from "three";
@@ -14,6 +14,7 @@ import {
   unregisterInstantHandler,
   commitAnimatedMove,
 } from "@/stores/cubeStore";
+import { usePreferencesStore } from "@/stores/preferencesStore";
 import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
 import type { Arrow } from "@/lib/tutorialTypes";
@@ -25,11 +26,20 @@ import { MoveArrow } from "./MoveArrow";
 
 type Vec3 = [number, number, number];
 
-const BODY_SIZE      = 0.93;
-const STICKER_SIZE   = 0.79;    // ≈ 0.85 × BODY_SIZE
-const STICKER_OFFSET = 0.466;   // BODY_SIZE / 2 + 0.001
+const BODY_SIZE = 0.93;
 
-/** Solved-state sticker colors keyed by face letter. */
+// Stickered mode — raised plastic stickers
+const S_SIZE   = 0.82;
+const S_DEPTH  = 0.008;
+const S_OFFSET = BODY_SIZE / 2 + S_DEPTH / 2 + 0.003;
+const S_RADIUS = 0.06;
+
+// Stickerless mode — flush colored plastic panels
+const SL_SIZE   = 0.915;
+const SL_DEPTH  = 0.012;
+const SL_OFFSET = BODY_SIZE / 2 - SL_DEPTH / 2 + 0.001;
+const SL_RADIUS = 0.10;
+
 const FACE_COLORS: Record<string, string> = {
   R: "#DC2626",
   L: "#EA580C",
@@ -38,6 +48,9 @@ const FACE_COLORS: Record<string, string> = {
   F: "#2563EB",
   B: "#16A34A",
 };
+
+const BODY_COLOR    = "#111111";
+const GHOST_BODY    = "#3A3A3A";
 
 /** All 26 visible cubie positions (every {-1,0,1}³ excluding origin). */
 const CUBIE_POSITIONS: Vec3[] = [];
@@ -50,17 +63,6 @@ for (let x = -1; x <= 1; x++) {
   }
 }
 
-/**
- * Axis config per face.
- * cwAngle is the Three.js rotation angle for a clockwise (viewed from outside) face turn.
- *
- * F: −π/2 around Z  (verified: cubie [-1,1,1] → [1,1,1] under F cwAngle)
- * B: +π/2 around Z
- *
- * These are OPPOSITE to the old architecture, which had a compensating flip (+π/2 / −π/2)
- * for the color-rendering path. The persistent cubie architecture drives objects directly —
- * no compensation needed.
- */
 const FACE_ANIM: Record<string, { axisIndex: 0 | 1 | 2; cwAngle: number }> = {
   R: { axisIndex: 0, cwAngle: -Math.PI / 2 },
   L: { axisIndex: 0, cwAngle:  Math.PI / 2 },
@@ -68,10 +70,13 @@ const FACE_ANIM: Record<string, { axisIndex: 0 | 1 | 2; cwAngle: number }> = {
   D: { axisIndex: 1, cwAngle:  Math.PI / 2 },
   F: { axisIndex: 2, cwAngle: -Math.PI / 2 },
   B: { axisIndex: 2, cwAngle:  Math.PI / 2 },
+  M: { axisIndex: 0, cwAngle:  Math.PI / 2 },
+  E: { axisIndex: 1, cwAngle:  Math.PI / 2 },
+  S: { axisIndex: 2, cwAngle: -Math.PI / 2 },
 };
 
 // ---------------------------------------------------------------------------
-// Move arrow (visual indicator during animation)
+// Move arrow
 // ---------------------------------------------------------------------------
 
 const ARROW_R    = 0.78;
@@ -112,10 +117,6 @@ function FaceArrow({ face, clockwise }: { face: string; clockwise: boolean }) {
 // Imperative helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Returns true if this cubie's world position places it on the given face.
- * Uses a 0.1 tolerance to absorb floating-point accumulation across many moves.
- */
 function isCubieInFace(cubie: THREE.Group, face: string, wide = false): boolean {
   const pos = new THREE.Vector3();
   cubie.getWorldPosition(pos);
@@ -138,14 +139,13 @@ function isCubieInFace(cubie: THREE.Group, face: string, wide = false): boolean 
     case "D": return Math.abs(pos.y + 1)  < EPS;
     case "F": return Math.abs(pos.z - 1)  < EPS;
     case "B": return Math.abs(pos.z + 1)  < EPS;
+    case "M": return Math.abs(pos.x)      < EPS;
+    case "E": return Math.abs(pos.y)      < EPS;
+    case "S": return Math.abs(pos.z)      < EPS;
     default:  return false;
   }
 }
 
-/**
- * Deep equality check on CubeFaces.
- * Used by the move-log matching logic to identify AlgorithmPlayer's step target.
- */
 function faceStatesMatch(a: CubeFaces, b: CubeFaces): boolean {
   const faces = ["U", "D", "F", "B", "R", "L"] as const;
   for (const face of faces) {
@@ -158,51 +158,65 @@ function faceStatesMatch(a: CubeFaces, b: CubeFaces): boolean {
   return true;
 }
 
-/**
- * Create one imperative Three.js Group for a cubie at the given solved-state position.
- * Colors are baked in permanently — they never change after creation.
- */
+function makeBodyMat(): THREE.MeshPhysicalMaterial {
+  return new THREE.MeshPhysicalMaterial({
+    color: BODY_COLOR,
+    roughness: 0.55,
+    metalness: 0.0,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.3,
+  });
+}
+
+function makeStickerMat(color: string, stickerless: boolean): THREE.MeshPhysicalMaterial {
+  return new THREE.MeshPhysicalMaterial({
+    color,
+    roughness: stickerless ? 0.45 : 0.30,
+    metalness: 0.0,
+    clearcoat: stickerless ? 0.6 : 0.9,
+    clearcoatRoughness: stickerless ? 0.25 : 0.10,
+    side: THREE.DoubleSide,
+  });
+}
+
 function createCubieGroup(x: number, y: number, z: number): THREE.Group {
   const group = new THREE.Group();
   group.position.set(x, y, z);
 
-  // Body
-  const bodyGeo = new RoundedBoxGeometry(BODY_SIZE, BODY_SIZE, BODY_SIZE, 2, 0.08);
-  const bodyMat = new THREE.MeshStandardMaterial({ color: "#1E1E1E" });
+  const bodyGeo = new RoundedBoxGeometry(BODY_SIZE, BODY_SIZE, BODY_SIZE, 3, 0.10);
+  const bodyMat = makeBodyMat();
   const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
-  bodyMesh.userData.originalColor = "#1E1E1E";
+  bodyMesh.userData.isBody = true;
+  bodyMesh.userData.originalColor = BODY_COLOR;
   group.add(bodyMesh);
 
-  // Stickers — one per outer face this cubie touches
   const addSticker = (
     color: string,
     px: number, py: number, pz: number,
     rx: number, ry: number, rz: number,
+    nx: number, ny: number, nz: number,
   ) => {
-    const geo  = new THREE.PlaneGeometry(STICKER_SIZE, STICKER_SIZE);
-    const mat  = new THREE.MeshStandardMaterial({ color, side: THREE.DoubleSide });
+    const geo = new RoundedBoxGeometry(S_SIZE, S_SIZE, S_DEPTH, 2, S_RADIUS);
+    const mat = makeStickerMat(color, false);
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(px, py, pz);
     mesh.rotation.set(rx, ry, rz);
     mesh.userData.originalColor = color;
     mesh.userData.isSticker = true;
+    mesh.userData.faceNormal = [nx, ny, nz];
     group.add(mesh);
   };
 
-  if (x ===  1) addSticker(FACE_COLORS.R,  STICKER_OFFSET, 0,              0,             0,            Math.PI / 2,  0);
-  if (x === -1) addSticker(FACE_COLORS.L, -STICKER_OFFSET, 0,              0,             0,           -Math.PI / 2,  0);
-  if (y ===  1) addSticker(FACE_COLORS.U,  0,              STICKER_OFFSET,  0,            -Math.PI / 2,  0,            0);
-  if (y === -1) addSticker(FACE_COLORS.D,  0,             -STICKER_OFFSET,  0,             Math.PI / 2,  0,            0);
-  if (z ===  1) addSticker(FACE_COLORS.F,  0,              0,               STICKER_OFFSET, 0,            0,            0);
-  if (z === -1) addSticker(FACE_COLORS.B,  0,              0,              -STICKER_OFFSET, 0,            Math.PI,      0);
+  if (x ===  1) addSticker(FACE_COLORS.R,  S_OFFSET, 0, 0,  0,  Math.PI/2, 0,  1, 0, 0);
+  if (x === -1) addSticker(FACE_COLORS.L, -S_OFFSET, 0, 0,  0, -Math.PI/2, 0, -1, 0, 0);
+  if (y ===  1) addSticker(FACE_COLORS.U,  0,  S_OFFSET, 0, -Math.PI/2, 0, 0,  0,  1, 0);
+  if (y === -1) addSticker(FACE_COLORS.D,  0, -S_OFFSET, 0,  Math.PI/2, 0, 0,  0, -1, 0);
+  if (z ===  1) addSticker(FACE_COLORS.F,  0, 0,  S_OFFSET,  0, 0, 0,  0, 0,  1);
+  if (z === -1) addSticker(FACE_COLORS.B,  0, 0, -S_OFFSET,  0, Math.PI, 0,  0, 0, -1);
 
   return group;
 }
 
-/**
- * Reset all 26 cubie groups back to their original solved-state positions and
- * identity quaternions (no rotation).
- */
 function resetCubiesToSolved(cubies: THREE.Group[]): void {
   cubies.forEach((c, idx) => {
     const [x, y, z] = CUBIE_POSITIONS[idx];
@@ -211,11 +225,6 @@ function resetCubiesToSolved(cubies: THREE.Group[]): void {
   });
 }
 
-/**
- * Apply a single move to the cubie objects instantly (no animation).
- * Performs the same reparent → rotate → reparent sequence as the animated handler
- * but without GSAP — sets the pivot rotation directly and calls updateMatrixWorld.
- */
 function applyMoveInstant(
   move: string,
   cubies: THREE.Group[],
@@ -237,13 +246,11 @@ function applyMoveInstant(
   const savedPos  = faceCubies.map(() => new THREE.Vector3());
   const savedQuat = faceCubies.map(() => new THREE.Quaternion());
 
-  // Save world transforms
   faceCubies.forEach((c, i) => {
     c.getWorldPosition(savedPos[i]);
     c.getWorldQuaternion(savedQuat[i]);
   });
 
-  // Reparent to pivot (at origin, identity)
   pivot.rotation.set(0, 0, 0);
   faceCubies.forEach((c, i) => {
     scene.remove(c);
@@ -252,18 +259,15 @@ function applyMoveInstant(
     c.quaternion.copy(savedQuat[i]);
   });
 
-  // Apply rotation instantly
   const axisKeys = ["x", "y", "z"] as const;
   pivot.rotation[axisKeys[animDef.axisIndex]] = targetAngle;
   pivot.updateMatrixWorld(true);
 
-  // Read new world transforms
   faceCubies.forEach((c, i) => {
     c.getWorldPosition(savedPos[i]);
     c.getWorldQuaternion(savedQuat[i]);
   });
 
-  // Reparent back to scene
   faceCubies.forEach((c, i) => {
     pivot.remove(c);
     scene.add(c);
@@ -274,43 +278,105 @@ function applyMoveInstant(
   pivot.rotation.set(0, 0, 0);
 }
 
-// ---------------------------------------------------------------------------
-// AnimatedScene — the inner R3F component
-// ---------------------------------------------------------------------------
-
-interface CubeSceneProps {
-  interactive: boolean;
-  /** Accepted for API compatibility with CubeViewer — not used for rendering in this architecture. */
-  cubeState?: CubeFaces;
-  /** Position keys ("x,y,z") of cubies to render normally; all others render as black body with no stickers. When undefined or empty, all cubies render normally. */
-  visibleCubies?: string[];
-  onReady?: () => void;
-  /** Camera view mode: "default" = standard angle, "white-up" = top-down showing white face */
-  viewMode?: "default" | "white-up";
-  /** Arrows rendered on top of the cube */
-  arrows?: Arrow[];
+function snapCubiesToGrid(cubies: THREE.Group[]): void {
+  cubies.forEach((cubie) => {
+    cubie.position.x = Math.round(cubie.position.x);
+    cubie.position.y = Math.round(cubie.position.y);
+    cubie.position.z = Math.round(cubie.position.z);
+  });
 }
 
-function applyAppearance(cubies: THREE.Group[], visibleKeys: Set<string>): void {
+function applyCubeStyle(cubies: THREE.Group[], style: "stickered" | "stickerless"): void {
+  const sl = style === "stickerless";
+  const size   = sl ? SL_SIZE   : S_SIZE;
+  const depth  = sl ? SL_DEPTH  : S_DEPTH;
+  const offset = sl ? SL_OFFSET : S_OFFSET;
+  const radius = sl ? SL_RADIUS : S_RADIUS;
+
+  cubies.forEach((cubie) => {
+    cubie.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+
+      if (obj.userData.isBody) {
+        const mat = obj.material as THREE.MeshPhysicalMaterial;
+        if (sl) {
+          mat.color.set(BODY_COLOR);
+          mat.clearcoat = 0.2;
+        } else {
+          mat.color.set(BODY_COLOR);
+          mat.clearcoat = 0.4;
+        }
+        mat.needsUpdate = true;
+        return;
+      }
+
+      if (!obj.userData.isSticker) return;
+      const [nx, ny, nz] = obj.userData.faceNormal as [number, number, number];
+
+      // Update geometry
+      obj.geometry.dispose();
+      obj.geometry = new RoundedBoxGeometry(size, size, depth, 2, radius);
+
+      if (nx !== 0) obj.position.set(nx * offset, 0, 0);
+      else if (ny !== 0) obj.position.set(0, ny * offset, 0);
+      else obj.position.set(0, 0, nz * offset);
+
+      // Update material
+      const oldMat = obj.material as THREE.MeshPhysicalMaterial;
+      const baseColor = obj.userData.originalColor as string;
+      const currentOpacity = oldMat.opacity;
+      const currentTransparent = oldMat.transparent;
+      oldMat.dispose();
+
+      const newMat = makeStickerMat(baseColor, sl);
+      newMat.opacity = currentOpacity;
+      newMat.transparent = currentTransparent;
+      obj.material = newMat;
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// applyAppearance
+// ---------------------------------------------------------------------------
+
+function applyAppearance(
+  cubies: THREE.Group[],
+  visibleKeys: Set<string>,
+  style: "stickered" | "stickerless",
+): void {
   cubies.forEach((cubie, idx) => {
     const [x, y, z] = CUBIE_POSITIONS[idx];
     const key = `${x},${y},${z}`;
     const isVisible = visibleKeys.size === 0 || visibleKeys.has(key);
     cubie.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
-      const mat = obj.material as THREE.MeshStandardMaterial;
+      const mat = obj.material as THREE.MeshPhysicalMaterial;
       if (!isVisible) {
-        mat.color.set(obj.userData.isSticker ? (obj.userData.originalColor as string) : "#3A3A3A");
-        mat.opacity = 0.25;
+        mat.color.set(obj.userData.isSticker ? (obj.userData.originalColor as string) : GHOST_BODY);
+        mat.opacity = 0.22;
         mat.transparent = true;
       } else {
-        mat.color.set((obj.userData.originalColor as string) ?? "#1E1E1E");
+        mat.color.set((obj.userData.originalColor as string) ?? BODY_COLOR);
         mat.opacity = 1;
         mat.transparent = false;
       }
       mat.needsUpdate = true;
     });
   });
+}
+
+// ---------------------------------------------------------------------------
+// AnimatedScene
+// ---------------------------------------------------------------------------
+
+interface CubeSceneProps {
+  interactive: boolean;
+  cubeState?: CubeFaces;
+  visibleCubies?: string[];
+  onReady?: () => void;
+  viewMode?: "default" | "white-up";
+  arrows?: Arrow[];
 }
 
 function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSceneProps) {
@@ -322,15 +388,16 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
   const isAnimatingRef = useRef(false);
   const moveLogRef     = useRef<string[]>([]);
 
-  // ---- Highlighted cubies state -------------------------------------------
   const visibleCubiesRef = useRef<string[]>([]);
   visibleCubiesRef.current = visibleCubies ?? [];
+
+  const cubeStyle = usePreferencesStore((s) => s.cubeStyle);
+  const cubeStyleRef = useRef(cubeStyle);
 
   const [currentAnim, setCurrentAnim] = useState<{ face: string; clockwise: boolean } | null>(null);
   const [, setInstantRevision] = useState(0);
 
-
-  // ---- Mount: create all 26 cubie objects imperatively --------------------
+  // ---- Mount: create cubies -----------------------------------------------
   useEffect(() => {
     const pivot = pivotRef.current;
     scene.add(pivot);
@@ -355,7 +422,16 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
     };
   }, [scene]);
 
-  // ---- GSAP animation handler (registered with cubeStore on mount) --------
+  // ---- Style changes -------------------------------------------------------
+  useEffect(() => {
+    cubeStyleRef.current = cubeStyle;
+    if (cubiesRef.current.length) {
+      applyCubeStyle(cubiesRef.current, cubeStyle);
+      applyAppearance(cubiesRef.current, new Set(visibleCubiesRef.current), cubeStyle);
+    }
+  }, [cubeStyle]);
+
+  // ---- GSAP animation handler ---------------------------------------------
   useEffect(() => {
     const handler = (move: string, durationMs: number): Promise<void> =>
       new Promise((resolve) => {
@@ -382,19 +458,16 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
         const savedPos  = faceCubies.map(() => new THREE.Vector3());
         const savedQuat = faceCubies.map(() => new THREE.Quaternion());
 
-        // Save current world transforms
         faceCubies.forEach((c, i) => {
           c.getWorldPosition(savedPos[i]);
           c.getWorldQuaternion(savedQuat[i]);
         });
 
-        // Reparent cubies into pivot group (pivot is at origin with identity rotation)
         const pivot = pivotRef.current;
         pivot.rotation.set(0, 0, 0);
         faceCubies.forEach((c, i) => {
           scene.remove(c);
           pivot.add(c);
-          // Restore world transform as local transform — valid because pivot = identity
           c.position.copy(savedPos[i]);
           c.quaternion.copy(savedQuat[i]);
         });
@@ -405,17 +478,15 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
         gsap.to(pivot.rotation, {
           [axisKey]: targetAngle,
           duration: durationMs / 1000,
-          ease: "power2.inOut",
+          ease: "power3.out",
           onComplete: () => {
             pivot.updateMatrixWorld(true);
 
-            // Read post-rotation world transforms
             faceCubies.forEach((c, i) => {
               c.getWorldPosition(savedPos[i]);
               c.getWorldQuaternion(savedQuat[i]);
             });
 
-            // Reparent cubies back to scene root with their new world transforms
             faceCubies.forEach((c, i) => {
               pivot.remove(c);
               scene.add(c);
@@ -424,13 +495,10 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
             });
 
             pivot.rotation.set(0, 0, 0);
+            snapCubiesToGrid(faceCubies);
 
-            // Append to move log BEFORE commitAnimatedMove so that the
-            // Zustand subscribe fires while isAnimatingRef is still true,
-            // preventing the external-change handler from misidentifying
-            // this update as an AlgorithmPlayer step-back.
             moveLogRef.current.push(move);
-            commitAnimatedMove(move);   // updates engine + Zustand state
+            commitAnimatedMove(move);
             isAnimatingRef.current = false;
             setCurrentAnim(null);
 
@@ -443,7 +511,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
     return () => unregisterAnimationHandler();
   }, [scene]);
 
-  // ---- Instant handler (cubeStore.reset / cubeStore.applyInstant) ---------
+  // ---- Instant handler ----------------------------------------------------
   useEffect(() => {
     const handler = (alg: string | null) => {
       const cubies = cubiesRef.current;
@@ -455,14 +523,14 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
         const moves = parseAlgorithm(alg);
         for (const m of moves) {
           applyMoveInstant(m.notation, cubies, scene, pivot);
+          snapCubiesToGrid(cubies);
         }
         moveLogRef.current = moves.map((m) => m.notation);
       } else {
         moveLogRef.current = [];
       }
 
-      // Re-apply appearance after cubies have been repositioned
-      applyAppearance(cubies, new Set(visibleCubiesRef.current));
+      applyAppearance(cubies, new Set(visibleCubiesRef.current), cubeStyleRef.current);
     };
 
     const hadPending = useCubeStore.getState().pendingInstantAlg !== null;
@@ -473,22 +541,17 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
     return () => unregisterInstantHandler();
   }, [scene]);
 
-  // ---- Zustand subscribe: handle AlgorithmPlayer step-back / reset --------
-  //
-  // AlgorithmPlayer calls useCubeStore.setState({ faces }) directly for step-back
-  // and reset (not via animateMove). When faces change while we are not animating,
-  // we use move-log matching to find the matching prefix and replay it instantly.
+  // ---- Zustand subscribe: step-back / reset --------------------------------
   useEffect(() => {
     const unsub = useCubeStore.subscribe((state, prevState) => {
       if (state.faces === prevState.faces) return;
-      if (isAnimatingRef.current)          return; // our own commitAnimatedMove — ignore
+      if (isAnimatingRef.current)          return;
 
       const newFaces = state.faces;
       const log      = moveLogRef.current;
       const cubies   = cubiesRef.current;
       const pivot    = pivotRef.current;
 
-      // Try to find a prefix of the current move log whose end-state matches newFaces
       const localEngine = new CubeEngine();
       let matchedK: number | null = null;
 
@@ -501,30 +564,33 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
       }
 
       if (matchedK !== null) {
-        // Replay exactly the first matchedK moves from solved
         resetCubiesToSolved(cubies);
         for (let i = 0; i < matchedK; i++) {
           applyMoveInstant(log[i], cubies, scene, pivot);
+          snapCubiesToGrid(cubies);
         }
         moveLogRef.current = log.slice(0, matchedK);
       } else {
-        // State not reachable via our log (e.g. tutorial initial state) — snap to solved
         resetCubiesToSolved(cubies);
-        moveLogRef.current = [];
+        for (const m of log) {
+          applyMoveInstant(m, cubies, scene, pivot);
+          snapCubiesToGrid(cubies);
+        }
+        moveLogRef.current = [...log];
       }
     });
 
     return () => unsub();
   }, [scene]);
 
-  // ---- Appearance: update cubie materials when visibleCubies changes --
+  // ---- Appearance: visibleCubies changes ----------------------------------
   useEffect(() => {
     if (cubiesRef.current.length) {
-      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []));
+      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []), cubeStyleRef.current);
     }
   }, [visibleCubies]);
 
-  // ---- Camera view mode animation -----------------------------------------
+  // ---- Camera view mode ---------------------------------------------------
   useEffect(() => {
     const [tx, ty, tz] = viewMode === "white-up" ? [0, 7, 1.5] : [4, 3, 4];
     gsap.to(camera.position, {
@@ -535,12 +601,12 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
     });
   }, [viewMode, camera]);
 
-  // ---- Declarative R3F scene (lights, controls, arrow) --------------------
   return (
     <>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 8, 6]} intensity={0.7} />
-      <directionalLight position={[-3, -2, -4]} intensity={0.3} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 8, 6]} intensity={0.9} castShadow />
+      <directionalLight position={[-4, 2, -3]} intensity={0.35} />
+      <pointLight position={[0, 4, 4]} intensity={0.4} />
 
       {currentAnim && (
         <FaceArrow face={currentAnim.face} clockwise={currentAnim.clockwise} />

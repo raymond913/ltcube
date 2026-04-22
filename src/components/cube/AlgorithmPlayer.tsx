@@ -10,6 +10,7 @@ import {
   type Move,
 } from "@/lib/cubeEngine";
 import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
+import { usePreferencesStore } from "@/stores/preferencesStore";
 import type { Arrow } from "@/lib/tutorialTypes";
 
 // ---------------------------------------------------------------------------
@@ -69,6 +70,7 @@ export function AlgorithmPlayer({
   arrows,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
+  const { cubeStyle, setCubeStyle } = usePreferencesStore();
   const [viewMode, setViewMode] = useState<"default" | "white-up">("default");
 
   const [playback, setPlayback] = useState(() => {
@@ -461,27 +463,44 @@ export function AlgorithmPlayer({
           </button>
         </div>
 
-        {/* Speed selector — pill group */}
-        <div
-          className="flex items-center rounded-xl overflow-hidden"
-          style={{
-            background: "oklch(97% 0.003 250)",
-            border: "1px solid var(--color-border)",
-          }}
-        >
-          {SPEEDS.map((s) => (
-            <button
-              key={s}
-              onClick={() => setSpeed(s)}
-              className="font-mono px-2.5 py-2.5 text-xs font-semibold transition-all duration-150"
-              style={{
-                background: speed === s ? "#2563EB" : "transparent",
-                color: speed === s ? "#fff" : "oklch(52% 0.012 250)",
-              }}
-            >
-              {s}x
-            </button>
-          ))}
+        {/* Right controls: speed + style toggle */}
+        <div className="flex items-center gap-2">
+          {/* Speed selector — pill group */}
+          <div
+            className="flex items-center rounded-xl overflow-hidden"
+            style={{
+              background: "oklch(97% 0.003 250)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            {SPEEDS.map((s) => (
+              <button
+                key={s}
+                onClick={() => setSpeed(s)}
+                className="font-mono px-2.5 py-2.5 text-xs font-semibold transition-all duration-150"
+                style={{
+                  background: speed === s ? "#2563EB" : "transparent",
+                  color: speed === s ? "#fff" : "oklch(52% 0.012 250)",
+                }}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
+
+          {/* Stickered / Stickerless toggle */}
+          <button
+            onClick={() => setCubeStyle(cubeStyle === "stickered" ? "stickerless" : "stickered")}
+            title={cubeStyle === "stickered" ? "Switch to stickerless" : "Switch to stickered"}
+            className="flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150"
+            style={{
+              background: "oklch(97% 0.003 250)",
+              border: "1px solid var(--color-border)",
+              color: "oklch(52% 0.012 250)",
+            }}
+          >
+            <span style={{ fontSize: "11px" }}>{cubeStyle === "stickered" ? "S" : "SL"}</span>
+          </button>
         </div>
       </div>
     </div>
