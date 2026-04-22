@@ -255,7 +255,7 @@ export function parseAlgorithm(alg: string): Move[] {
   const normalized = alg.replace(/[\u2018\u2019\u02BC]/g, "'");
 
   // Tokenize: extract move tokens
-  const tokens = normalized.match(/[RLUDFBrludfbxyz][w]?['2]?/g) ?? [];
+  const tokens = normalized.match(/[RLUDFBMESrludfbxyz][w]?['2]?/g) ?? [];
 
   return tokens.map((token) => {
     const inverse = token.includes("'");
@@ -385,6 +385,17 @@ export class CubeEngine {
   applyMove(move: Move): void {
     if (move.rotation) {
       this.applyRotation(move);
+      return;
+    }
+
+    if (move.face === "M" || move.face === "E" || move.face === "S") {
+      const slice = move.face as "M" | "E" | "S";
+      if (move.double) {
+        this.applyMiddleSliceRaw(slice, false);
+        this.applyMiddleSliceRaw(slice, false);
+      } else {
+        this.applyMiddleSliceRaw(slice, move.inverse);
+      }
       return;
     }
 

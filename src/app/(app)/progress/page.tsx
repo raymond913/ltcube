@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useProgressStore } from "@/stores/progressStore";
 
 const STEPS = [
-  { id: "white-cross",   title: "White Cross",    route: "/learn/white-cross",   color: "#2563EB",  bg: "rgba(37,99,235,0.07)"   },
-  { id: "white-corners", title: "White Corners",  route: "/learn/white-corners", color: "#15803D",  bg: "rgba(21,128,61,0.07)"   },
-  { id: "second-layer",  title: "Second Layer",   route: "/learn/second-layer",  color: "#C2410C",  bg: "rgba(194,65,12,0.07)"   },
-  { id: "two-look-oll",  title: "2-Look OLL",     route: "/learn/oll",           color: "#B45309",  bg: "rgba(180,83,9,0.07)"    },
-  { id: "two-look-pll",  title: "2-Look PLL",     route: "/learn/pll",           color: "#7C3AED",  bg: "rgba(124,58,237,0.07)"  },
+  { id: "cross",          title: "White Cross",         route: "/learn/cross",        color: "#2563EB",  bg: "rgba(37,99,235,0.07)"   },
+  { id: "corners",        title: "First Layer Corners", route: "/learn/corners",      color: "#15803D",  bg: "rgba(21,128,61,0.07)"   },
+  { id: "second-layer",   title: "Second Layer",        route: "/learn/second-layer", color: "#C2410C",  bg: "rgba(194,65,12,0.07)"   },
+  { id: "two-look-oll",   title: "2-Look OLL",          route: "/learn/oll",          color: "#B45309",  bg: "rgba(180,83,9,0.07)"    },
+  { id: "two-look-pll",   title: "2-Look PLL",          route: "/learn/pll",          color: "#7C3AED",  bg: "rgba(124,58,237,0.07)"  },
 ];
 
 const OLL_CASES = [

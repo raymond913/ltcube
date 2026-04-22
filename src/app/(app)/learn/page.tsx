@@ -279,7 +279,7 @@ export default function LearnPage() {
             Start with the White Cross — it&apos;s the foundation of everything.
           </p>
           <Link
-            href="/learn/white-cross"
+            href="/learn/cross"
             className="ltc-hover-primary inline-flex items-center gap-2 rounded-full text-white text-sm font-semibold px-6 py-2.5 transition-all duration-150 hover:scale-[1.03] active:scale-[0.98]"
             style={{
               backgroundColor: "#2563EB",

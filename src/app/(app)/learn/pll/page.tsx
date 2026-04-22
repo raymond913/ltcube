@@ -6,7 +6,7 @@ const PLL_SECTIONS: SectionDef[] = [
     title: "Look 1 — Corner Permutation",
     description:
       "Look at the top-layer corner stickers from the sides. Find two corners that match each other, then check if the swap is adjacent or diagonal.",
-    substepIds: ["pll-adj", "pll-diag"],
+    substepIds: ["pll-headlights", "pll-no-headlights"],
   },
   {
     title: "Look 2 — Edge Permutation",
@@ -27,7 +27,7 @@ export default async function PllPage({
   const initialActiveId = caseId
     ? caseId
     : step
-    ? twoLookPll.substeps[Math.max(0, parseInt(step) - 1)]?.id
+    ? twoLookPll.substeps[Math.max(0, parseInt(step, 10) - 1)]?.id
     : undefined;
 
   return (
