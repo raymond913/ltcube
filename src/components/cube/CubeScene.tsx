@@ -18,7 +18,7 @@ import { usePreferencesStore } from "@/stores/preferencesStore";
 import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
 import type { Arrow } from "@/lib/tutorialTypes";
-import { MoveArrow } from "./MoveArrow";
+import { MoveArrow, TargetSlot } from "./MoveArrow";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -614,6 +614,14 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
 
       {arrows?.map((a, i) => (
         <MoveArrow key={i} from={a.from} to={a.to} color={a.color} />
+      ))}
+
+      {arrows?.map((a, i) => (
+        <TargetSlot
+          key={`target-${i}`}
+          position={[a.to[0], a.to[1] + 0.08, a.to[2]]}
+          color={a.color ?? "#FFFFFF"}
+        />
       ))}
 
       {interactive && (
