@@ -75,6 +75,13 @@ const FACE_ANIM: Record<string, { axisIndex: 0 | 1 | 2; cwAngle: number }> = {
   S: { axisIndex: 2, cwAngle: -Math.PI / 2 },
 };
 
+/** Whole-cube rotation axes — x/y/z move ALL cubies, not just a face. */
+const WHOLE_CUBE_ANIM: Record<string, { axisIndex: 0 | 1 | 2; cwAngle: number }> = {
+  x: { axisIndex: 0, cwAngle: -Math.PI / 2 },
+  y: { axisIndex: 1, cwAngle: -Math.PI / 2 },
+  z: { axisIndex: 2, cwAngle: -Math.PI / 2 },
+};
+
 // ---------------------------------------------------------------------------
 // Move arrow
 // ---------------------------------------------------------------------------
@@ -233,14 +240,18 @@ function applyMoveInstant(
 ): void {
   const parsed  = parseAlgorithm(move)[0];
   if (!parsed) return;
-  const animDef = FACE_ANIM[parsed.face];
+  const animDef = FACE_ANIM[parsed.face] ?? WHOLE_CUBE_ANIM[parsed.face];
   if (!animDef) return;
 
   let targetAngle = animDef.cwAngle;
   if (parsed.inverse) targetAngle *= -1;
   if (parsed.double)  targetAngle *= 2;
 
-  const faceCubies = cubies.filter((c) => isCubieInFace(c, parsed.face, parsed.wide));
+  // Whole-cube rotations (x/y/z) rotate every cubie; face moves filter by position.
+  const isWholeCube = !!WHOLE_CUBE_ANIM[parsed.face];
+  const faceCubies = isWholeCube
+    ? cubies
+    : cubies.filter((c) => isCubieInFace(c, parsed.face, parsed.wide));
   if (faceCubies.length === 0) return;
 
   const savedPos  = faceCubies.map(() => new THREE.Vector3());

@@ -249,7 +249,7 @@ export function AlgorithmPlayer({
         <CubeViewer
           size={300}
           interactive
-          visibleCubies={showTeachingState ? visibleCubies : undefined}
+          visibleCubies={visibleCubies}
           viewMode={viewMode}
           arrows={showTeachingState ? arrows : undefined}
         />
