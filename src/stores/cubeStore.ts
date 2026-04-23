@@ -62,7 +62,7 @@ export function commitAnimatedMove(move: string): void {
 
 /** Execute one move — via handler if registered, else instant fallback. */
 async function _runSingle(move: string): Promise<void> {
-  const durationMs = 400 / useCubeStore.getState().animationSpeed;
+  const durationMs = 650 / useCubeStore.getState().animationSpeed;
   if (_animHandler) {
     await _animHandler(move, durationMs);
   } else {
