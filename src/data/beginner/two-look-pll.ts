@@ -18,8 +18,8 @@ export const twoLookPll: TutorialStep = {
       algorithmName: "Headlights",
       explanation:
         "Two corners on the RIGHT side match colors (they look like headlights). Hold the headlights on the RIGHT, then apply the algorithm.",
-      algorithm: "L U L' U' L' B L2 U' L' U' L U L' B'",
-      initialState: "B L U' L' U L U L2 B' L U L U' L'",
+      algorithm: "R U R' U' R' F R2 U' R' U' R U R' F'",
+      initialState: "F R U' R' U R U R2 F' R U R U' R'",
       highlightPieces: [],
     },
     {

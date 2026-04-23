@@ -12,7 +12,7 @@ export const secondLayer: TutorialStep = {
       explanation: "Edge on top needs to go into the right slot. Use the right insert.",
       algorithmName: "Right Insert",
       algorithm: "U R U' R' U' F' U F",
-      initialState: "F' U' F U R U R' U'",
+      initialState: "F' U' F U R U' R' U",
       highlightPieces: ["blue-red-edge", "blue-center", "red-center"],
       visibleCubies: ["0,1,0", "0,0,1", "1,0,0", "0,1,1", "1,0,1"],
       arrows: [
@@ -25,7 +25,7 @@ export const secondLayer: TutorialStep = {
       explanation: "Edge on top needs to go into the left slot. Use the left insert.",
       algorithmName: "Left Insert",
       algorithm: "U' L' U L U F U' F'",
-      initialState: "F U F' U' L' U' L U",
+      initialState: "F U F' U' L' U L U",
       highlightPieces: ["blue-orange-edge", "blue-center", "orange-center"],
       visibleCubies: ["0,1,0", "0,0,1", "-1,0,0", "0,1,1", "-1,0,1"],
       arrows: [

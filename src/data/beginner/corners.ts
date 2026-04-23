@@ -43,7 +43,7 @@ export const corners: TutorialStep = {
       title: "Corner below slot, white facing down",
       explanation: "White faces downward — the trickiest orientation. R' D R kicks it to a better spot, then F D2 F' inserts it.",
       algorithm: "R' D R F D2 F'",
-      initialState: "F D2' R' D' R F'",
+      initialState: "F D2 F' R' D' R",
       highlightPieces: ["white-blue-red", "white-center", "blue-center", "red-center"],
       visibleCubies: [
         "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0",

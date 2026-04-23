@@ -49,7 +49,7 @@ export const twoLookOll: TutorialStep = {
         "One corner has yellow on top, the other three have yellow facing the sides. Hold the cube so the correct corner is at UFR, then apply Sune.",
       algorithm: "R U R' U R U2 R'",
       algorithmName: "Sune",
-      initialState: "R U2' R' U' R U' R'",
+      initialState: "R U2 R' U' R U' R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
     },
     {
@@ -59,7 +59,7 @@ export const twoLookOll: TutorialStep = {
         "The mirror of Sune — one corner is correct but the others twist the opposite way. Hold the correct corner at UFR and apply Anti-Sune.",
       algorithm: "R U2 R' U' R U' R'",
       algorithmName: "Anti-Sune",
-      initialState: "R U R' U R U2' R'",
+      initialState: "R U R' U R U2 R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
     },
     {
@@ -69,7 +69,7 @@ export const twoLookOll: TutorialStep = {
         "All four corners have yellow facing the sides — no yellow on top at all. Any AUF. Apply H.",
       algorithm: "R U R' U R U' R' U R U2 R'",
       algorithmName: "H",
-      initialState: "R U2' R' U' R U R' U' R U' R'",
+      initialState: "R U2 R' U' R U' R' U R U' R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
     },
     {
@@ -79,7 +79,7 @@ export const twoLookOll: TutorialStep = {
         "Two adjacent corners have yellow on top, two don't. Hold the cube so the two correct corners are at UFL and UBL (left side), then apply Pi.",
       algorithm: "R U2 R2 U' R2 U' R2 U2 R",
       algorithmName: "Pi",
-      initialState: "R' U2' R2 U R2 U R2 U2' R'",
+      initialState: "R' U2 R2 U R2 U R2 U2 R'",
       highlightPieces: ["UFR", "UBR"],
     },
     {
@@ -89,7 +89,7 @@ export const twoLookOll: TutorialStep = {
         "Two diagonal corners have yellow on top. Apply U. (This case is rarely encountered; if confused, applying Sune twice also solves it.)",
       algorithm: "R2 D' R U2 R' D R U2 R",
       algorithmName: "U",
-      initialState: "R' U2' R' D' R U2 R' D R2",
+      initialState: "R' U2 R' D' R U2 R' D R2",
       highlightPieces: ["UFL", "UBR"],
     },
     {
