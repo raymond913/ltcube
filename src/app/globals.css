@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* === LIGHT CANVAS PALETTE === */
-  --color-background:       oklch(99% 0.004 250);
-  --color-surface:          oklch(97.5% 0.005 250);
+  /* === PALETTE === */
+  --color-background:       oklch(98.8% 0.006 250);
+  --color-surface:          oklch(97% 0.007 250);
   --color-surface-elevated: oklch(100% 0 0);
-  --color-border:           oklch(89% 0.01 250);
-  --color-border-bright:    oklch(82% 0.015 250);
-  --color-border-subtle:    oklch(91% 0.008 250); /* slightly stronger than border */
+  --color-border:           oklch(88% 0.012 250);
+  --color-border-bright:    oklch(80% 0.018 250);
+  --color-border-subtle:    oklch(91.5% 0.009 250);
 
   /* Primary — cube blue */
-  --color-primary:             #2563EB;
-  --color-primary-hover:       #1D4ED8;
-  --color-primary-light:       oklch(94% 0.04 255);
-  --color-primary-light-border: oklch(87% 0.06 255);
+  --color-primary:              #2563EB;
+  --color-primary-hover:        #1D4ED8;
+  --color-primary-light:        oklch(93.5% 0.045 255);
+  --color-primary-light-border: oklch(86% 0.065 255);
 
   /* Text */
-  --color-text:             oklch(18% 0.01 250);
-  --color-muted:            oklch(50% 0.012 250);
-  --color-dim:              oklch(68% 0.008 250);
+  --color-text:  oklch(14% 0.014 255);
+  --color-muted: oklch(48% 0.014 252);
+  --color-dim:   oklch(66% 0.009 250);
 
-  /* Cube face colors — unchanged */
+  /* Cube face colors */
   --color-cube-red:    #DC2626;
   --color-cube-orange: #EA580C;
   --color-cube-blue:   #2563EB;
@@ -28,7 +28,7 @@
   --color-cube-yellow: #EAB308;
   --color-cube-white:  #FFFFFF;
 
-  /* Step accent colors — darkened for light bg readability */
+  /* Step accent colors */
   --color-step-cross:   #2563EB;
   --color-step-corners: #15803D;
   --color-step-layer:   #C2410C;
@@ -56,17 +56,19 @@ html {
 }
 
 body {
-  background-color: oklch(99% 0.004 250);
-  color: oklch(18% 0.01 250);
+  background-color: var(--color-background);
+  color: var(--color-text);
   font-family: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-kerning: normal;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  line-height: 1.15;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
 code, kbd, samp, pre {
@@ -78,13 +80,13 @@ code, kbd, samp, pre {
 ====================================================== */
 
 @keyframes ltc-page-in {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes ltc-celebration {
   0%   { transform: scale(1); }
-  25%  { transform: scale(1.05); }
+  25%  { transform: scale(1.06); }
   60%  { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
@@ -96,15 +98,29 @@ code, kbd, samp, pre {
 
 @keyframes ltc-float {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-14px); }
+  50%       { transform: translateY(-16px); }
+}
+
+@keyframes ltc-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ltc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .ltc-page {
-  animation: ltc-page-in 0.2s ease-out both;
+  animation: ltc-page-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .ltc-cube-float {
-  animation: ltc-float 3.5s ease-in-out infinite;
+  animation: ltc-float 4s ease-in-out infinite;
+}
+
+.ltc-dropdown-in {
+  animation: ltc-dropdown-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ======================================================
@@ -112,85 +128,91 @@ code, kbd, samp, pre {
 ====================================================== */
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(85% 0.01 250);
-  border-radius: 3px;
+  background: oklch(83% 0.012 250);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #2563EB;
 }
 
 /* ======================================================
-   TYPOGRAPHY UTILITIES
+   COMPONENT UTILITIES
 ====================================================== */
 
 @layer utilities {
-  /* 10px — for compact badge labels and secondary metadata */
   .text-2xs {
     font-size: 0.625rem;
     line-height: 1rem;
   }
 
-  /* ── Hover utilities ──────────────────────────────────────────
-     Use !important so CSS hover overrides resting inline styles.
-  ─────────────────────────────────────────────────────────────── */
+  /* Frosted glass — for fixed overlays and navbars */
+  .ltc-glass {
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(20px) saturate(200%) brightness(1.02);
+    -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(1.02);
+  }
 
-  /* Primary blue button bg */
+  /* Gradient text (blue → purple) */
+  .ltc-gradient-text {
+    background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient text (blue → cyan) */
+  .ltc-gradient-text-blue {
+    background: linear-gradient(135deg, #1D4ED8 0%, #0EA5E9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Hover utilities ── */
+
   .ltc-hover-primary:hover { background-color: #1D4ED8 !important; }
-
-  /* Primary blue text link */
   .ltc-hover-primary-color:hover { color: #1D4ED8 !important; }
+  .ltc-hover-subtle:hover { background-color: oklch(94.5% 0.007 250) !important; }
+  .ltc-hover-blue:hover { background: oklch(93.5% 0.045 255) !important; }
 
-  /* Neutral subtle bg (nav items, ghost buttons) */
-  .ltc-hover-subtle:hover { background-color: oklch(95% 0.006 250) !important; }
-
-  /* Blue-tinted bg (outline buttons, secondary CTAs) */
-  .ltc-hover-blue:hover { background: oklch(94% 0.04 255) !important; }
-
-  /* Card lift — translate + shadow */
   .ltc-hover-lift:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-  }
-
-  /* Larger card lift — reference cards */
-  .ltc-hover-lift-lg:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.1) !important;
-    border-color: var(--ltc-hover-border, oklch(80% 0.01 250)) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.05) !important;
   }
 
-  /* Lift + dynamic border color (set --ltc-hover-border inline) */
+  .ltc-hover-lift-lg:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.11), 0 2px 8px rgba(0,0,0,0.05) !important;
+    border-color: var(--ltc-hover-border, oklch(78% 0.012 250)) !important;
+  }
+
   .ltc-hover-lift-bordered:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
-    border-color: var(--ltc-hover-border, oklch(80% 0.01 250)) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09) !important;
+    border-color: var(--ltc-hover-border, oklch(78% 0.012 250)) !important;
   }
 
-  /* Subtle shadow only (progress step items) */
-  .ltc-hover-shadow:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important; }
+  .ltc-hover-shadow:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.09) !important; }
 
-  /* Transport / icon buttons (bg + color, disabled-aware) */
   .ltc-hover-transport:hover:not(:disabled) {
-    background: oklch(93% 0.006 250) !important;
-    color: oklch(25% 0.01 250) !important;
+    background: oklch(92.5% 0.007 250) !important;
+    color: oklch(22% 0.012 250) !important;
   }
 
-  /* Prev / secondary bordered button (border + text color) */
   .ltc-hover-prev:hover {
-    border-color: oklch(80% 0.015 250) !important;
-    color: oklch(25% 0.01 250) !important;
+    border-color: oklch(78% 0.016 250) !important;
+    color: oklch(22% 0.012 250) !important;
   }
 
-  /* Quiz choice buttons (bg + border) */
   .ltc-hover-choice:hover {
-    background: oklch(94% 0.04 255) !important;
+    background: oklch(93.5% 0.045 255) !important;
     border-color: #2563EB !important;
   }
 }
@@ -200,12 +222,9 @@ code, kbd, samp, pre {
 ====================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .ltc-page {
-    animation: none;
-  }
-  .ltc-cube-float {
-    animation: none;
-  }
+  .ltc-page { animation: none; }
+  .ltc-cube-float { animation: none; }
+  .ltc-dropdown-in { animation: none; }
   * {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
