@@ -13,7 +13,7 @@ export const cross: TutorialStep = {
       algorithm: "F2",
       initialState: "x2 F2",
       highlightPieces: ["white-blue", "white-center", "blue-center"],
-      visibleCubies: ["1,1,0", "-1,1,0", "0,1,1", "0,1,-1", "0,1,0", "0,-1,1"],
+      visibleCubies: ["0,-1,1", "0,-1,0", "0,0,1"],
       whiteOnTop: true,
       arrows: [
         { from: [0, -1, 1], to: [0, 1, 1], color: "#60A5FA" },
@@ -26,7 +26,7 @@ export const cross: TutorialStep = {
       algorithm: "D F2",
       initialState: "x2 F2 D'",
       highlightPieces: ["white-red", "white-center", "red-center"],
-      visibleCubies: ["1,1,0", "-1,1,0", "0,1,1", "0,1,-1", "0,1,0", "0,-1,1", "1,-1,0"],
+      visibleCubies: ["1,-1,0", "0,-1,0", "1,0,0", "0,-1,1"],
       whiteOnTop: true,
       arrows: [
         { from: [1, -1, 0], to: [0, -1, 1], color: "#F87171" },
@@ -40,7 +40,7 @@ export const cross: TutorialStep = {
       algorithm: "F U' R U",
       initialState: "x2 U' R' U F'",
       highlightPieces: ["white-green", "white-center", "green-center"],
-      visibleCubies: ["1,1,0", "-1,1,0", "0,1,1", "0,1,-1", "0,1,0"],
+      visibleCubies: ["0,-1,-1", "0,-1,0", "0,0,-1"],
       whiteOnTop: true,
       arrows: [
         { from: [0, 1, 1], to: [1, 0, 1],  color: "#86EFAC" },
@@ -54,7 +54,7 @@ export const cross: TutorialStep = {
       algorithm: "R U' F2",
       initialState: "x2 F2 U R'",
       highlightPieces: ["white-blue", "white-center", "blue-center"],
-      visibleCubies: ["1,1,0", "-1,1,0", "0,1,1", "0,1,-1", "0,1,0", "1,0,1"],
+      visibleCubies: ["0,-1,1", "0,-1,0", "0,0,1"],
       whiteOnTop: true,
       arrows: [
         { from: [1, 0, 1], to: [1, 1, 0],  color: "#F87171" },
