@@ -364,9 +364,9 @@ function applyAppearance(
       if (!(obj instanceof THREE.Mesh)) return;
       const mat = obj.material as THREE.MeshPhysicalMaterial;
       if (!isVisible) {
-        mat.color.set(obj.userData.isSticker ? (obj.userData.originalColor as string) : GHOST_BODY);
-        mat.opacity = 0.22;
-        mat.transparent = true;
+        mat.color.set(obj.userData.isSticker ? "#52525B" : "#3F3F46");
+        mat.opacity = 1;
+        mat.transparent = false;
       } else {
         mat.color.set((obj.userData.originalColor as string) ?? BODY_COLOR);
         mat.opacity = 1;
@@ -388,9 +388,10 @@ interface CubeSceneProps {
   onReady?: () => void;
   viewMode?: "default" | "white-up";
   arrows?: Arrow[];
+  whiteOnTop?: boolean;
 }
 
-function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSceneProps) {
+function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTop }: CubeSceneProps) {
   const { scene, camera } = useThree();
   const orbitRef = useRef<any>(null);
 
@@ -603,7 +604,10 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
 
   // ---- Camera view mode ---------------------------------------------------
   useEffect(() => {
-    const [tx, ty, tz] = viewMode === "white-up" ? [0, 7, 1.5] : [4, 3, 4];
+    const isWhiteUp = whiteOnTop || viewMode === "white-up";
+    const [tx, ty, tz] = isWhiteUp ? [4, 3, -4] : [4, 3, 4];
+    const [ux, uy, uz] = [0, 1, 0];
+    camera.up.set(ux, uy, uz);
     gsap.to(camera.position, {
       x: tx, y: ty, z: tz,
       duration: 0.6,
@@ -654,7 +658,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows }: CubeSce
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop }: CubeSceneProps) {
   return (
     <Canvas
       camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
@@ -668,6 +672,7 @@ export function CubeScene({ interactive, cubeState, visibleCubies, onReady, view
         visibleCubies={visibleCubies}
         viewMode={viewMode}
         arrows={arrows}
+        whiteOnTop={whiteOnTop}
       />
     </Canvas>
   );
