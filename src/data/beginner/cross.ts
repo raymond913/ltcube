@@ -15,7 +15,7 @@ export const cross: TutorialStep = {
       highlightPieces: ["white-green", "white-center", "green-center"],
       visibleCubies: ["0,-1,-1","0,-1,0","0,0,-1"],
       whiteOnTop: true,
-      arrows: [{ from: [0, 1, 1], to: [0, 1, -1], color: "#86EFAC" }],
+      arrows: [{ from: [0, 1, -1], to: [0, 1, 1], color: "#86EFAC" }],
     },
     {
       id: "wc-middle-front",
@@ -26,7 +26,7 @@ export const cross: TutorialStep = {
       highlightPieces: ["white-green", "white-center", "green-center"],
       visibleCubies: ["0,-1,-1","0,-1,0","0,0,-1"],
       whiteOnTop: true,
-      arrows: [{ from: [-1, 1, 0], to: [0, 1, -1], color: "#86EFAC" }],
+      arrows: [{ from: [0, 1, -1], to: [-1, 1, 0], color: "#86EFAC" }],
     },
     {
       id: "wc-yellow-right",
@@ -37,7 +37,7 @@ export const cross: TutorialStep = {
       highlightPieces: ["white-green", "white-center", "green-center"],
       visibleCubies: ["0,-1,-1","0,-1,0","0,0,-1"],
       whiteOnTop: true,
-      arrows: [{ from: [-1, 1, 0], to: [0, 1, -1], color: "#86EFAC" }],
+      arrows: [{ from: [0, 1, -1], to: [-1, 1, 0], color: "#86EFAC" }],
     },
     {
       id: "wc-yellow-front",
@@ -48,7 +48,7 @@ export const cross: TutorialStep = {
       highlightPieces: ["white-green", "white-center", "green-center"],
       visibleCubies: ["0,-1,-1","0,-1,0","0,0,-1"],
       whiteOnTop: true,
-      arrows: [{ from: [0, 1, 1], to: [0, 1, -1], color: "#86EFAC" }],
+      arrows: [{ from: [0, 1, -1], to: [0, 1, 1], color: "#86EFAC" }],
     },
     {
       id: "wc-middle-back",
