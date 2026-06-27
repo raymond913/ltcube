@@ -1,166 +1,194 @@
 import { CubeEngine } from "../lib/cubeEngine";
 
-const EDGE_IDS = ["UF","UB","UL","UR","DF","DB","DL","DR","FL","FR","BL","BR"];
-const CENTER_IDS = ["U","D","F","B","L","R"];
+type FN = "U"|"D"|"F"|"B"|"R"|"L";
 
-function findEdge(eng: CubeEngine, c1: string, c2: string): string | null {
-  const state = eng.getState();
-  for (const id of EDGE_IDS) {
-    const stickers = eng.getStickersForCubie(id);
-    const colors = stickers.map(s => state[s.face][s.row][s.col]);
-    if ((colors as string[]).includes(c1) && (colors as string[]).includes(c2)) {
-      const pos = eng.getCubieWorldPosition(id);
-      return pos ? pos.join(",") : null;
-    }
-  }
-  return null;
+const EDGE_SLOTS = [
+  { id:"UF", s1:{f:"U" as FN,r:2,c:1}, s2:{f:"F" as FN,r:0,c:1}, pos:[0, 1, 1]  },
+  { id:"UB", s1:{f:"U" as FN,r:0,c:1}, s2:{f:"B" as FN,r:0,c:1}, pos:[0, 1,-1]  },
+  { id:"UR", s1:{f:"U" as FN,r:1,c:2}, s2:{f:"R" as FN,r:0,c:1}, pos:[1, 1, 0]  },
+  { id:"UL", s1:{f:"U" as FN,r:1,c:0}, s2:{f:"L" as FN,r:0,c:1}, pos:[-1,1, 0]  },
+  { id:"DF", s1:{f:"D" as FN,r:0,c:1}, s2:{f:"F" as FN,r:2,c:1}, pos:[0,-1, 1]  },
+  { id:"DB", s1:{f:"D" as FN,r:2,c:1}, s2:{f:"B" as FN,r:2,c:1}, pos:[0,-1,-1]  },
+  { id:"DR", s1:{f:"D" as FN,r:1,c:2}, s2:{f:"R" as FN,r:2,c:1}, pos:[1,-1, 0]  },
+  { id:"DL", s1:{f:"D" as FN,r:1,c:0}, s2:{f:"L" as FN,r:2,c:1}, pos:[-1,-1,0]  },
+  { id:"FR", s1:{f:"F" as FN,r:1,c:2}, s2:{f:"R" as FN,r:1,c:0}, pos:[1, 0, 1]  },
+  { id:"FL", s1:{f:"F" as FN,r:1,c:0}, s2:{f:"L" as FN,r:1,c:2}, pos:[-1, 0, 1] },
+  { id:"BR", s1:{f:"B" as FN,r:1,c:0}, s2:{f:"R" as FN,r:1,c:2}, pos:[1, 0,-1]  },
+  { id:"BL", s1:{f:"B" as FN,r:1,c:2}, s2:{f:"L" as FN,r:1,c:0}, pos:[-1, 0,-1] },
+];
+
+const CROSS_HOMES: Record<string, number[]> = {
+  "green+white":  [0, 1, 1],
+  "white+green":  [0, 1, 1],
+  "red+white":    [1, 1, 0],
+  "white+red":    [1, 1, 0],
+  "blue+white":   [0, 1,-1],
+  "white+blue":   [0, 1,-1],
+  "orange+white": [-1,1, 0],
+  "white+orange": [-1,1, 0],
+};
+
+function getColor(s: ReturnType<CubeEngine["getState"]>, f: FN, r: number, c: number): string {
+  return String(s[f][r][c]);
 }
 
-function findCenter(eng: CubeEngine, color: string): string | null {
-  const state = eng.getState();
-  for (const id of CENTER_IDS) {
-    const stickers = eng.getStickersForCubie(id);
-    const colors = stickers.map(s => state[s.face][s.row][s.col]);
-    if ((colors as string[]).includes(color)) {
-      const pos = eng.getCubieWorldPosition(id);
-      return pos ? pos.join(",") : null;
-    }
-  }
-  return null;
-}
-
-const solvedX2 = new CubeEngine();
-solvedX2.applyAlgorithm("x2");
-const HOME = findEdge(solvedX2, "white", "green")!;
-const sv = solvedX2.getState();
-
-function stateMatch(eng: CubeEngine): boolean {
+function findEdge(eng: CubeEngine, c1: string, c2: string): number[] | null {
   const s = eng.getState();
-  return s.U[0][1] === sv.U[0][1] && s.B[0][1] === sv.B[0][1];
+  for (const slot of EDGE_SLOTS) {
+    const a = getColor(s, slot.s1.f, slot.s1.r, slot.s1.c);
+    const b = getColor(s, slot.s2.f, slot.s2.r, slot.s2.c);
+    if ((a === c1 && b === c2) || (a === c2 && b === c1)) return slot.pos;
+  }
+  return null;
 }
 
-// Camera: [4, 3, 4] — visible faces: +X (R), +Y (U), +Z (F)
-function isFrontVisible(posStr: string): boolean {
-  const [x, y, z] = posStr.split(",").map(Number);
-  if (x > 0) return true;  // R face
-  if (y > 0) return true;  // U face
-  if (z > 0) return true;  // F face (visible from [4,3,4])
-  return false;
-}
-
-// Home slot visibility from camera [4,3,4]
-function isHomeVisible(): boolean {
-  // Home at [0,1,1]: y=+1 and z=+1 → visible ✓
+function crossSolved(eng: CubeEngine): boolean {
+  const s = eng.getState();
+  for (const slot of EDGE_SLOTS) {
+    const a = getColor(s, slot.s1.f, slot.s1.r, slot.s1.c);
+    const b = getColor(s, slot.s2.f, slot.s2.r, slot.s2.c);
+    if (a !== "white" && b !== "white") continue;
+    const whiteFace = a === "white" ? slot.s1.f : slot.s2.f;
+    if (whiteFace !== "U") return false;
+  }
   return true;
 }
 
-console.log(`HOME slot: [${HOME}]`);
-console.log(`Camera: [4, 3, 4]  →  visible: +X(R), +Y(U), +Z(F)\n`);
+// Camera at [4,3,4]: visible faces +X(R), +Y(U), +Z(F)
+function isVisible(pos: number[]): boolean {
+  return pos[0] > 0 || pos[1] > 0 || pos[2] > 0;
+}
+
+function posEq(a: number[], b: number[]): boolean {
+  return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+}
 
 const substeps = [
   {
-    id: "wc-white-front",
-    title: "White layer, front slot",
-    explanation: "The white-green edge is in the top layer at the front slot. Two top-layer turns (U2) spin it 180° to the green home slot.",
-    algorithm: "U2",
-    initialState: "x2 U2",
-    arrows: [{ from: [0, 1, -1], to: [0, 1, 1] }],
+    id: "wc-case1",
+    title: "Edge in front-right slot, white facing forward",
+    algorithm: "R",
+    initialState: "x2 R'",
+    targetEdge: ["white","red"] as [string,string],
+    arrows: [{ from: [1, 0, 1], to: [1, 1, 0] }],
+    visibleCubies: ["1,-1,0","0,-1,0","1,0,0"],
+    expectedY: 0,
   },
   {
-    id: "wc-middle-front",
-    title: "White layer, right slot",
-    explanation: "The white-green edge is in the top layer at the right slot. One top-layer turn (U) slides it to the green home slot.",
-    algorithm: "U",
-    initialState: "x2 U' R",
-    arrows: [{ from: [1, 1, 0], to: [0, 1, 1] }],
+    id: "wc-case2",
+    title: "Edge in front-right slot, white facing right",
+    algorithm: "F R",
+    initialState: "x2 R' F'",
+    targetEdge: ["white","green"] as [string,string],
+    arrows: [{ from: [1, 0, 1], to: [0, 1, 1] }],
+    visibleCubies: ["0,-1,-1","0,-1,0","0,0,-1"],
+    expectedY: 0,
   },
   {
-    id: "wc-yellow-right",
-    title: "White layer, right side",
-    explanation: "The white-green edge is in the top (white) layer on the right. A single U turn carries it to the green home slot.",
-    algorithm: "U",
-    initialState: "x2 U' R2",
-    arrows: [{ from: [1, 1, 0], to: [0, 1, 1] }],
+    id: "wc-case3",
+    title: "Edge in front-right slot, top layer mixed",
+    algorithm: "F R U",
+    initialState: "x2 U' R' F'",
+    targetEdge: ["white","green"] as [string,string],
+    arrows: [{ from: [1, 0, 1], to: [0, 1, 1] }],
+    visibleCubies: ["0,-1,-1","0,-1,0","0,0,-1"],
+    expectedY: 0,
   },
   {
-    id: "wc-yellow-front",
-    title: "White layer, back slot",
-    explanation: "The white-green edge is in the top layer at the back slot. Two top-layer turns (U2) carry it to the green home slot.",
-    algorithm: "U2",
-    initialState: "x2 U2 B2",
-    arrows: [{ from: [0, 1, -1], to: [0, 1, 1] }],
-  },
-  {
-    id: "wc-middle-back",
-    title: "Green slot, wrong orientation",
-    explanation: "The white-green edge is in the home slot but turned the wrong way. F' flips it into the correct orientation.",
-    algorithm: "F'",
-    initialState: "x2 F",
-    arrows: [],
+    id: "wc-case4",
+    title: "Two adjacent cross edges swapped",
+    algorithm: "R' U' R U R'",
+    initialState: "x2 R U' R' U R",
+    targetEdge: ["white","green"] as [string,string],
+    arrows: [{ from: [0, 1, 1], to: [1, 1, 0] }, { from: [1, 1, 0], to: [0, 1, 1] }],
+    visibleCubies: ["0,-1,-1","1,-1,0","0,-1,0","0,0,-1","1,0,0"],
+    expectedY: 1,
   },
 ];
 
+console.log("Camera: [4, 3, 4]  → visible: +X(R), +Y(U), +Z(F)");
 console.log("─".repeat(80));
 
-for (const s of substeps) {
+for (const sub of substeps) {
   const eng = new CubeEngine();
-  eng.applyAlgorithm(s.initialState);
-  const edgePos = findEdge(eng, "white", "green");
+  eng.applyAlgorithm(sub.initialState);
+  const edgePos = findEdge(eng, sub.targetEdge[0], sub.targetEdge[1]);
 
   const eng2 = new CubeEngine();
-  eng2.applyAlgorithm(s.initialState);
-  eng2.applyAlgorithm(s.algorithm);
-  const solvable = stateMatch(eng2);
+  eng2.applyAlgorithm(sub.initialState);
+  eng2.applyAlgorithm(sub.algorithm);
+  const solved = crossSolved(eng2);
 
-  const edgeVis = edgePos ? isFrontVisible(edgePos) : false;
+  const edgeVis = edgePos ? isVisible(edgePos) : false;
+  const yCoord = edgePos ? edgePos[1] : 0;
+  const layer = yCoord > 0 ? "U-layer" : yCoord < 0 ? "D-layer" : "mid-layer";
 
-  let arrowOK = s.arrows.length === 0 ? "N/A" :
-    (s.arrows[0].from.join(",") === edgePos && s.arrows[0].to.join(",") === HOME) ? "✓" : "✗";
+  const home = edgePos ? CROSS_HOMES[[sub.targetEdge[0],sub.targetEdge[1]].sort().join("+")] : null;
 
-  const homeVis = isFrontVisible(HOME);
+  let arrowOK = "N/A";
+  if (sub.arrows.length === 1 && edgePos && home) {
+    const fromOK = posEq(sub.arrows[0].from, edgePos);
+    const toOK = posEq(sub.arrows[0].to, home);
+    arrowOK = (fromOK && toOK) ? "✓" : "✗";
+  } else if (sub.arrows.length === 2 && edgePos) {
+    // Case 4: arrow[0] = red piece from UF→UR, arrow[1] = green piece from UR→UF
+    const redPos = findEdge(eng, "white", "red");
+    const greenPos = findEdge(eng, "white", "green");
+    const greenHome = CROSS_HOMES["white+green"];
+    const redHome = CROSS_HOMES["white+red"];
+    const a0ok = redPos && posEq(sub.arrows[0].from, redPos) && posEq(sub.arrows[0].to, redHome);
+    const a1ok = greenPos && posEq(sub.arrows[1].from, greenPos) && posEq(sub.arrows[1].to, greenHome);
+    arrowOK = (a0ok && a1ok) ? "✓" : "✗";
+  }
 
-  const yCoord = edgePos ? Number(edgePos.split(",")[1]) : 0;
-  const layer = yCoord > 0 ? "white(U) layer" : yCoord < 0 ? "yellow(D) layer" : "middle layer";
+  const homeVis = home ? isVisible(home) : false;
 
-  console.log(`\n▶ ${s.id}`);
-  console.log(`  title:       ${s.title}`);
-  console.log(`  edge at:     [${edgePos}]  layer: ${layer}  visible: ${edgeVis}`);
-  console.log(`  algo:        "${s.algorithm}"  solvable: ${solvable ? "✓ PASS" : "✗ FAIL"}`);
-  console.log(`  arrow:       ${arrowOK}  from=[${s.arrows[0]?.from}]  to=[${s.arrows[0]?.to ?? "N/A"}]`);
-  console.log(`  home vis:    ${homeVis ? "✓" : "✗"}  [${HOME}]`);
+  console.log(`\n▶ ${sub.id}`);
+  console.log(`  title:      ${sub.title}`);
+  console.log(`  edge at:    [${edgePos}]  layer: ${layer}  visible: ${edgeVis ? "✓" : "✗"}`);
+  console.log(`  algo:       "${sub.algorithm}"  cross solved: ${solved ? "✓ PASS" : "✗ FAIL"}`);
+  console.log(`  arrow:      ${arrowOK}  from=[${sub.arrows[0].from}] to=[${sub.arrows[0].to}]`);
+  console.log(`  home vis:   ${homeVis ? "✓" : "✗"}  [${home}]`);
 }
 
 console.log("\n" + "═".repeat(80));
 console.log("SUMMARY TABLE");
 console.log("═".repeat(80));
-console.log("| Substep             | Solvable | Pieces OK | Arrow OK | Layer OK | Home Vis |");
-console.log("|---------------------|----------|-----------|----------|----------|----------|");
+console.log("| Substep      | Solvable | Piece OK | Arrow OK | Layer OK | Home Vis |");
+console.log("|--------------|----------|----------|----------|----------|----------|");
 
-for (const s of substeps) {
+for (const sub of substeps) {
   const eng = new CubeEngine();
-  eng.applyAlgorithm(s.initialState);
-  const edgePos = findEdge(eng, "white", "green");
-  const wPos = findCenter(eng, "white");
-  const gPos = findCenter(eng, "green");
+  eng.applyAlgorithm(sub.initialState);
+  const edgePos = findEdge(eng, sub.targetEdge[0], sub.targetEdge[1]);
 
   const eng2 = new CubeEngine();
-  eng2.applyAlgorithm(s.initialState);
-  eng2.applyAlgorithm(s.algorithm);
-  const solvable = stateMatch(eng2) ? "✓" : "✗";
+  eng2.applyAlgorithm(sub.initialState);
+  eng2.applyAlgorithm(sub.algorithm);
+  const solvable = crossSolved(eng2) ? "✓" : "✗";
 
-  const edgeVis = edgePos && isFrontVisible(edgePos);
-  const wVis = wPos && isFrontVisible(wPos);
-  const gVis = gPos && isFrontVisible(gPos);
-  const piecesOK = (edgeVis && wVis) ? "✓" : "✗";
+  const edgeVis = edgePos && isVisible(edgePos) ? "✓" : "✗";
+  const home = edgePos ? CROSS_HOMES[[sub.targetEdge[0],sub.targetEdge[1]].sort().join("+")] : null;
 
-  const arrowOK = s.arrows.length === 0 ? "N/A" :
-    (s.arrows[0].from.join(",") === edgePos && s.arrows[0].to.join(",") === HOME) ? "✓ " : "✗ ";
+  let arrowOK = "N/A";
+  if (sub.arrows.length === 1 && edgePos && home) {
+    const fromOK = posEq(sub.arrows[0].from, edgePos);
+    const toOK = posEq(sub.arrows[0].to, home);
+    arrowOK = (fromOK && toOK) ? "✓ " : "✗ ";
+  } else if (sub.arrows.length === 2 && edgePos) {
+    const redPos = findEdge(eng, "white", "red");
+    const greenPos = findEdge(eng, "white", "green");
+    const redHome = CROSS_HOMES["white+red"];
+    const greenHome = CROSS_HOMES["white+green"];
+    const a0ok = redPos && posEq(sub.arrows[0].from, redPos) && posEq(sub.arrows[0].to, redHome);
+    const a1ok = greenPos && posEq(sub.arrows[1].from, greenPos) && posEq(sub.arrows[1].to, greenHome);
+    arrowOK = (a0ok && a1ok) ? "✓ " : "✗ ";
+  }
 
-  const yCoord = edgePos ? Number(edgePos.split(",")[1]) : 0;
-  const layerOK = yCoord > 0 ? "✓" : "✗";
+  const yCoord = edgePos ? edgePos[1] : null;
+  const layerOK = yCoord === sub.expectedY ? "✓" : "✗";
+  const homeVis = home && isVisible(home) ? "✓" : "✗";
 
-  const homeVis = isFrontVisible(HOME) ? "✓" : "✗";
-
-  console.log(`| ${s.id.padEnd(19)} |    ${solvable}     |     ${piecesOK}     |   ${arrowOK.padEnd(5)}  |    ${layerOK}     |    ${homeVis}     |`);
+  console.log(`| ${sub.id.padEnd(12)} |    ${solvable}     |    ${edgeVis}     |   ${arrowOK.padEnd(4)}   |    ${layerOK}     |    ${homeVis}     |`);
 }
 console.log("");
