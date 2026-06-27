@@ -369,15 +369,16 @@ export class CubeEngine {
   getCubieWorldPosition(cubieId: string): [number, number, number] | null {
     const stickers = this.getStickersForCubie(cubieId);
     if (stickers.length === 0) return null;
-    const { face, row, col } = stickers[0];
-    switch (face) {
-      case "U": return [col - 1,  1,       row - 1];
-      case "D": return [col - 1, -1,       1 - row];
-      case "F": return [col - 1,  1 - row, 1      ];
-      case "B": return [1 - col,  1 - row, -1     ];
-      case "R": return [1,        1 - row, 1 - col];
-      case "L": return [-1,       1 - row, col - 1];
+    let x = 0, y = 0, z = 0;
+    for (const { face } of stickers) {
+      if (face === "U") y = +1;
+      else if (face === "D") y = -1;
+      else if (face === "F") z = +1;
+      else if (face === "B") z = -1;
+      else if (face === "R") x = +1;
+      else if (face === "L") x = -1;
     }
+    return [x, y, z];
   }
 
   // ---- Move application ---------------------------------------------------

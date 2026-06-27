@@ -39,23 +39,23 @@ function stateMatch(eng: CubeEngine): boolean {
   return s.U[0][1] === sv.U[0][1] && s.B[0][1] === sv.B[0][1];
 }
 
-// New camera: [4, 3, -4] — visible faces: +X (R), +Y (U), -Z (B)
+// Camera: [4, 3, 4] — visible faces: +X (R), +Y (U), +Z (F)
 function isFrontVisible(posStr: string): boolean {
   const [x, y, z] = posStr.split(",").map(Number);
   if (x > 0) return true;  // R face
   if (y > 0) return true;  // U face
-  if (z < 0) return true;  // B face (now visible from [4,3,-4])
+  if (z > 0) return true;  // F face (visible from [4,3,4])
   return false;
 }
 
-// Home slot visibility from new camera
+// Home slot visibility from camera [4,3,4]
 function isHomeVisible(): boolean {
-  // Home at [0,1,-1]: y=+1 (U face) → visible ✓
+  // Home at [0,1,1]: y=+1 and z=+1 → visible ✓
   return true;
 }
 
 console.log(`HOME slot: [${HOME}]`);
-console.log(`Camera: [4, 3, -4]  →  visible: +X(R), +Y(U), -Z(B)\n`);
+console.log(`Camera: [4, 3, 4]  →  visible: +X(R), +Y(U), +Z(F)\n`);
 
 const substeps = [
   {
@@ -64,31 +64,31 @@ const substeps = [
     explanation: "The white-green edge is in the top layer at the front slot. Two top-layer turns (U2) spin it 180° to the green home slot.",
     algorithm: "U2",
     initialState: "x2 U2",
-    arrows: [{ from: [0, 1, 1], to: [0, 1, -1] }],
+    arrows: [{ from: [0, 1, -1], to: [0, 1, 1] }],
   },
   {
     id: "wc-middle-front",
-    title: "White layer, left slot",
-    explanation: "The white-green edge is in the top layer at the left slot. One top-layer turn (U) slides it to the green home slot.",
+    title: "White layer, right slot",
+    explanation: "The white-green edge is in the top layer at the right slot. One top-layer turn (U) slides it to the green home slot.",
     algorithm: "U",
     initialState: "x2 U' R",
-    arrows: [{ from: [-1, 1, 0], to: [0, 1, -1] }],
+    arrows: [{ from: [1, 1, 0], to: [0, 1, 1] }],
   },
   {
     id: "wc-yellow-right",
-    title: "White layer, left side",
-    explanation: "The white-green edge is in the top (white) layer on the left. A single U turn carries it to the green home slot.",
+    title: "White layer, right side",
+    explanation: "The white-green edge is in the top (white) layer on the right. A single U turn carries it to the green home slot.",
     algorithm: "U",
     initialState: "x2 U' R2",
-    arrows: [{ from: [-1, 1, 0], to: [0, 1, -1] }],
+    arrows: [{ from: [1, 1, 0], to: [0, 1, 1] }],
   },
   {
     id: "wc-yellow-front",
-    title: "White layer, front slot (far)",
-    explanation: "The white-green edge is in the top layer at the front slot. Two top-layer turns (U2) carry it to the green home slot.",
+    title: "White layer, back slot",
+    explanation: "The white-green edge is in the top layer at the back slot. Two top-layer turns (U2) carry it to the green home slot.",
     algorithm: "U2",
     initialState: "x2 U2 B2",
-    arrows: [{ from: [0, 1, 1], to: [0, 1, -1] }],
+    arrows: [{ from: [0, 1, -1], to: [0, 1, 1] }],
   },
   {
     id: "wc-middle-back",

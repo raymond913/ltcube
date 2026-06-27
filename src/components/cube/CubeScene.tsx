@@ -605,7 +605,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
   // ---- Camera view mode ---------------------------------------------------
   useEffect(() => {
     const isWhiteUp = whiteOnTop || viewMode === "white-up";
-    const [tx, ty, tz] = isWhiteUp ? [4, 3, -4] : [4, 3, 4];
+    const [tx, ty, tz] = isWhiteUp ? [4, 3, 4] : [4, 3, 4];
     const [ux, uy, uz] = [0, 1, 0];
     camera.up.set(ux, uy, uz);
     gsap.to(camera.position, {
