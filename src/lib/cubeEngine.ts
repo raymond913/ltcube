@@ -194,18 +194,18 @@ const MOVE_STRIPS: Record<string, Sticker[][]> = {
     [["D", 2, 0], ["D", 2, 1], ["D", 2, 2]],
     [["L", 0, 0], ["L", 1, 0], ["L", 2, 0]],
   ],
-  // R face CW (viewed from right): U-right-col → B-left-col(rev) → D-right-col → F-right-col
+  // R face CW (viewed from right): U-right-col → F-right-col → D-right-col → B-left-col(rev)
   R: [
     [["U", 0, 2], ["U", 1, 2], ["U", 2, 2]],
     [["F", 0, 2], ["F", 1, 2], ["F", 2, 2]],
-    [["D", 2, 2], ["D", 1, 2], ["D", 0, 2]],
+    [["D", 0, 2], ["D", 1, 2], ["D", 2, 2]],
     [["B", 2, 0], ["B", 1, 0], ["B", 0, 0]],
   ],
-  // L face CW (viewed from left): U-left-col → F-left-col(rev) → D-left-col → B-right-col
+  // L face CW (viewed from left): U-left-col(rev) → B-right-col → D-left-col(rev) → F-left-col(rev)
   L: [
     [["U", 2, 0], ["U", 1, 0], ["U", 0, 0]],
     [["B", 0, 2], ["B", 1, 2], ["B", 2, 2]],
-    [["D", 0, 0], ["D", 1, 0], ["D", 2, 0]],
+    [["D", 2, 0], ["D", 1, 0], ["D", 0, 0]],
     [["F", 2, 0], ["F", 1, 0], ["F", 0, 0]],
   ],
 };

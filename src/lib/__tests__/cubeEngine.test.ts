@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CubeEngine, parseAlgorithm, invertAlgorithm } from "../cubeEngine";
+import { CubeEngine, parseAlgorithm, invertAlgorithm, type FaceName, type CubeFaces } from "../cubeEngine";
 import { generateScramble } from "../scrambleGenerator";
 
 // ---------------------------------------------------------------------------
@@ -8,6 +8,68 @@ import { generateScramble } from "../scrambleGenerator";
 
 function freshEngine() {
   return new CubeEngine();
+}
+
+// ---------------------------------------------------------------------------
+// Invariant helpers
+//
+// These encode physical-cube facts independently of cubeEngine's own
+// internals, so they catch bugs like the F/B chirality inversion that
+// slipped past single-face-only tests (each face alone was still a valid
+// 4-cycle; the corruption only showed up once a U/D/R/L move was combined
+// with an F/B move).
+// ---------------------------------------------------------------------------
+
+type Cell = [FaceName, number, number];
+
+const EDGE_SLOTS: Cell[][] = [
+  [["U", 2, 1], ["F", 0, 1]], [["U", 0, 1], ["B", 0, 1]],
+  [["U", 1, 2], ["R", 0, 1]], [["U", 1, 0], ["L", 0, 1]],
+  [["D", 0, 1], ["F", 2, 1]], [["D", 2, 1], ["B", 2, 1]],
+  [["D", 1, 2], ["R", 2, 1]], [["D", 1, 0], ["L", 2, 1]],
+  [["F", 1, 2], ["R", 1, 0]], [["F", 1, 0], ["L", 1, 2]],
+  [["B", 1, 0], ["R", 1, 2]], [["B", 1, 2], ["L", 1, 0]],
+];
+
+const CORNER_SLOTS: Cell[][] = [
+  [["U", 2, 2], ["F", 0, 2], ["R", 0, 0]], [["U", 2, 0], ["F", 0, 0], ["L", 0, 2]],
+  [["U", 0, 2], ["B", 0, 0], ["R", 0, 2]], [["U", 0, 0], ["B", 0, 2], ["L", 0, 0]],
+  [["D", 0, 2], ["F", 2, 2], ["R", 2, 0]], [["D", 0, 0], ["F", 2, 0], ["L", 2, 2]],
+  [["D", 2, 2], ["B", 2, 0], ["R", 2, 2]], [["D", 2, 0], ["B", 2, 2], ["L", 2, 0]],
+];
+
+const ALL_FACES: FaceName[] = ["U", "D", "F", "B", "R", "L"];
+
+function colorSet(state: CubeFaces, cells: Cell[]): string {
+  return cells.map(([f, r, c]) => state[f][r][c]).sort().join("+");
+}
+
+/** Every edge color-pair and corner color-triple must be unique — a real
+ *  cube can never show the same two (or three) colors at two different slots. */
+function findDuplicatePiece(e: CubeEngine): string | null {
+  const state = e.getState();
+  const seen = new Set<string>();
+  for (const slot of [...EDGE_SLOTS, ...CORNER_SLOTS]) {
+    const key = colorSet(state, slot);
+    if (seen.has(key)) return key;
+    seen.add(key);
+  }
+  return null;
+}
+
+/** Count of every sticker color across all 54 stickers. */
+function stickerColorCounts(e: CubeEngine): Record<string, number> {
+  const state = e.getState();
+  const counts: Record<string, number> = {};
+  for (const face of ALL_FACES) {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const color = state[face][r][c];
+        counts[color] = (counts[color] ?? 0) + 1;
+      }
+    }
+  }
+  return counts;
 }
 
 // ---------------------------------------------------------------------------
@@ -295,5 +357,128 @@ describe("getCubieWorldPosition", () => {
     e.applyAlgorithm("R");
     // R CW moves UFR → UBR
     expect(e.getCubieWorldPosition("UFR")).toEqual([1, 1, -1]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Invariant: piece uniqueness
+//
+// Regression test for the bug where F/B rotated the opposite chirality from
+// U/D/R/L. Each face alone was still a valid 4-cycle (no duplicates), so
+// single-move tests never caught it — the corruption (the same two or three
+// colors appearing at two different slots, which is physically impossible)
+// only appeared once a U/D/R/L move was combined with an F/B move.
+// ---------------------------------------------------------------------------
+
+describe("invariant: piece uniqueness", () => {
+  it("every pair of distinct face moves preserves piece uniqueness", () => {
+    for (const a of ALL_FACES) {
+      for (const b of ALL_FACES) {
+        if (a === b) continue;
+        const e = freshEngine();
+        e.applyAlgorithm(`${a} ${b}`);
+        const dup = findDuplicatePiece(e);
+        expect(dup, `"${a} ${b}" produced a duplicate piece: ${dup}`).toBeNull();
+      }
+    }
+  });
+
+  it("~50 random scrambles (length 10-20) preserve piece uniqueness", () => {
+    for (let i = 0; i < 50; i++) {
+      const length = 10 + Math.floor(Math.random() * 11); // 10..20 inclusive
+      const scramble = generateScramble(length);
+      const e = freshEngine();
+      e.applyAlgorithm(scramble);
+      const dup = findDuplicatePiece(e);
+      expect(dup, `scramble "${scramble}" produced a duplicate piece: ${dup}`).toBeNull();
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Invariant: sticker permutation validity
+// ---------------------------------------------------------------------------
+
+describe("invariant: sticker permutation validity", () => {
+  const EXPECTED_COLORS = ["blue", "green", "orange", "red", "white", "yellow"];
+
+  it("solved cube has exactly 9 of each color", () => {
+    const counts = stickerColorCounts(freshEngine());
+    expect(Object.keys(counts).sort()).toEqual(EXPECTED_COLORS);
+    for (const color of EXPECTED_COLORS) expect(counts[color]).toBe(9);
+  });
+
+  it("~50 random scrambles (length 10-20) never gain or lose a sticker color", () => {
+    for (let i = 0; i < 50; i++) {
+      const length = 10 + Math.floor(Math.random() * 11);
+      const scramble = generateScramble(length);
+      const e = freshEngine();
+      e.applyAlgorithm(scramble);
+      const counts = stickerColorCounts(e);
+      expect(Object.keys(counts).sort(), `scramble "${scramble}"`).toEqual(EXPECTED_COLORS);
+      for (const color of EXPECTED_COLORS) {
+        expect(counts[color], `scramble "${scramble}" color "${color}"`).toBe(9);
+      }
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Invariant: chirality consistency
+//
+// Expected destinations below are hardcoded from how a physical cube
+// behaves under standard notation (every face turns clockwise viewed from
+// outside that face) — derived independently of the engine, not read off
+// it — so this test fails if any face's rotation direction drifts from the
+// others, the exact way F/B drifted from U/D/R/L before the fix.
+// ---------------------------------------------------------------------------
+
+describe("invariant: chirality consistency", () => {
+  it("U (CW from above) cycles UF->UL->UB->UR->UF", () => {
+    const e = freshEngine();
+    e.applyAlgorithm("U");
+    const s = e.getState();
+    expect(colorSet(s, [["U", 1, 0], ["L", 0, 1]])).toBe("blue+yellow");   // UL <- old UF
+    expect(colorSet(s, [["U", 0, 1], ["B", 0, 1]])).toBe("orange+yellow"); // UB <- old UL
+    expect(colorSet(s, [["U", 1, 2], ["R", 0, 1]])).toBe("green+yellow");  // UR <- old UB
+    expect(colorSet(s, [["U", 2, 1], ["F", 0, 1]])).toBe("red+yellow");    // UF <- old UR
+  });
+
+  it("F (CW from front) cycles UF->FR->DF->FL->UF, matching U's handedness", () => {
+    const e = freshEngine();
+    e.applyAlgorithm("F");
+    const s = e.getState();
+    expect(colorSet(s, [["F", 1, 2], ["R", 1, 0]])).toBe("blue+yellow"); // FR <- old UF
+    expect(colorSet(s, [["D", 0, 1], ["F", 2, 1]])).toBe("blue+red");    // DF <- old FR
+    expect(colorSet(s, [["F", 1, 0], ["L", 1, 2]])).toBe("blue+white");  // FL <- old DF
+    expect(colorSet(s, [["U", 2, 1], ["F", 0, 1]])).toBe("blue+orange"); // UF <- old FL
+  });
+
+  it("B (CW from behind) cycles UB->BL->DB->BR->UB, matching U's handedness", () => {
+    const e = freshEngine();
+    e.applyAlgorithm("B");
+    const s = e.getState();
+    expect(colorSet(s, [["B", 1, 2], ["L", 1, 0]])).toBe("green+yellow"); // BL <- old UB
+    expect(colorSet(s, [["D", 2, 1], ["B", 2, 1]])).toBe("green+orange"); // DB <- old BL
+    expect(colorSet(s, [["B", 1, 0], ["R", 1, 2]])).toBe("green+white");  // BR <- old DB
+    expect(colorSet(s, [["U", 0, 1], ["B", 0, 1]])).toBe("green+red");    // UB <- old BR
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Invariant: round-trip identities for every face
+// ---------------------------------------------------------------------------
+
+describe("invariant: round-trip identities", () => {
+  it.each(ALL_FACES)("%s applied 4 times returns to solved", (face) => {
+    const e = freshEngine();
+    e.applyAlgorithm(`${face} ${face} ${face} ${face}`);
+    expect(e.isSolved()).toBe(true);
+  });
+
+  it.each(ALL_FACES)("%s then %s' returns to solved", (face) => {
+    const e = freshEngine();
+    e.applyAlgorithm(`${face} ${face}'`);
+    expect(e.isSolved()).toBe(true);
   });
 });
