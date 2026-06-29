@@ -9,6 +9,10 @@
 import { CubeEngine } from "../lib/cubeEngine";
 import type { Substep } from "../lib/tutorialTypes";
 import { cross } from "../data/beginner/cross";
+import { corners } from "../data/beginner/corners";
+import { secondLayer } from "../data/beginner/second-layer";
+import { twoLookOll } from "../data/beginner/two-look-oll";
+import { twoLookPll } from "../data/beginner/two-look-pll";
 
 // ---------------------------------------------------------------------------
 // Sticker slot tables (position ↔ face/row/col)
@@ -327,7 +331,193 @@ export function runValidator(cfg: ValidatorConfig): void {
 }
 
 // ---------------------------------------------------------------------------
-// Cross entry point
+// Solve-check mode — independent of visibleCubies/highlightPieces wiring.
+//
+// runValidator (above) checks the tutorial's HIGHLIGHTING is correct, keyed
+// off visibleCubies. That field is empty/absent in corners.ts, second-layer.ts,
+// two-look-oll.ts, and two-look-pll.ts (by their own design — those steps
+// don't ghost pieces), so CHECK 1/2/3/5 would iterate zero pieces and report
+// a vacuous PASS for those files. Solve-check instead validates the actual
+// cube mechanics directly: is the authored initialState even a legal cube
+// state, and does the authored algorithm actually reach the intended goal?
+// It never looks at visibleCubies or highlightPieces' naming convention for
+// scoring — only for guessing which piece is "the point" of a case, where
+// needed, since each file names pieces differently (2-color edges, 3-color
+// corners, raw cubie IDs like "UF").
+// ---------------------------------------------------------------------------
+
+const COLOR_WORDS = new Set(["white", "yellow", "blue", "green", "red", "orange"]);
+
+/** Standard (no whole-cube rotation) solved-position face for each color. */
+const SOLVED_FACE_OF_COLOR: Record<string, FN> = {
+  white: "D", yellow: "U", blue: "F", green: "B", red: "R", orange: "L",
+};
+
+/** Pull color tokens out of a highlightPieces-style name, regardless of
+ *  convention ("white-blue-red", "blue-red-edge", "UF" all handled —
+ *  the last one just yields an empty array, which callers must check for). */
+function parseColorsFromHighlightName(name: string): string[] {
+  return name.split("-").filter((tok) => COLOR_WORDS.has(tok));
+}
+
+/** Every edge color-pair / corner color-triple must be unique. Returns a
+ *  description of the first duplicate found, or null if the state is valid. */
+function checkUniqueness(eng: CubeEngine): string | null {
+  const s = eng.getState();
+  const seen = new Map<string, string[]>();
+  for (const slot of [...EDGE_SLOTS, ...CORNER_SLOTS]) {
+    const colors = slot.stickers.map(({ f, r, c }) => String(s[f][r][c]));
+    const key = [...colors].sort().join("+");
+    if (!seen.has(key)) seen.set(key, []);
+    seen.get(key)!.push(slot.id);
+  }
+  for (const [key, ids] of seen) if (ids.length > 1) return `${key} @ ${ids.join(",")}`;
+  return null;
+}
+
+/** All 54 stickers must contain exactly 9 of each of the 6 colors. Returns a
+ *  description of the violation, or null if the state is valid. */
+function checkPermutation(eng: CubeEngine): string | null {
+  const s = eng.getState();
+  const counts: Record<string, number> = {};
+  for (const f of ["U", "D", "F", "B", "R", "L"] as FN[]) {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const color = String(s[f][r][c]);
+        counts[color] = (counts[color] ?? 0) + 1;
+      }
+    }
+  }
+  const colors = Object.keys(counts);
+  const bad = colors.length !== 6 || colors.some((c) => counts[c] !== 9);
+  return bad ? JSON.stringify(counts) : null;
+}
+
+/** Is the piece carrying exactly `colors` sitting in ITS correctly-oriented
+ *  home slot — i.e. every one of its stickers facing the face that color
+ *  belongs to in a solved (no whole-cube-rotation) cube? Works for both
+ *  2-color edges and 3-color corners. */
+function isPieceSolved(eng: CubeEngine, colors: string[]): boolean {
+  const s = eng.getState();
+  const table = colors.length === 3 ? CORNER_SLOTS : EDGE_SLOTS;
+  const target = [...colors].sort().join(",");
+  for (const slot of table) {
+    const got = slot.stickers.map(({ f, r, c }) => String(s[f][r][c]));
+    if ([...got].sort().join(",") !== target) continue;
+    return got.every((color, i) => slot.stickers[i].f === SOLVED_FACE_OF_COLOR[color]);
+  }
+  return false; // the piece's colors weren't found anywhere — shouldn't happen on a valid cube
+}
+
+/** Is the entire first layer (D face + the bottom row of each side face)
+ *  solved? Used as the "white face still intact" floor for corners /
+ *  second-layer cases. */
+function isFirstLayerSolved(eng: CubeEngine): boolean {
+  const s = eng.getState();
+  if (!s.D.every((row) => row.every((c) => c === "white"))) return false;
+  for (const face of ["F", "B", "R", "L"] as FN[]) {
+    const center = s[face][1][1];
+    for (const c of [0, 1, 2]) if (s[face][2][c] !== center) return false;
+  }
+  return true;
+}
+
+/** Is the whole U face one solid color? Used for OLL's "orientation complete". */
+function isUFaceSolid(eng: CubeEngine): boolean {
+  const s = eng.getState();
+  const first = s.U[0][0];
+  return s.U.every((row) => row.every((c) => c === first));
+}
+
+export type SolveCheckGoal =
+  | { type: "target-piece"; extraFloor?: "first-layer" }
+  | { type: "u-face-solid" }
+  | { type: "full-solve" };
+
+export interface SolveCheckConfig {
+  stepId: string;
+  cases: Substep[];
+  goal: SolveCheckGoal;
+}
+
+export function runSolveCheck(cfg: SolveCheckConfig): void {
+  console.log(`\n${"#".repeat(80)}`);
+  console.log(`SOLVE-CHECK  step=${cfg.stepId}  cases=${cfg.cases.length}`);
+  console.log("#".repeat(80));
+
+  let totalFail = 0;
+
+  for (const sub of cfg.cases) {
+    console.log(`\n▶ ${sub.id} — "${sub.title}"`);
+    console.log(`  initialState="${sub.initialState}"  algorithm="${sub.algorithm ?? ""}"`);
+    let caseFail = 0;
+
+    // ---------------------------------------------------------------------
+    // STEP 1 — VALID START: initialState must land on a physically possible
+    // cube. If this fails, the case was authored against the broken engine
+    // and the initialState itself is corrupt — no point checking further.
+    // ---------------------------------------------------------------------
+    const engInit = new CubeEngine();
+    engInit.applyAlgorithm(sub.initialState);
+
+    const dup = checkUniqueness(engInit);
+    if (!result(!dup, "valid start — no duplicate pieces",
+      dup ? `CORRUPT initialState — duplicate piece ${dup}` : "ok")) caseFail++;
+
+    const permBad = checkPermutation(engInit);
+    if (!result(!permBad, "valid start — exactly 9 of each color",
+      permBad ? `CORRUPT initialState — color counts ${permBad}` : "ok")) caseFail++;
+
+    if (dup || permBad) {
+      console.log(`\n  ✗ ${caseFail} FAILURE(S) — initialState is corrupt, skipping solve check\n`);
+      totalFail += caseFail;
+      continue;
+    }
+
+    // ---------------------------------------------------------------------
+    // STEP 2 — ALGORITHM SOLVES IT
+    // ---------------------------------------------------------------------
+    const engAfter = engInit.clone();
+    if (sub.algorithm) engAfter.applyAlgorithm(sub.algorithm);
+
+    if (cfg.goal.type === "target-piece") {
+      const name = sub.highlightPieces?.[0] ?? "";
+      const colors = parseColorsFromHighlightName(name);
+      if (colors.length < 2) {
+        if (!result(false, "target piece", `could not determine target piece from highlightPieces[0]="${name}"`)) caseFail++;
+      } else {
+        const solved = isPieceSolved(engAfter, colors);
+        if (!result(solved, `target piece ${colors.join("+")} placed + oriented correctly`,
+          solved ? "solved" : "NOT solved — algorithm does not solve this case")) caseFail++;
+      }
+      if (cfg.goal.extraFloor === "first-layer") {
+        const fl = isFirstLayerSolved(engAfter);
+        if (!result(fl, "white face / first layer still intact",
+          fl ? "intact" : "NOT intact — first layer disturbed by the algorithm")) caseFail++;
+      }
+    } else if (cfg.goal.type === "u-face-solid") {
+      const solid = isUFaceSolid(engAfter);
+      if (!result(solid, "U face fully one color (OLL orientation complete)",
+        solid ? "solid" : "NOT solid — top layer not fully oriented")) caseFail++;
+    } else if (cfg.goal.type === "full-solve") {
+      const solved = engAfter.isSolved();
+      if (!result(solved, "cube fully solved (PLL permutation complete)",
+        solved ? "solved" : "NOT solved")) caseFail++;
+    }
+
+    console.log(caseFail > 0
+      ? `\n  ✗ ${caseFail} FAILURE(S)\n`
+      : `\n  ✓ all checks PASS\n`);
+    totalFail += caseFail;
+  }
+
+  console.log("#".repeat(80));
+  console.log(totalFail === 0 ? "OVERALL: ✓ ALL PASS" : `OVERALL: ✗ ${totalFail} FAILURE(S)`);
+  console.log("#".repeat(80));
+}
+
+// ---------------------------------------------------------------------------
+// Cross entry point (highlighting validator — unchanged)
 // ---------------------------------------------------------------------------
 runValidator({
   stepId: "white-cross",
@@ -338,4 +528,31 @@ runValidator({
     ["white","blue"],
     ["white","orange"],
   ],
+});
+
+// ---------------------------------------------------------------------------
+// Solve-check entry points
+// ---------------------------------------------------------------------------
+runSolveCheck({
+  stepId: "corners",
+  cases: corners.substeps,
+  goal: { type: "target-piece", extraFloor: "first-layer" },
+});
+
+runSolveCheck({
+  stepId: "second-layer",
+  cases: secondLayer.substeps,
+  goal: { type: "target-piece", extraFloor: "first-layer" },
+});
+
+runSolveCheck({
+  stepId: "two-look-oll",
+  cases: twoLookOll.substeps,
+  goal: { type: "u-face-solid" },
+});
+
+runSolveCheck({
+  stepId: "two-look-pll",
+  cases: twoLookPll.substeps,
+  goal: { type: "full-solve" },
 });
