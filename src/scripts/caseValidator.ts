@@ -200,6 +200,9 @@ export function runValidator(cfg: ValidatorConfig): void {
 
     // -------------------------------------------------------------------
     // CHECK 1 — highlighted pieces actually move (not already solved)
+    // A piece counts as "moving" if its slot changes OR — for a piece that
+    // stays in its home slot — its white sticker's facing flips (a real,
+    // valid case: an edge correctly placed but oriented wrong).
     // -------------------------------------------------------------------
     console.log("\n  CHECK 1 — highlighted pieces actually move");
     for (const pc of pieces) {
@@ -207,12 +210,16 @@ export function runValidator(cfg: ValidatorConfig): void {
         if (!result(false, `${pc.key}`, "findPiece returned null")) caseFail++;
         continue;
       }
-      const moves = !posEq(pc.initPos, pc.solvedPos);
+      const samePos = posEq(pc.initPos, pc.solvedPos);
+      const flippedInPlace = samePos && whiteStickerFace(engInit, pc.colors) !== whiteStickerFace(engAfter, pc.colors);
+      const moves = !samePos || flippedInPlace;
       if (!result(moves,
         `${pc.key} (${pc.colors.join("+")})`,
-        moves
+        !samePos
           ? `${describePos(pc.initPos)} → ${describePos(pc.solvedPos)}`
-          : `ALREADY at solved slot ${describePos(pc.solvedPos)} — should NOT be highlighted`
+          : flippedInPlace
+            ? `flipped in place at ${describePos(pc.solvedPos)} (white sticker ${whiteStickerFace(engInit, pc.colors)} → ${whiteStickerFace(engAfter, pc.colors)})`
+            : `ALREADY at solved slot ${describePos(pc.solvedPos)} — should NOT be highlighted`
       )) caseFail++;
     }
 
@@ -223,7 +230,10 @@ export function runValidator(cfg: ValidatorConfig): void {
     for (const scopeColors of cfg.inScopePieces) {
       const initPos   = findPiece(engInit,  scopeColors);
       const solvedPos = findPiece(engAfter, scopeColors);
-      if (!initPos || !solvedPos || posEq(initPos, solvedPos)) continue; // not displaced
+      if (!initPos || !solvedPos) continue;
+      const samePos = posEq(initPos, solvedPos);
+      const flippedInPlace = samePos && whiteStickerFace(engInit, scopeColors) !== whiteStickerFace(engAfter, scopeColors);
+      if (samePos && !flippedInPlace) continue; // not displaced
 
       const homeKey = colorsToHomeKey(scopeColors);
       const highlighted = visKeys.has(homeKey);
