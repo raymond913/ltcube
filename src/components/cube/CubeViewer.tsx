@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { CubeFaces } from "@/lib/cubeEngine";
 import type { Arrow } from "@/lib/tutorialTypes";
+import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
+import { canUseWebGL } from "@/lib/webgl";
 
 const CubeScene = dynamic(
   () => import("./CubeScene").then((m) => m.CubeScene),
@@ -36,7 +39,21 @@ interface CubeViewerProps {
   viewMode?: "default" | "white-up";
   /** Arrows rendered on top of the cube */
   arrows?: Arrow[];
+  /** When true, orient the scene so white is on top */
+  whiteOnTop?: boolean;
 }
+
+const cubeUnavailableFallback = (
+  <div
+    className="flex flex-col items-center justify-center w-full h-full rounded-xl gap-2"
+    style={{ background: "var(--color-surface)" }}
+  >
+    <span className="text-2xl" aria-hidden>🧊</span>
+    <span className="text-xs text-center px-2" style={{ color: "var(--color-muted)" }}>
+      3D view unavailable on this device
+    </span>
+  </div>
+);
 
 export function CubeViewer({
   size = 300,
@@ -47,20 +64,34 @@ export function CubeViewer({
   onReady,
   viewMode,
   arrows,
+  whiteOnTop,
 }: CubeViewerProps) {
+  const [webglOk, setWebglOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setWebglOk(canUseWebGL());
+  }, []);
+
   return (
     <div
       style={{ width: size, height: size }}
       className={`rounded-xl overflow-hidden ${className}`}
     >
-      <CubeScene
-        interactive={interactive}
-        cubeState={cubeState}
-        visibleCubies={visibleCubies}
-        onReady={onReady}
-        viewMode={viewMode}
-        arrows={arrows}
-      />
+      {webglOk === false ? (
+        cubeUnavailableFallback
+      ) : (
+        <WebGLErrorBoundary fallback={cubeUnavailableFallback}>
+          <CubeScene
+            interactive={interactive}
+            cubeState={cubeState}
+            visibleCubies={visibleCubies}
+            onReady={onReady}
+            viewMode={viewMode}
+            arrows={arrows}
+            whiteOnTop={whiteOnTop}
+          />
+        </WebGLErrorBoundary>
+      )}
     </div>
   );
 }

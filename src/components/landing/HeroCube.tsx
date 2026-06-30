@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
+import { WebGLErrorBoundary } from "@/components/cube/WebGLErrorBoundary";
+import { canUseWebGL } from "@/lib/webgl";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -191,16 +193,33 @@ interface HeroCubeProps {
   size?: number;
 }
 
+const heroCubeFallback = (
+  <div
+    className="flex items-center justify-center w-full h-full rounded-xl"
+    style={{ background: "transparent" }}
+  />
+);
+
 export function HeroCube({ size = 300 }: HeroCubeProps) {
+  const [webglOk, setWebglOk] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setWebglOk(canUseWebGL());
+  }, []);
+
+  if (webglOk === null || !webglOk) return <div style={{ width: size, height: size }} />;
+
   return (
     <div style={{ width: size, height: size }}>
-      <Canvas
-        camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
-        gl={{ alpha: true, antialias: true }}
-        dpr={[1, 2]}
-      >
-        <HeroCubeScene />
-      </Canvas>
+      <WebGLErrorBoundary fallback={heroCubeFallback}>
+        <Canvas
+          camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
+          gl={{ alpha: true, antialias: true }}
+          dpr={[1, 2]}
+        >
+          <HeroCubeScene />
+        </Canvas>
+      </WebGLErrorBoundary>
     </div>
   );
 }
