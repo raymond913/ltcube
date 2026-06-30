@@ -517,6 +517,49 @@ export function runSolveCheck(cfg: SolveCheckConfig): void {
 }
 
 // ---------------------------------------------------------------------------
+// Distinctness check — no two cases in the same file may share a
+// byte-identical initialState. A duplicate initialState means two "different"
+// cases actually present the learner with the exact same starting cube,
+// silently collapsing two lessons into one — solve-check alone can't catch
+// this since each case is checked in isolation.
+// ---------------------------------------------------------------------------
+
+export interface DistinctnessConfig {
+  stepId: string;
+  cases: Substep[];
+}
+
+export function runDistinctnessCheck(cfg: DistinctnessConfig): boolean {
+  console.log(`\n${"-".repeat(80)}`);
+  console.log(`DISTINCTNESS CHECK  step=${cfg.stepId}  cases=${cfg.cases.length}`);
+  console.log("-".repeat(80));
+
+  const seen = new Map<string, string>(); // initialState -> first case id that had it
+  const duplicates: Array<[string, string, string]> = []; // [stateA-id, stateB-id, state]
+
+  for (const sub of cfg.cases) {
+    const state = sub.initialState;
+    const prior = seen.get(state);
+    if (prior) {
+      duplicates.push([prior, sub.id, state]);
+    } else {
+      seen.set(state, sub.id);
+    }
+  }
+
+  if (duplicates.length === 0) {
+    console.log(`  ✓ all ${cfg.cases.length} initialStates are distinct`);
+  } else {
+    for (const [a, b, state] of duplicates) {
+      console.log(`  [FAIL] duplicate initialState — "${a}" and "${b}" share: "${state}"`);
+    }
+    console.log(`  ✗ ${duplicates.length} DUPLICATE PAIR(S)`);
+  }
+
+  return duplicates.length === 0;
+}
+
+// ---------------------------------------------------------------------------
 // Cross entry point (highlighting validator — unchanged)
 // ---------------------------------------------------------------------------
 runValidator({
@@ -556,3 +599,17 @@ runSolveCheck({
   cases: twoLookPll.substeps,
   goal: { type: "full-solve" },
 });
+
+// ---------------------------------------------------------------------------
+// Distinctness check entry points — run across all five tutorial files
+// ---------------------------------------------------------------------------
+let distinctOk = true;
+distinctOk = runDistinctnessCheck({ stepId: "white-cross", cases: cross.substeps }) && distinctOk;
+distinctOk = runDistinctnessCheck({ stepId: "corners", cases: corners.substeps }) && distinctOk;
+distinctOk = runDistinctnessCheck({ stepId: "second-layer", cases: secondLayer.substeps }) && distinctOk;
+distinctOk = runDistinctnessCheck({ stepId: "two-look-oll", cases: twoLookOll.substeps }) && distinctOk;
+distinctOk = runDistinctnessCheck({ stepId: "two-look-pll", cases: twoLookPll.substeps }) && distinctOk;
+
+console.log(`\n${"-".repeat(80)}`);
+console.log(distinctOk ? "DISTINCTNESS OVERALL: ✓ ALL PASS" : "DISTINCTNESS OVERALL: ✗ DUPLICATES FOUND");
+console.log("-".repeat(80));

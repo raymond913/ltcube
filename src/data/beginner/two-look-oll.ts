@@ -69,7 +69,7 @@ export const twoLookOll: TutorialStep = {
         "All four corners have yellow facing the sides — no yellow on top at all. Any AUF. Apply H.",
       algorithm: "R U R' U R U' R' U R U2 R'",
       algorithmName: "H",
-      initialState: "R U2 R' U' R U' R' U R U' R'",
+      initialState: "R U2 R' U' R U R' U' R U' R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
     },
     {
