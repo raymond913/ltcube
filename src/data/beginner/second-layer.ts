@@ -36,9 +36,9 @@ export const secondLayer: TutorialStep = {
       id: "sl-flipped",
       title: "Edge in correct slot but flipped",
       explanation: "Edge is in the right slot but oriented wrong. Run the right insert once to extract it to the top, then re-insert correctly.",
-      algorithmName: "Right Insert",
-      algorithm: "U R U' R' U' F' U F",
-      initialState: "F' U' F U R U R' U'",
+      algorithmName: "Extract + Right Insert",
+      algorithm: "U R U' R' U' F' U F U' R U' R' U' F' U F",
+      initialState: "R2 U2 R U2 R2 U U R U' R' U' F' U F",
       highlightPieces: ["blue-red-edge", "blue-center", "red-center"],
       visibleCubies: [],
       arrows: [
