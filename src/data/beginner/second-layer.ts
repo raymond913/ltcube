@@ -49,9 +49,9 @@ export const secondLayer: TutorialStep = {
       id: "sl-wrong-slot",
       title: "Edge in wrong slot entirely",
       explanation: "Edge is stuck in the wrong middle slot. Run any insert algorithm to kick it out to the top, then solve normally.",
-      algorithmName: "Right Insert",
-      algorithm: "U R U' R' U' F' U F",
-      initialState: "F' U' F U R U R' U'",
+      algorithmName: "Extract + Right Insert",
+      algorithm: "U' L' U L U F U' F2 U F U R U' R'",
+      initialState: "F' U' F U R U R' U' U' L' U L U F U' F'",
       highlightPieces: ["blue-red-edge", "blue-center", "red-center", "orange-center"],
       visibleCubies: [],
       arrows: [
