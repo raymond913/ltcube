@@ -348,10 +348,15 @@ export function runValidator(cfg: ValidatorConfig): void {
 
 const COLOR_WORDS = new Set(["white", "yellow", "blue", "green", "red", "orange"]);
 
-/** Standard (no whole-cube rotation) solved-position face for each color. */
-const SOLVED_FACE_OF_COLOR: Record<string, FN> = {
-  white: "D", yellow: "U", blue: "F", green: "B", red: "R", orange: "L",
-};
+/** Derive solved-position face for each color from the current engine state's
+ *  face centers.  This handles whole-cube rotations (e.g. x2 in initialState)
+ *  so that isPieceSolved and isFirstLayerSolved work regardless of orientation. */
+function solvedFaceOf(eng: CubeEngine): Record<string, FN> {
+  const s = eng.getState();
+  const map: Record<string, FN> = {};
+  for (const f of ["U","D","F","B","R","L"] as FN[]) map[String(s[f][1][1])] = f;
+  return map;
+}
 
 /** Pull color tokens out of a highlightPieces-style name, regardless of
  *  convention ("white-blue-red", "blue-red-edge", "UF" all handled —
@@ -395,29 +400,33 @@ function checkPermutation(eng: CubeEngine): string | null {
 
 /** Is the piece carrying exactly `colors` sitting in ITS correctly-oriented
  *  home slot — i.e. every one of its stickers facing the face that color
- *  belongs to in a solved (no whole-cube-rotation) cube? Works for both
- *  2-color edges and 3-color corners. */
+ *  belongs to?  Derives the expected face from the current engine's face
+ *  centers so whole-cube rotations (e.g. x2) are handled correctly. */
 function isPieceSolved(eng: CubeEngine, colors: string[]): boolean {
   const s = eng.getState();
+  const sfMap = solvedFaceOf(eng);
   const table = colors.length === 3 ? CORNER_SLOTS : EDGE_SLOTS;
   const target = [...colors].sort().join(",");
   for (const slot of table) {
     const got = slot.stickers.map(({ f, r, c }) => String(s[f][r][c]));
     if ([...got].sort().join(",") !== target) continue;
-    return got.every((color, i) => slot.stickers[i].f === SOLVED_FACE_OF_COLOR[color]);
+    return got.every((color, i) => slot.stickers[i].f === sfMap[color]);
   }
-  return false; // the piece's colors weren't found anywhere — shouldn't happen on a valid cube
+  return false;
 }
 
-/** Is the entire first layer (D face + the bottom row of each side face)
- *  solved? Used as the "white face still intact" floor for corners /
- *  second-layer cases. */
+/** Is the entire white-face layer (white face + matching ring on side faces)
+ *  solved?  Detects whether white is on U or D and checks accordingly so
+ *  x2-prefixed initialStates work correctly. */
 function isFirstLayerSolved(eng: CubeEngine): boolean {
   const s = eng.getState();
-  if (!s.D.every((row) => row.every((c) => c === "white"))) return false;
+  const whiteOnU = s.U[1][1] === "white";
+  const wFace = whiteOnU ? "U" : "D" as FN;
+  const rowIdx = whiteOnU ? 0 : 2;
+  if (!s[wFace].every((row: string[]) => row.every((c: string) => c === "white"))) return false;
   for (const face of ["F", "B", "R", "L"] as FN[]) {
     const center = s[face][1][1];
-    for (const c of [0, 1, 2]) if (s[face][2][c] !== center) return false;
+    for (const c of [0, 1, 2]) if (s[face][rowIdx][c] !== center) return false;
   }
   return true;
 }
