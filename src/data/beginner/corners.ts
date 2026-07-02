@@ -13,7 +13,9 @@ export const corners: TutorialStep = {
       algorithm: "R' D' R",
       initialState: "x2 R' D R",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
-      visibleCubies: ["1,-1,-1", "0,-1,0", "0,0,-1", "1,0,0"],
+      // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
+      // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
+      visibleCubies: ["1,-1,-1", "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0", "0,0,-1", "1,0,0"],
       whiteOnTop: true,
       arrows: [{ from: [1, -1, 1], to: [1, 1, 1], color: "#DC2626" }],
     },
@@ -24,7 +26,9 @@ export const corners: TutorialStep = {
       algorithm: "F D F'",
       initialState: "x2 F D' F'",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
-      visibleCubies: ["1,-1,-1", "0,-1,0", "0,0,-1", "1,0,0"],
+      // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
+      // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
+      visibleCubies: ["1,-1,-1", "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0", "0,0,-1", "1,0,0"],
       whiteOnTop: true,
       arrows: [{ from: [1, -1, 1], to: [1, 1, 1], color: "#2563EB" }],
     },
@@ -35,7 +39,9 @@ export const corners: TutorialStep = {
       algorithm: "R' D R F D2 F'",
       initialState: "x2 F D2 F' R' D' R",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
-      visibleCubies: ["1,-1,-1", "0,-1,0", "0,0,-1", "1,0,0"],
+      // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
+      // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
+      visibleCubies: ["1,-1,-1", "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0", "0,0,-1", "1,0,0"],
       whiteOnTop: true,
       arrows: [{ from: [1, -1, 1], to: [1, 1, 1], color: "#FFFFFF" }],
     },
@@ -46,7 +52,9 @@ export const corners: TutorialStep = {
       algorithm: "R' D R F D F'",
       initialState: "x2 F D' F' R' D' R",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
-      visibleCubies: ["1,-1,-1", "0,-1,0", "0,0,-1", "1,0,0"],
+      // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
+      // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
+      visibleCubies: ["1,-1,-1", "0,-1,0", "0,-1,1", "1,-1,0", "0,-1,-1", "-1,-1,0", "0,0,-1", "1,0,0"],
       whiteOnTop: true,
       arrows: [{ from: [1, 1, 1], to: [1, -1, 1], color: "#EAB308" }],
     },
