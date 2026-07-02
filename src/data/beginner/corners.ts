@@ -3,7 +3,7 @@ import type { TutorialStep } from "@/lib/tutorialTypes";
 export const corners: TutorialStep = {
   id: "corners",
   title: "White Corners",
-  description: "Place the four white corner pieces to finish the first layer. Each case puts the target corner (white-green-red) below its home slot, then inserts it with a short algorithm.",
+  description: "Place the four white corner pieces to finish the first layer. Solve corners in the bottom layer first — inserting a bottom-layer corner automatically knocks any wrongly-placed corner out of the top layer, so you fix two problems with one algorithm. If a white corner is stuck in the top layer in the wrong slot or orientation, hold the cube so that corner is at the front-right and do F D F' (or any insert move). This drops it into the bottom layer so you can solve it normally using the cases below.",
   concepts: ["find the corner below its slot in the D layer", "the white sticker's direction tells you which algorithm to use"],
   substeps: [
     {
