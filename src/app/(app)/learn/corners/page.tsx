@@ -15,6 +15,7 @@ export default async function CornersPage({
       stepData={corners}
       stepMeta={stepMeta}
       initialSubstepIndex={initialSubstepIndex}
+      showCaseThumbnails
     />
   );
 }

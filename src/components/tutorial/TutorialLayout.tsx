@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { AlgorithmPlayer } from "@/components/cube/AlgorithmPlayer";
+import { CaseThumbnail } from "@/components/cube/CaseThumbnail";
 import { StepContent } from "./StepContent";
 import { AlgorithmCard } from "./AlgorithmCard";
 import { useProgressStore } from "@/stores/progressStore";
@@ -23,6 +24,7 @@ interface TutorialLayoutProps {
   initialSubstepIndex?: number;
   showAlgorithmGrid?: boolean;
   showViewToggle?: boolean;
+  showCaseThumbnails?: boolean;
 }
 
 export function TutorialLayout({
@@ -31,6 +33,7 @@ export function TutorialLayout({
   initialSubstepIndex = 0,
   showAlgorithmGrid = false,
   showViewToggle = false,
+  showCaseThumbnails = false,
 }: TutorialLayoutProps) {
   const [activeIdx, setActiveIdx] = useState(
     Math.min(initialSubstepIndex, stepData.substeps.length - 1),
@@ -75,6 +78,7 @@ export function TutorialLayout({
             title={activeSubstep.title}
             showViewToggle={showViewToggle}
             arrows={activeSubstep.arrows}
+            whiteOnTop={activeSubstep.whiteOnTop}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
               ? { visibleCubies: activeSubstep.visibleCubies }
               : {})}
@@ -139,37 +143,91 @@ export function TutorialLayout({
               boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
             }}
           >
-            <nav className="flex flex-col gap-1">
-              {stepData.substeps.map((sub, idx) => {
-                const isActive = idx === activeIdx;
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => goToSubstep(idx)}
-                    aria-current={isActive ? "step" : undefined}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left transition-[background,color,border-color,font-weight] duration-150 w-full"
-                    style={{
-                      background: isActive ? `${accentColor}10` : "transparent",
-                      color: isActive ? accentColor : "var(--color-muted)",
-                      fontWeight: isActive ? 600 : 400,
-                      border: isActive ? `1px solid ${accentColor}22` : "1px solid transparent",
-                    }}
-                  >
-                    <span
-                      className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center font-bold text-2xs transition-all"
+            {showCaseThumbnails ? (
+              <div className="grid grid-cols-2 gap-2">
+                {stepData.substeps.map((sub, idx) => {
+                  const isActive = idx === activeIdx;
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => goToSubstep(idx)}
+                      aria-current={isActive ? "step" : undefined}
+                      className="flex flex-col items-center gap-1.5 rounded-xl p-1.5 transition-all duration-150 w-full"
                       style={{
-                        borderColor: isCompleted ? accentColor : isActive ? accentColor : "var(--color-border-bright)",
-                        background: isCompleted ? accentColor : isActive ? `${accentColor}15` : "transparent",
-                        color: isCompleted ? "#fff" : isActive ? accentColor : "oklch(65% 0.01 250)",
+                        background: isActive ? `${accentColor}08` : "var(--color-surface)",
+                        border: `2px solid ${isActive ? accentColor : isCompleted ? `${accentColor}55` : "var(--color-border)"}`,
+                        boxShadow: isActive ? `0 0 0 3px ${accentColor}18` : "none",
                       }}
                     >
-                      {isCompleted ? "✓" : idx + 1}
-                    </span>
-                    <span className="truncate">{sub.algorithmName ?? sub.title}</span>
-                  </button>
-                );
-              })}
-            </nav>
+                      <div className="relative rounded-lg overflow-hidden" style={{ width: 88, height: 88 }}>
+                        <CaseThumbnail
+                          initialState={sub.initialState}
+                          visibleCubies={sub.visibleCubies}
+                          title={sub.algorithmName ?? sub.title}
+                          size={88}
+                        />
+                        <span
+                          className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center font-bold pointer-events-none"
+                          style={{
+                            background: isCompleted ? accentColor : isActive ? accentColor : "rgba(0,0,0,0.45)",
+                            color: "#fff",
+                            fontSize: "10px",
+                          }}
+                        >
+                          {isCompleted ? "✓" : idx + 1}
+                        </span>
+                      </div>
+                      <span
+                        className="text-center leading-tight w-full"
+                        style={{
+                          color: isActive ? accentColor : "var(--color-muted)",
+                          fontWeight: isActive ? 600 : 400,
+                          fontSize: "11px",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {sub.algorithmName ?? sub.title}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <nav className="flex flex-col gap-1">
+                {stepData.substeps.map((sub, idx) => {
+                  const isActive = idx === activeIdx;
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => goToSubstep(idx)}
+                      aria-current={isActive ? "step" : undefined}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left transition-[background,color,border-color,font-weight] duration-150 w-full"
+                      style={{
+                        background: isActive ? `${accentColor}10` : "transparent",
+                        color: isActive ? accentColor : "var(--color-muted)",
+                        fontWeight: isActive ? 600 : 400,
+                        border: isActive ? `1px solid ${accentColor}22` : "1px solid transparent",
+                      }}
+                    >
+                      <span
+                        className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center font-bold text-2xs transition-all"
+                        style={{
+                          borderColor: isCompleted ? accentColor : isActive ? accentColor : "var(--color-border-bright)",
+                          background: isCompleted ? accentColor : isActive ? `${accentColor}15` : "transparent",
+                          color: isCompleted ? "#fff" : isActive ? accentColor : "oklch(65% 0.01 250)",
+                        }}
+                      >
+                        {isCompleted ? "✓" : idx + 1}
+                      </span>
+                      <span className="truncate">{sub.algorithmName ?? sub.title}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            )}
           </div>
 
           {/* Content */}

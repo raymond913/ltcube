@@ -53,7 +53,7 @@ const BODY_COLOR    = "#111111";
 const GHOST_BODY    = "#3A3A3A";
 
 /** All 26 visible cubie positions (every {-1,0,1}³ excluding origin). */
-const CUBIE_POSITIONS: Vec3[] = [];
+export const CUBIE_POSITIONS: Vec3[] = [];
 for (let x = -1; x <= 1; x++) {
   for (let y = -1; y <= 1; y++) {
     for (let z = -1; z <= 1; z++) {
@@ -186,7 +186,7 @@ function makeStickerMat(color: string, stickerless: boolean): THREE.MeshPhysical
   });
 }
 
-function createCubieGroup(x: number, y: number, z: number): THREE.Group {
+export function createCubieGroup(x: number, y: number, z: number): THREE.Group {
   const group = new THREE.Group();
   group.position.set(x, y, z);
 
@@ -232,7 +232,7 @@ function resetCubiesToSolved(cubies: THREE.Group[]): void {
   });
 }
 
-function applyMoveInstant(
+export function applyMoveInstant(
   move: string,
   cubies: THREE.Group[],
   scene: THREE.Scene,
@@ -289,7 +289,7 @@ function applyMoveInstant(
   pivot.rotation.set(0, 0, 0);
 }
 
-function snapCubiesToGrid(cubies: THREE.Group[]): void {
+export function snapCubiesToGrid(cubies: THREE.Group[]): void {
   cubies.forEach((cubie) => {
     cubie.position.x = Math.round(cubie.position.x);
     cubie.position.y = Math.round(cubie.position.y);
@@ -351,7 +351,7 @@ function applyCubeStyle(cubies: THREE.Group[], style: "stickered" | "stickerless
 // applyAppearance
 // ---------------------------------------------------------------------------
 
-function applyAppearance(
+export function applyAppearance(
   cubies: THREE.Group[],
   visibleKeys: Set<string>,
   style: "stickered" | "stickerless",

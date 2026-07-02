@@ -16,6 +16,7 @@ export default async function CrossPage({
       stepMeta={stepMeta}
       initialSubstepIndex={initialSubstepIndex}
       showViewToggle
+      showCaseThumbnails
     />
   );
 }
