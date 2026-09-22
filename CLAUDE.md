@@ -59,7 +59,7 @@ R(+X): #DC2626, L(-X): #EA580C, U(+Y): #EAB308, D(-Y): #FFFFFF, F(+Z): #2563EB, 
 Light/clean theme. White/#F8FAFC backgrounds, blue #2563EB accent, Inter font.
 
 ## Routes
-/, /learn, /learn/white-cross, /learn/white-corners, /learn/second-layer, /learn/oll, /learn/pll, /trainer, /progress, /reference
+/, /learn, /learn/cross, /learn/corners, /learn/second-layer, /learn/oll, /learn/pll, /trainer, /progress, /reference
 
 ## Build Status
 Phases 1-5: ✅ (tutorial data, ghost system, visibleCubies wiring complete)

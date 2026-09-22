@@ -42,3 +42,12 @@ next-env.d.ts
 
 # git worktrees
 .worktrees/
+.claude/worktrees/
+
+# claude / agent tooling
+.agents/
+.playwright-mcp/
+skills-lock.json
+
+# root-level screenshots
+/*.png

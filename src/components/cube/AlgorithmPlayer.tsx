@@ -54,6 +54,7 @@ interface AlgorithmPlayerProps {
   description?: string;
   showViewToggle?: boolean;
   arrows?: Arrow[];
+  whiteOnTop?: boolean;
 }
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
@@ -68,10 +69,11 @@ export function AlgorithmPlayer({
   description,
   showViewToggle,
   arrows,
+  whiteOnTop,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const { cubeStyle, setCubeStyle } = usePreferencesStore();
-  const [viewMode, setViewMode] = useState<"default" | "white-up">("default");
+  const [viewMode, setViewMode] = useState<"default" | "white-up">(whiteOnTop ? "white-up" : "default");
 
   const [playback, setPlayback] = useState(() => {
     const initFaces = initialStateAlg !== undefined
