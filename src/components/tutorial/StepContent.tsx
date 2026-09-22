@@ -16,6 +16,26 @@ export function StepContent({ substep, onNextExample }: StepContentProps) {
         {substep.explanation}
       </p>
 
+      {substep.howToSpot && (
+        <div
+          className="rounded-lg px-4 py-3"
+          style={{
+            background: "rgba(37,99,235,0.06)",
+            border: "1px solid rgba(37,99,235,0.18)",
+          }}
+        >
+          <p
+            className="text-xs font-bold uppercase tracking-wider mb-1"
+            style={{ color: "#2563EB" }}
+          >
+            How to spot this
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: "#1E3A8A" }}>
+            {substep.howToSpot}
+          </p>
+        </div>
+      )}
+
       {substep.tip && (
         <div
           className="flex gap-3 rounded-lg px-4 py-3"

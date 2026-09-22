@@ -8,8 +8,9 @@ export const cross: TutorialStep = {
   substeps: [
     {
       id: "wc-case1",
-      title: "Edge in front-right slot, white facing front",
-      explanation: "The white-red edge sits in the middle layer between the right (red) and front (green) faces, with its white sticker facing front. R swings the right face upward, carrying the piece directly into the red cross slot with white facing up.",
+      title: "White-red piece on the right",
+      explanation: "The white-red edge is sitting on the right side of the cube with white facing you. One turn lifts it straight up into the cross.",
+      howToSpot: "Look for a piece with white and red on the right face, white pointing toward you.",
       algorithm: "R",
       initialState: "x2 R'",
       highlightPieces: ["white-red", "white-center", "red-center"],
@@ -19,8 +20,9 @@ export const cross: TutorialStep = {
     },
     {
       id: "wc-case2",
-      title: "White-red flipped on top, white-green in the middle layer",
-      explanation: "The white-red edge is already in the top layer but sits in the front slot with its white sticker facing forward instead of up. The white-green edge sits in the middle layer between the front (green) and left (orange) faces, white facing left. F lifts the green edge into the front cross slot while moving the red edge out of the way, then R carries the red edge up into its slot on the right.",
+      title: "White piece needs two turns",
+      explanation: "The white edge is close but needs two moves to reach its home in the cross. Follow the arrows.",
+      howToSpot: "Find the white edge that isn't yet in the top cross, then follow the two-move path.",
       algorithm: "F R",
       initialState: "x2 R' F'",
       highlightPieces: ["white-red", "white-green", "white-center", "red-center", "green-center"],
@@ -33,8 +35,9 @@ export const cross: TutorialStep = {
     },
     {
       id: "wc-case3",
-      title: "Edge in right slot, but flipped",
-      explanation: "The white-red edge is already in its correct slot — between the top and right faces — but it's flipped, with white facing out to the right and red facing up. R' U F' U' pulls the edge out, corrects its orientation, and rotates it back into place with white facing up.",
+      title: "White piece is in place but flipped",
+      explanation: "The white edge is in the right spot, but the white sticker faces sideways instead of up. These moves flip it the correct way.",
+      howToSpot: "Spot a top edge where white points to the side, not up.",
       algorithm: "R' U F' U'",
       initialState: "x2 U F U' R",
       highlightPieces: ["white-red", "white-center", "red-center"],
@@ -46,8 +49,9 @@ export const cross: TutorialStep = {
     },
     {
       id: "wc-case4",
-      title: "Two adjacent cross edges swapped",
-      explanation: "The white-red piece sits in the front slot and white-green sits in the right slot — the two adjacent cross edges have swapped places. R' U' R U R' cycles both pieces through the middle layer and returns each to its correct position.",
+      title: "Two pieces swapped",
+      explanation: "Two edges are sitting in each other's spots. This sequence swaps them so both match their center colors.",
+      howToSpot: "Look for two cross edges whose colors don't match the center pieces below them — they belong in each other's places.",
       algorithm: "R' U' R U R'",
       initialState: "x2 R U' R' U R",
       highlightPieces: ["white-red", "white-green", "white-center", "red-center", "green-center"],

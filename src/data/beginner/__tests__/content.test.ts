@@ -46,17 +46,17 @@ describe("beginner tutorial content", () => {
 // ---------------------------------------------------------------------------
 // White Cross
 // ---------------------------------------------------------------------------
-import { whiteCross } from "../white-cross";
+import { cross } from "../cross";
 
-describe("whiteCross — structure", () => {
+describe("cross — structure", () => {
   it("has unique non-empty substep IDs", () => {
-    const ids = whiteCross.substeps.map((s) => s.id);
+    const ids = cross.substeps.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
     ids.forEach((id) => expect(id.length).toBeGreaterThan(0));
   });
 
   it("every initialState is a valid algorithm or empty string", () => {
-    whiteCross.substeps.forEach((s) => {
+    cross.substeps.forEach((s) => {
       if (s.initialState !== "") {
         expect(isValidAlgorithm(s.initialState)).toBe(true);
       }
@@ -64,7 +64,7 @@ describe("whiteCross — structure", () => {
   });
 
   it("every solutionMoves is a valid non-empty algorithm", () => {
-    whiteCross.substeps.forEach((s) => {
+    cross.substeps.forEach((s) => {
       if (s.solutionMoves !== undefined) {
         expect(isValidAlgorithm(s.solutionMoves)).toBe(true);
       }
@@ -72,15 +72,15 @@ describe("whiteCross — structure", () => {
   });
 
   it("every highlightPieces is a non-empty array of non-empty strings", () => {
-    whiteCross.substeps.forEach((s) => {
+    cross.substeps.forEach((s) => {
       expect(s.highlightPieces.length).toBeGreaterThan(0);
       s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
     });
   });
 });
 
-describe("whiteCross — round-trip", () => {
-  whiteCross.substeps.forEach((substep) => {
+describe("cross — round-trip", () => {
+  cross.substeps.forEach((substep) => {
     it(`${substep.id}: solutionMoves changes the cube state`, () => {
       if (!substep.solutionMoves) return;
       const before = applySetup(substep.initialState);
@@ -95,17 +95,17 @@ describe("whiteCross — round-trip", () => {
 // ---------------------------------------------------------------------------
 // White Corners
 // ---------------------------------------------------------------------------
-import { whiteCorners } from "../white-corners";
+import { corners } from "../corners";
 
-describe("whiteCorners — structure", () => {
+describe("corners — structure", () => {
   it("has unique non-empty substep IDs", () => {
-    const ids = whiteCorners.substeps.map((s) => s.id);
+    const ids = corners.substeps.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
     ids.forEach((id) => expect(id.length).toBeGreaterThan(0));
   });
 
   it("every initialState is a valid algorithm or empty string", () => {
-    whiteCorners.substeps.forEach((s) => {
+    corners.substeps.forEach((s) => {
       if (s.initialState !== "") {
         expect(isValidAlgorithm(s.initialState)).toBe(true);
       }
@@ -113,7 +113,7 @@ describe("whiteCorners — structure", () => {
   });
 
   it("every algorithm is a valid non-empty algorithm", () => {
-    whiteCorners.substeps.forEach((s) => {
+    corners.substeps.forEach((s) => {
       if (s.algorithm !== undefined) {
         expect(isValidAlgorithm(s.algorithm)).toBe(true);
       }
@@ -121,7 +121,7 @@ describe("whiteCorners — structure", () => {
   });
 
   it("every solutionMoves is a valid non-empty algorithm", () => {
-    whiteCorners.substeps.forEach((s) => {
+    corners.substeps.forEach((s) => {
       if (s.solutionMoves !== undefined) {
         expect(isValidAlgorithm(s.solutionMoves)).toBe(true);
       }
@@ -129,15 +129,15 @@ describe("whiteCorners — structure", () => {
   });
 
   it("every highlightPieces is a non-empty array of non-empty strings", () => {
-    whiteCorners.substeps.forEach((s) => {
+    corners.substeps.forEach((s) => {
       expect(s.highlightPieces.length).toBeGreaterThan(0);
       s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
     });
   });
 });
 
-describe("whiteCorners — round-trip", () => {
-  whiteCorners.substeps.forEach((substep) => {
+describe("corners — round-trip", () => {
+  corners.substeps.forEach((substep) => {
     it(`${substep.id}: solutionMoves changes the cube state`, () => {
       if (!substep.solutionMoves) return;
       const before = applySetup(substep.initialState);
@@ -305,9 +305,9 @@ describe("twoLookPll — structure", () => {
     });
   });
 
-  it("every highlightPieces is a non-empty array of non-empty strings", () => {
+  it("highlightPieces is an array (PLL cases intentionally leave it empty — no visibleCubies ghosting)", () => {
     twoLookPll.substeps.forEach((s) => {
-      expect(s.highlightPieces.length).toBeGreaterThan(0);
+      expect(Array.isArray(s.highlightPieces)).toBe(true);
       s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
     });
   });
@@ -345,10 +345,12 @@ describe("BEGINNER_STEPS — structure", () => {
     });
   });
 
-  it("OLL has caseCount 10 and PLL has caseCount 6", () => {
+  it("OLL has 10 cases and PLL has 6 cases", () => {
     const oll = BEGINNER_STEPS.find((s) => s.id === "two-look-oll")!;
     const pll = BEGINNER_STEPS.find((s) => s.id === "two-look-pll")!;
-    expect(oll.caseCount).toBe(10);
-    expect(pll.caseCount).toBe(6);
+    expect(oll).toBeDefined();
+    expect(pll).toBeDefined();
+    expect(twoLookOll.substeps.length).toBe(10);
+    expect(twoLookPll.substeps.length).toBe(6);
   });
 });

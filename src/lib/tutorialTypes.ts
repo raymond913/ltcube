@@ -8,6 +8,7 @@ export interface Substep {
   id: string;
   title: string;
   explanation: string;
+  howToSpot?: string;
   tip?: string;
   algorithm?: string;
   algorithmName?: string;
