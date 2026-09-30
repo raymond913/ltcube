@@ -8,6 +8,7 @@ import { StepContent } from "./StepContent";
 import { AlgorithmCard } from "./AlgorithmCard";
 import { useProgressStore } from "@/stores/progressStore";
 import { BEGINNER_STEPS } from "@/data/beginner";
+import { HOLD_VIEW } from "@/lib/cameraViews";
 import type { TutorialStep, StepMeta } from "@/lib/tutorialTypes";
 
 const STEP_COLORS: Record<string, string> = {
@@ -80,8 +81,10 @@ export function TutorialLayout({
             arrows={activeSubstep.arrows}
             whiteOnTop={activeSubstep.whiteOnTop}
             stickerMask={activeSubstep.stickerMask}
-            cameraPosition={activeSubstep.cameraPosition}
+            holdView={HOLD_VIEW}
+            spotView={activeSubstep.cameraPosition}
             spotStickers={activeSubstep.spotStickers}
+            spotLabels={activeSubstep.spotLabels}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
               ? { visibleCubies: activeSubstep.visibleCubies }
               : {})}

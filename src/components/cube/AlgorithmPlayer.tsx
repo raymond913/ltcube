@@ -11,7 +11,8 @@ import {
 } from "@/lib/cubeEngine";
 import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import type { Arrow, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
+import type { Arrow, SpotLabel, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
+import type { Vec3 } from "@/lib/cameraViews";
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -56,8 +57,12 @@ interface AlgorithmPlayerProps {
   arrows?: Arrow[];
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
-  cameraPosition?: [number, number, number];
+  /** Where the camera settles (the hold view); default [4, 3, 4] */
+  holdView?: Vec3;
+  /** If the key feature is hidden from holdView: start here, then glide to holdView */
+  spotView?: Vec3;
   spotStickers?: SpotSticker[];
+  spotLabels?: SpotLabel[];
 }
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
@@ -74,13 +79,16 @@ export function AlgorithmPlayer({
   arrows,
   whiteOnTop,
   stickerMask,
-  cameraPosition,
+  holdView,
+  spotView,
   spotStickers,
+  spotLabels,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const { cubeStyle, setCubeStyle } = usePreferencesStore();
   const [viewMode, setViewMode] = useState<"default" | "white-up">(whiteOnTop ? "white-up" : "default");
   const [cameraResetKey, setCameraResetKey] = useState(0);
+  const [replayKey, setReplayKey] = useState(0);
 
   const [playback, setPlayback] = useState(() => {
     const initFaces = initialStateAlg !== undefined
@@ -100,6 +108,9 @@ export function AlgorithmPlayer({
   const glowActive = currentStep === 0 && !isPlaying && !isAnimating;
 
   const stepFiredRef = useRef(false);
+  // Bumped whenever the cube is reset, so a step that was animating at that
+  // moment can't advance the counter after the reset.
+  const epochRef = useRef(0);
 
   useEffect(() => {
     const initFaces = initialStateAlg !== undefined
@@ -147,7 +158,9 @@ export function AlgorithmPlayer({
   const stepForward = useCallback(async () => {
     if (isAnimating || currentStep >= moves.length || stepFiredRef.current) return;
     stepFiredRef.current = true;
+    const epoch = epochRef.current;
     await animateMove(moves[currentStep].notation);
+    if (epoch !== epochRef.current) return;
     stepFiredRef.current = false;
     setCurrentStep((s) => s + 1);
   }, [isAnimating, currentStep, moves, animateMove]);
@@ -170,17 +183,51 @@ export function AlgorithmPlayer({
     useCubeStore.setState({ faces: snapshots[clamped] });
   }, [isAnimating, moves.length, snapshots]);
 
-  const reset = useCallback(() => {
+  // Cube back to move 0 (no camera change).
+  const resetCube = useCallback(() => {
+    epochRef.current += 1;
     setIsPlaying(false);
     setCurrentStep(0);
     stepFiredRef.current = false;
-    setCameraResetKey((k) => k + 1);
     if (initialStateAlg !== undefined) {
       useCubeStore.getState().applyInstant(initialStateAlg);
     } else {
       useCubeStore.getState().applyInstant(invertAlgorithm(algorithm));
     }
   }, [initialStateAlg, algorithm]);
+
+  // Run `fn` once no move is animating. Pressing Reset mid-move would otherwise
+  // let the in-flight step bump the counter after the reset (and the glow, which
+  // needs move 0, would never come back).
+  const pendingRef = useRef<(() => void) | null>(null);
+  const whenIdle = useCallback((fn: () => void) => {
+    setIsPlaying(false);
+    if (useCubeStore.getState().isAnimating) pendingRef.current = fn;
+    else fn();
+  }, []);
+
+  useEffect(() => {
+    if (isAnimating || !pendingRef.current) return;
+    const fn = pendingRef.current;
+    pendingRef.current = null;
+    fn();
+  }, [isAnimating]);
+
+  // Reset: cube back to move 0 and the camera back to the hold view.
+  const reset = useCallback(() => {
+    whenIdle(() => {
+      resetCube();
+      setCameraResetKey((k) => k + 1);
+    });
+  }, [whenIdle, resetCube]);
+
+  // "Show me again": back to move 0 with the glow on, and replay spot-then-hold.
+  const showAgain = useCallback(() => {
+    whenIdle(() => {
+      resetCube();
+      setReplayKey((k) => k + 1);
+    });
+  }, [whenIdle, resetCube]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -265,11 +312,27 @@ export function AlgorithmPlayer({
           viewMode={viewMode}
           arrows={showTeachingState ? arrows : undefined}
           stickerMask={stickerMask}
-          cameraPosition={cameraPosition}
+          holdView={holdView}
+          spotView={spotView}
+          replayKey={replayKey}
           cameraResetKey={cameraResetKey}
           spotStickers={spotStickers}
+          spotLabels={spotLabels}
           glowActive={glowActive}
         />
+        {spotView && (
+          <button
+            onClick={showAgain}
+            className="rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
+            style={{
+              background: "oklch(97% 0.003 250)",
+              border: "1px solid var(--color-border)",
+              color: "#2563EB",
+            }}
+          >
+            Show me again
+          </button>
+        )}
         {showViewToggle && (
           <button
             onClick={() => setViewMode((v) => v === "white-up" ? "default" : "white-up")}

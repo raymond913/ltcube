@@ -13,6 +13,7 @@ export const corners: TutorialStep = {
       howToSpot: "Find a bottom corner with white on its right side, sitting under an empty top corner spot.",
       algorithm: "R' D' R",
       initialState: "x2 R' D R",
+      holdInstruction: "White on top. Hold the white corner at the bottom front-right, white facing right.",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
       // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
       // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
@@ -27,6 +28,7 @@ export const corners: TutorialStep = {
       howToSpot: "Find a bottom corner with white facing you, under the spot it belongs in.",
       algorithm: "F D F'",
       initialState: "x2 F D' F'",
+      holdInstruction: "White on top. Hold the white corner at the bottom front-right, white facing you.",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
       // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
       // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
@@ -41,6 +43,7 @@ export const corners: TutorialStep = {
       howToSpot: "Find a bottom corner where you can't see white from the side — it's hiding on the bottom face.",
       algorithm: "R' D R F D2 F'",
       initialState: "x2 F D2 F' R' D' R",
+      holdInstruction: "White on top. Hold the white corner at the bottom front-right, white facing down.",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
       // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
       // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.
@@ -55,6 +58,7 @@ export const corners: TutorialStep = {
       howToSpot: "Look for a top corner that's in the right place but has its colors turned the wrong way.",
       algorithm: "R' D R F D F'",
       initialState: "x2 F D' F' R' D' R",
+      holdInstruction: "White on top. Hold the twisted white corner at the top front-right, white facing you.",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
       // visibleCubies = everything solved in prior steps + the piece(s) this case moves + relevant centers
       // Prior steps: white cross edges (DF/DR/DB/DL) + white center. This case: white-green-red corner + green center + red center.

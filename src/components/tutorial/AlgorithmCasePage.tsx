@@ -5,6 +5,8 @@ import Link from "next/link";
 import { AlgorithmPlayer } from "@/components/cube/AlgorithmPlayer";
 import { CaseRecognition } from "./CaseRecognition";
 import { HowToSpotTip } from "./HowToSpotTip";
+import { HoldInstruction } from "./HoldInstruction";
+import { HOLD_VIEW } from "@/lib/cameraViews";
 import { useProgressStore } from "@/stores/progressStore";
 import { BEGINNER_STEPS } from "@/data/beginner";
 import type { TutorialStep, StepMeta, Substep } from "@/lib/tutorialTypes";
@@ -122,8 +124,10 @@ export function AlgorithmCasePage({
             title={activeSubstep.algorithmName ?? activeSubstep.title}
             stickerMask={activeSubstep.stickerMask}
             visibleCubies={activeSubstep.visibleCubies}
-            cameraPosition={activeSubstep.cameraPosition}
+            holdView={HOLD_VIEW}
+            spotView={activeSubstep.cameraPosition}
             spotStickers={activeSubstep.spotStickers}
+            spotLabels={activeSubstep.spotLabels}
           />
 
           {/* Active-case explanation */}
@@ -141,6 +145,7 @@ export function AlgorithmCasePage({
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
+            {activeSubstep.holdInstruction && <HoldInstruction text={activeSubstep.holdInstruction} />}
             {activeSubstep.howToSpot && (
               <HowToSpotCallout
                 text={activeSubstep.howToSpot}
@@ -260,6 +265,7 @@ export function AlgorithmCasePage({
                           text={sub.howToSpot}
                           label={`How to spot ${caseName}`}
                           color={typeTheme.color}
+                          hold={sub.holdInstruction}
                           note={sub.spotStickers?.length ? GLOW_NOTE : undefined}
                         />
                       )}
@@ -286,6 +292,7 @@ export function AlgorithmCasePage({
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
+            {activeSubstep.holdInstruction && <HoldInstruction text={activeSubstep.holdInstruction} />}
             {activeSubstep.howToSpot && (
               <HowToSpotCallout
                 text={activeSubstep.howToSpot}

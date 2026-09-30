@@ -14,6 +14,7 @@ export const secondLayer: TutorialStep = {
       algorithmName: "Right Insert",
       algorithm: "U R U' R' U' F' U F",
       initialState: "F' U' F U R U R' U'",
+      holdInstruction: "Yellow on top. The top-front edge's blue side already matches the blue center below it, and the edge goes right.",
       highlightPieces: ["blue-red-edge", "blue-center", "red-center"],
       visibleCubies: [
         "1,-1,1","-1,-1,1","1,-1,-1","-1,-1,-1","0,-1,1","0,-1,-1","1,-1,0","-1,-1,0","0,-1,0",
@@ -32,6 +33,7 @@ export const secondLayer: TutorialStep = {
       algorithmName: "Left Insert",
       algorithm: "U' L' U L U F U' F'",
       initialState: "F U F' U' L' U' L U",
+      holdInstruction: "Yellow on top. The top-front edge's blue side already matches the blue center below it, and the edge goes left.",
       highlightPieces: ["blue-orange-edge", "blue-center", "orange-center"],
       visibleCubies: [
         "1,-1,1","-1,-1,1","1,-1,-1","-1,-1,-1","0,-1,1","0,-1,-1","1,-1,0","-1,-1,0","0,-1,0",
@@ -50,6 +52,7 @@ export const secondLayer: TutorialStep = {
       algorithmName: "Pop out, then Right Insert",
       algorithm: "U R U' R' U' F' U F U' R U' R' U' F' U F",
       initialState: "F' U' F U R U R' U F' U' F U R U R' U'",
+      holdInstruction: "Yellow on top. Hold the flipped edge at the front-right: red faces you, blue faces right.",
       highlightPieces: ["blue-red-edge", "blue-center", "red-center"],
       visibleCubies: [
         "1,-1,1","-1,-1,1","1,-1,-1","-1,-1,-1","0,-1,1","0,-1,-1","1,-1,0","-1,-1,0","0,-1,0",
@@ -68,6 +71,7 @@ export const secondLayer: TutorialStep = {
       algorithmName: "Pop out, then insert",
       algorithm: "U' L' U L U F U' F' U' R U' R' U' F' U F",
       initialState: "F' U' F U R U R' U F U F' U' L' U' L U",
+      holdInstruction: "Yellow on top. Hold the stuck edge at the front-left: red faces you, blue faces left.",
       highlightPieces: ["blue-red-edge", "blue-center", "red-center", "orange-center"],
       visibleCubies: [
         "1,-1,1","-1,-1,1","1,-1,-1","-1,-1,-1","0,-1,1","0,-1,-1","1,-1,0","-1,-1,0","0,-1,0",

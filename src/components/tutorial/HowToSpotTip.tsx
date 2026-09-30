@@ -12,7 +12,9 @@ interface HowToSpotTipProps {
   label: string;
   /** Accent color for the open state */
   color: string;
-  /** Optional second line, e.g. the glowing-stickers note */
+  /** How to hold the cube, shown under the how-to-spot text */
+  hold?: string;
+  /** Optional last line, e.g. the glowing-stickers note */
   note?: string;
 }
 
@@ -24,7 +26,7 @@ interface HowToSpotTipProps {
  * Closes on Escape, on a press outside, and when the mouse leaves.
  * Render it as a sibling of the card button (never inside it).
  */
-export function HowToSpotTip({ text, label, color, note }: HowToSpotTipProps) {
+export function HowToSpotTip({ text, label, color, hold, note }: HowToSpotTipProps) {
   const tipId = useId();
   const wrapRef = useRef<HTMLSpanElement>(null);
   const [hovered, setHovered] = useState(false);
@@ -113,6 +115,12 @@ export function HowToSpotTip({ text, label, color, note }: HowToSpotTipProps) {
           }}
         >
           {text}
+          {hold && (
+            <span className="mt-1.5 block">
+              <span className="font-semibold">How to hold it: </span>
+              {hold}
+            </span>
+          )}
           {note && (
             <span className="mt-1.5 block font-medium" style={{ color }}>
               {note}

@@ -1,4 +1,5 @@
 import type { Substep } from "@/lib/tutorialTypes";
+import { HoldInstruction } from "./HoldInstruction";
 
 interface StepContentProps {
   substep: Substep;
@@ -15,6 +16,8 @@ export function StepContent({ substep, onNextExample }: StepContentProps) {
       <p className="leading-relaxed" style={{ color: "oklch(45% 0.012 250)" }}>
         {substep.explanation}
       </p>
+
+      {substep.holdInstruction && <HoldInstruction text={substep.holdInstruction} />}
 
       {substep.howToSpot && (
         <div

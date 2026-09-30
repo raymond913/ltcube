@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { Html, OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
@@ -17,7 +17,8 @@ import {
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
-import type { Arrow, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
+import type { Arrow, SpotLabel, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
+import type { Vec3 as CameraVec3 } from "@/lib/cameraViews";
 import { MoveArrow, TargetSlot } from "./MoveArrow";
 
 // ---------------------------------------------------------------------------
@@ -446,16 +447,33 @@ interface CubeSceneProps {
   arrows?: Arrow[];
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
-  cameraPosition?: [number, number, number];
+  /** Where the camera settles and where Reset / default view return (default [4, 3, 4]) */
+  holdView?: CameraVec3;
+  /** If set, the camera starts here, holds, then glides to holdView */
+  spotView?: CameraVec3;
+  /** Bump to replay the spot-then-hold move */
+  replayKey?: number;
+  /** Bump to animate the camera back to holdView */
   cameraResetKey?: number;
   spotStickers?: SpotSticker[];
-  /** Glow is on only while true (player at move 0, not playing) */
+  spotLabels?: SpotLabel[];
+  /** Glow and labels are on only while true (player at move 0, not playing) */
   glowActive?: boolean;
 }
 
-const DEFAULT_CAMERA: [number, number, number] = [4, 3, 4];
+const DEFAULT_CAMERA: CameraVec3 = [4, 3, 4];
+const SPOT_HOLD_S = 1.5;
+const GLIDE_S = 1.2;
 
-function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMask, cameraPosition, cameraResetKey, spotStickers, glowActive }: CubeSceneProps) {
+/** Where a floating label sits: just above the top edge of the named side. */
+const LABEL_ANCHOR: Record<SpotLabel["side"], CameraVec3> = {
+  front: [0, 2.05, 1.75],
+  back:  [0, 2.05, -1.75],
+  left:  [-1.75, 2.05, 0],
+  right: [1.75, 2.05, 0],
+};
+
+function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMask, holdView, spotView, replayKey, cameraResetKey, spotStickers, spotLabels, glowActive }: CubeSceneProps) {
   const { scene, camera } = useThree();
   const orbitRef = useRef<any>(null);
 
@@ -742,18 +760,66 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
   });
 
   // ---- Camera view mode ---------------------------------------------------
-  const cameraKey = cameraPosition?.join(",") ?? "";
+  // Spot-then-hold: start at spotView, hold with the glow on, glide to holdView.
+  // A drag, or pressing play, cancels the glide. Reset / view-mode changes go
+  // straight to holdView (second effect). The first effect is unconditional so it
+  // stays correct when React dev mode mounts, unmounts and remounts it.
+  const holdTarget = holdView ?? DEFAULT_CAMERA;
+  const holdKey = holdTarget.join(",");
+  const spotKey = spotView?.join(",") ?? "";
+  const glideRef = useRef<gsap.core.Timeline | null>(null);
+  const moveKeyRef = useRef(`${viewMode}|${cameraResetKey}`);
+
   useEffect(() => {
-    const [tx, ty, tz] = cameraPosition ?? DEFAULT_CAMERA;
+    const update = () => { orbitRef.current?.update(); };
+    const [hx, hy, hz] = holdTarget;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     camera.up.set(0, 1, 0);
-    gsap.to(camera.position, {
-      x: tx, y: ty, z: tz,
+
+    if (spotView && !reduced) {
+      camera.position.set(...spotView);
+      update();
+      const tl = gsap.timeline({ onComplete: () => { glideRef.current = null; } });
+      tl.to({}, { duration: SPOT_HOLD_S });
+      tl.to(camera.position, { x: hx, y: hy, z: hz, duration: GLIDE_S, ease: "power2.inOut", onUpdate: update });
+      glideRef.current = tl;
+    } else {
+      camera.position.set(hx, hy, hz);
+      update();
+    }
+    return () => {
+      glideRef.current?.kill();
+      glideRef.current = null;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camera, holdKey, spotKey, replayKey]);
+
+  useEffect(() => {
+    const moveKey = `${viewMode}|${cameraResetKey}`;
+    if (moveKey === moveKeyRef.current) return;
+    moveKeyRef.current = moveKey;
+    glideRef.current?.kill();
+    glideRef.current = null;
+    const [hx, hy, hz] = holdTarget;
+    const tween = gsap.to(camera.position, {
+      x: hx, y: hy, z: hz,
       duration: 0.6,
       ease: "power2.inOut",
       onUpdate: () => { orbitRef.current?.update(); },
     });
+    return () => { tween.kill(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, camera, cameraKey, cameraResetKey]);
+  }, [viewMode, cameraResetKey, camera]);
+
+  // Pressing play (or stepping) mid-glide: jump to the hold view immediately.
+  useEffect(() => {
+    if (glowActive || !glideRef.current) return;
+    glideRef.current.kill();
+    glideRef.current = null;
+    camera.position.set(...holdTarget);
+    orbitRef.current?.update();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [glowActive, camera]);
 
   return (
     <>
@@ -765,6 +831,34 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
       {currentAnim && (
         <FaceArrow face={currentAnim.face} clockwise={currentAnim.clockwise} />
       )}
+
+      {glowActive && spotLabels?.map((label) => (
+        <Html
+          key={`${label.side}-${label.text}`}
+          position={LABEL_ANCHOR[label.side]}
+          center
+          zIndexRange={[20, 0]}
+          style={{ pointerEvents: "none" }}
+        >
+          <div
+            aria-hidden="true"
+            style={{
+              whiteSpace: "nowrap",
+              padding: "3px 9px",
+              borderRadius: 999,
+              fontSize: 11,
+              fontWeight: 600,
+              lineHeight: 1.3,
+              color: "#1E40AF",
+              background: "rgba(255,255,255,0.94)",
+              border: "1px solid rgba(37,99,235,0.35)",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            }}
+          >
+            {label.text}
+          </div>
+        </Html>
+      ))}
 
       {arrows?.map((a, i) => (
         <MoveArrow key={i} from={a.from} to={a.to} color={a.color} />
@@ -787,6 +881,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
           enablePan={false}
           enableDamping
           dampingFactor={0.07}
+          onStart={() => { glideRef.current?.kill(); glideRef.current = null; }}
         />
       )}
     </>
@@ -797,11 +892,15 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask, cameraPosition, cameraResetKey, spotStickers, glowActive }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask, holdView, spotView, replayKey, cameraResetKey, spotStickers, spotLabels, glowActive }: CubeSceneProps) {
+  // Start where the camera will be for the first frame: the spot view if it
+  // will glide, otherwise straight at the hold view (reduced motion skips the glide).
+  const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const initialCamera = spotView && !reduced ? spotView : holdView ?? DEFAULT_CAMERA;
   return (
     <Canvas
       flat
-      camera={{ position: cameraPosition ?? DEFAULT_CAMERA, fov: 42, near: 0.1, far: 100 }}
+      camera={{ position: initialCamera, fov: 42, near: 0.1, far: 100 }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       onCreated={() => onReady?.()}
@@ -814,9 +913,12 @@ export function CubeScene({ interactive, cubeState, visibleCubies, onReady, view
         arrows={arrows}
         whiteOnTop={whiteOnTop}
         stickerMask={stickerMask}
-        cameraPosition={cameraPosition}
+        holdView={holdView}
+        spotView={spotView}
+        replayKey={replayKey}
         cameraResetKey={cameraResetKey}
         spotStickers={spotStickers}
+        spotLabels={spotLabels}
         glowActive={glowActive}
       />
     </Canvas>

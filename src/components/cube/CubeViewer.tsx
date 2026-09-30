@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { CubeFaces } from "@/lib/cubeEngine";
-import type { Arrow, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
+import type { Arrow, SpotLabel, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
+import type { Vec3 } from "@/lib/cameraViews";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 import { canUseWebGL } from "@/lib/webgl";
 
@@ -43,13 +44,19 @@ interface CubeViewerProps {
   whiteOnTop?: boolean;
   /** OLL display mask: only yellow stickers stay coloured */
   stickerMask?: StickerMask;
-  /** Initial camera position; Reset / default view return here (default [4, 3, 4]) */
-  cameraPosition?: [number, number, number];
-  /** Bump to animate the camera back to cameraPosition */
+  /** Where the camera settles; Reset / default view return here (default [4, 3, 4]) */
+  holdView?: Vec3;
+  /** If set, the camera starts here, holds, then glides to holdView */
+  spotView?: Vec3;
+  /** Bump to replay the spot-then-hold move */
+  replayKey?: number;
+  /** Bump to animate the camera back to holdView */
   cameraResetKey?: number;
   /** Stickers that glow to show what to look for */
   spotStickers?: SpotSticker[];
-  /** Glow is on only while true */
+  /** Floating labels for features on faces hidden from holdView */
+  spotLabels?: SpotLabel[];
+  /** Glow and labels are on only while true */
   glowActive?: boolean;
 }
 
@@ -76,9 +83,12 @@ export function CubeViewer({
   arrows,
   whiteOnTop,
   stickerMask,
-  cameraPosition,
+  holdView,
+  spotView,
+  replayKey,
   cameraResetKey,
   spotStickers,
+  spotLabels,
   glowActive,
 }: CubeViewerProps) {
   const [webglOk, setWebglOk] = useState<boolean | null>(null);
@@ -105,9 +115,12 @@ export function CubeViewer({
             arrows={arrows}
             whiteOnTop={whiteOnTop}
             stickerMask={stickerMask}
-            cameraPosition={cameraPosition}
+            holdView={holdView}
+            spotView={spotView}
+            replayKey={replayKey}
             cameraResetKey={cameraResetKey}
             spotStickers={spotStickers}
+            spotLabels={spotLabels}
             glowActive={glowActive}
           />
         </WebGLErrorBoundary>
