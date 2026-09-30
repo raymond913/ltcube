@@ -42,7 +42,7 @@ const SL_RADIUS = 0.10;
 
 const FACE_COLORS: Record<string, string> = {
   R: "#DC2626",
-  L: "#EA580C",
+  L: "#FF7A00",
   U: "#EAB308",
   D: "#FFFFFF",
   F: "#2563EB",
@@ -618,10 +618,10 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
 
   return (
     <>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 8, 6]} intensity={0.9} castShadow />
-      <directionalLight position={[-4, 2, -3]} intensity={0.35} />
-      <pointLight position={[0, 4, 4]} intensity={0.4} />
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[5, 8, 6]} intensity={2.0} castShadow />
+      <directionalLight position={[-4, 2, -3]} intensity={0.9} />
+      <pointLight position={[0, 4, 4]} intensity={0.8} />
 
       {currentAnim && (
         <FaceArrow face={currentAnim.face} clockwise={currentAnim.clockwise} />
@@ -661,6 +661,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
 export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop }: CubeSceneProps) {
   return (
     <Canvas
+      flat
       camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}

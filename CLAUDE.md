@@ -11,6 +11,7 @@
 - Only create/modify files specified in the task. Do not touch unrelated files.
 - After making changes, list what files you changed in one sentence each. Nothing more.
 - Do NOT run npm run dev, npm start, or any dev server after completing a task.
+- NEVER run npm run build while npm run dev is running — they race on .next and corrupt the build cache. Stop the dev server first, or skip the build check if dev is running.
 - Use TypeScript. Use --legacy-peer-deps for npm installs.
 
 ## Project

@@ -22,7 +22,7 @@ export default function NotFound() {
           <rect x="2"  y="2"  width="22" height="22" rx="3" fill="#DC2626" opacity="0.75" transform="rotate(-12 13 13)" />
           <rect x="30" y="0"  width="22" height="22" rx="3" fill="#EAB308" opacity="0.75" transform="rotate(8 41 11)" />
           <rect x="56" y="4"  width="18" height="18" rx="3" fill="#2563EB" opacity="0.7"  transform="rotate(-5 65 13)" />
-          <rect x="0"  y="32" width="20" height="20" rx="3" fill="#EA580C" opacity="0.7"  transform="rotate(15 10 42)" />
+          <rect x="0"  y="32" width="20" height="20" rx="3" fill="#FF7A00" opacity="0.7"  transform="rotate(15 10 42)" />
           <rect x="29" y="30" width="22" height="22" rx="3" fill="#94A3B8" opacity="0.5"  transform="rotate(-4 40 41)" />
           <rect x="58" y="28" width="20" height="20" rx="3" fill="#16A34A" opacity="0.7"  transform="rotate(10 68 38)" />
           <rect x="4"  y="56" width="18" height="18" rx="3" fill="#2563EB" opacity="0.6"  transform="rotate(-8 13 65)" />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useProgressStore } from "@/stores/progressStore";
-import { BEGINNER_STEPS, cross, corners, secondLayer, twoLookOll, twoLookPll } from "@/data/beginner";
+import { BEGINNER_STEPS } from "@/data/beginner";
 
 const STEP_META: Record<string, {
   description: string;
@@ -52,14 +52,6 @@ const STEP_META: Record<string, {
     border: "rgba(124,58,237,0.18)",
     label: "Last Layer",
   },
-};
-
-const STEP_SCENARIO_COUNTS: Record<string, number> = {
-  "cross":        cross.substeps.length,
-  "corners":      corners.substeps.length,
-  "second-layer": secondLayer.substeps.length,
-  "two-look-oll": twoLookOll.substeps.length,
-  "two-look-pll": twoLookPll.substeps.length,
 };
 
 const GROUPS = [
@@ -182,7 +174,6 @@ export default function LearnPage() {
               {groupSteps.map((step) => {
                 const isDone = completedSteps.includes(step.id);
                 const meta = STEP_META[step.id];
-                const scenarioCount = STEP_SCENARIO_COUNTS[step.id];
 
                 return (
                   <li key={step.id}>
@@ -231,19 +222,6 @@ export default function LearnPage() {
                             </span>
                           )}
                         </div>
-                        <p
-                          className="text-xs mt-0.5 leading-snug"
-                          style={{ color: "oklch(55% 0.01 250)" }}
-                        >
-                          {meta.description}
-                        </p>
-                        <p
-                          className="text-xs mt-1"
-                          style={{ color: "oklch(65% 0.008 250)" }}
-                        >
-                          {scenarioCount} scenario{scenarioCount !== 1 ? "s" : ""}
-                          {" · "}~{step.estimatedMinutes} min
-                        </p>
                       </div>
 
                       {/* Arrow */}

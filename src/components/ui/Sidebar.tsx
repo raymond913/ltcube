@@ -25,7 +25,7 @@ function CubeIcon() {
       <rect x="1"  y="1"  width="8" height="8" rx="2" fill="#DC2626" />
       <rect x="10" y="1"  width="8" height="8" rx="2" fill="#EAB308" />
       <rect x="19" y="1"  width="8" height="8" rx="2" fill="#2563EB" />
-      <rect x="1"  y="10" width="8" height="8" rx="2" fill="#EA580C" />
+      <rect x="1"  y="10" width="8" height="8" rx="2" fill="#FF7A00" />
       <rect x="10" y="10" width="8" height="8" rx="2" fill="#D1D5DB" opacity="0.9" />
       <rect x="19" y="10" width="8" height="8" rx="2" fill="#16A34A" />
       <rect x="1"  y="19" width="8" height="8" rx="2" fill="#2563EB" />
@@ -192,9 +192,6 @@ export function Sidebar() {
                             style={{ color: isActive ? step.color : "var(--color-text)" }}
                           >
                             {step.label}
-                          </span>
-                          <span className="text-xs" style={{ color: "var(--color-dim)" }}>
-                            ~{step.minutes} min
                           </span>
                         </span>
 
@@ -378,7 +375,6 @@ export function Sidebar() {
                     <span className="block text-sm font-semibold" style={{ color: isActive ? step.color : "var(--color-text)" }}>
                       {step.label}
                     </span>
-                    <span className="text-xs" style={{ color: "var(--color-dim)" }}>~{step.minutes} min</span>
                   </span>
                   {isNext && (
                     <span
