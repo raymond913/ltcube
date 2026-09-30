@@ -14,9 +14,9 @@ export const twoLookOll: TutorialStep = {
   substeps: [
     {
       id: "oll-dot",
-      title: "Dot — no yellow edges",
-      explanation:
-        "No yellow edges on top — you have a dot. Apply the Dot algorithm, which is the L-shape algorithm followed immediately by the Line algorithm.",
+      title: "Dot",
+      explanation: "None of the yellow edges point up yet — the top looks like a single dot. These moves start building the yellow cross.",
+      howToSpot: "No yellow edges on top, just the yellow center — looks like one dot.",
       algorithm: "F R U R' U' F' f R U R' U' f'",
       algorithmName: "Dot",
       initialState: "f U R U' R' f' F U R U' R' F'",
@@ -24,9 +24,9 @@ export const twoLookOll: TutorialStep = {
     },
     {
       id: "oll-l-shape",
-      title: "Small L Shape",
-      explanation:
-        "Two adjacent yellow edges form an L on top. Hold the cube so the L's corner is at the back-left, then apply the L-Shape algorithm.",
+      title: "L-Shape",
+      explanation: "Two yellow edges form an L or corner shape. Hold the L in the top-left and run the moves to complete the cross.",
+      howToSpot: "Two yellow edges next to each other making an L, plus the center.",
       algorithm: "f R U R' U' f'",
       algorithmName: "L-Shape",
       initialState: "f U R U' R' f'",
@@ -35,8 +35,8 @@ export const twoLookOll: TutorialStep = {
     {
       id: "oll-line",
       title: "Line",
-      explanation:
-        "Two opposite yellow edges form a line. Hold the cube so the line runs left-to-right, then apply the Line algorithm.",
+      explanation: "Two yellow edges make a straight line across the top. Hold it flat (left to right) and run the moves to finish the cross.",
+      howToSpot: "Two yellow edges opposite each other forming a line through the center.",
       algorithm: "F R U R' U' F'",
       algorithmName: "Line",
       initialState: "F U R U' R' F'",
@@ -45,8 +45,8 @@ export const twoLookOll: TutorialStep = {
     {
       id: "oll-sune",
       title: "Sune",
-      explanation:
-        "One corner has yellow on top, the other three have yellow facing the sides. Hold the cube so the correct corner is at UFR, then apply Sune.",
+      explanation: "The yellow cross is done, now the corners. This is the most common corner case — one yellow corner points up. These moves twist the rest up.",
+      howToSpot: "Yellow cross done, exactly one corner already has yellow on top.",
       algorithm: "R U R' U R U2 R'",
       algorithmName: "Sune",
       initialState: "R U2 R' U' R U' R'",
@@ -55,8 +55,8 @@ export const twoLookOll: TutorialStep = {
     {
       id: "oll-antisune",
       title: "Anti-Sune",
-      explanation:
-        "The mirror of Sune — one corner is correct but the others twist the opposite way. Hold the correct corner at UFR and apply Anti-Sune.",
+      explanation: "The mirror of Sune. One corner has yellow up, but the pattern points the other way. This set finishes the corners.",
+      howToSpot: "Yellow cross done, one yellow corner up, but the fish shape points opposite to Sune.",
       algorithm: "R U2 R' U' R U' R'",
       algorithmName: "Anti-Sune",
       initialState: "R U R' U R U2 R'",
@@ -64,9 +64,9 @@ export const twoLookOll: TutorialStep = {
     },
     {
       id: "oll-h",
-      title: "H Pattern",
-      explanation:
-        "All four corners have yellow facing the sides — no yellow on top at all. Any AUF. Apply H.",
+      title: "H",
+      explanation: "Two corners on each side have yellow facing sideways in a symmetric pattern. These moves flip them all up.",
+      howToSpot: "Yellow cross done, no corners yellow on top, symmetric left-right pattern.",
       algorithm: "R U R' U R U' R' U R U2 R'",
       algorithmName: "H",
       initialState: "R U2 R' U' R U R' U' R U' R'",
@@ -74,9 +74,9 @@ export const twoLookOll: TutorialStep = {
     },
     {
       id: "oll-pi",
-      title: "Pi (Bowtie)",
-      explanation:
-        "Two adjacent corners have yellow on top, two don't. Hold the cube so the two correct corners are at UFL and UBL (left side), then apply Pi.",
+      title: "Pi",
+      explanation: "A common corner pattern that looks a bit like the Pi symbol. Run the moves to orient all four corners.",
+      howToSpot: "Yellow cross done, two corners up next to each other, the other two facing forward.",
       algorithm: "R U2 R2 U' R2 U' R2 U2 R",
       algorithmName: "Pi",
       initialState: "R' U2 R2 U R2 U R2 U2 R'",
@@ -84,9 +84,9 @@ export const twoLookOll: TutorialStep = {
     },
     {
       id: "oll-u",
-      title: "U Pattern (Headlights)",
-      explanation:
-        "Two diagonal corners have yellow on top. Apply U. (This case is rarely encountered; if confused, applying Sune twice also solves it.)",
+      title: "U",
+      explanation: "The yellow corners form a U-like headlights pattern. These moves point them all up.",
+      howToSpot: "Yellow cross done, two yellow corners up on the same side like headlights.",
       algorithm: "R2 D' R U2 R' D R U2 R",
       algorithmName: "U",
       initialState: "R' U2 R' D' R U2 R' D R2",
@@ -94,9 +94,9 @@ export const twoLookOll: TutorialStep = {
     },
     {
       id: "oll-t",
-      title: "T Pattern",
-      explanation:
-        "Two diagonally opposite corners have yellow on top. Hold the cube so those corners are at front-left and back-right, then apply T.",
+      title: "T",
+      explanation: "The yellow corners make a T shape. Run the moves to finish orienting the top.",
+      howToSpot: "Yellow cross done, corner pattern forms a T.",
       algorithm: "r U R' U' r' F R F'",
       algorithmName: "T",
       initialState: "F R' F' r U R U' r'",
@@ -104,9 +104,9 @@ export const twoLookOll: TutorialStep = {
     },
     {
       id: "oll-l",
-      title: "L Pattern (Big L)",
-      explanation:
-        "Yellow forms an L-shape on the top face — one corner and two adjacent edges are yellow. Hold the cube so the L's corner is at the back-right, then apply L.",
+      title: "L (corners)",
+      explanation: "The last corner case — the yellow corners form an L. These moves complete the all-yellow top.",
+      howToSpot: "Yellow cross done, two yellow corners up on diagonal, forming an L.",
       algorithm: "r U2 R' U' R U' r'",
       algorithmName: "L",
       initialState: "r U R' U R U2 r'",

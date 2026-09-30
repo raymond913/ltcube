@@ -8,8 +8,9 @@ export const corners: TutorialStep = {
   substeps: [
     {
       id: "co-white-right",
-      title: "Corner below slot, white on right",
-      explanation: "The white-green-red corner is directly below its home slot with white facing right (the R face). R' D' R slots it in.",
+      title: "White corner on the right",
+      explanation: "A white corner piece is on the bottom, tucked under where it needs to go, with white facing right. These three moves lift it up and lock it into the top corner.",
+      howToSpot: "Find a bottom corner with white on its right side, sitting under an empty top corner spot.",
       algorithm: "R' D' R",
       initialState: "x2 R' D R",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
@@ -21,8 +22,9 @@ export const corners: TutorialStep = {
     },
     {
       id: "co-white-front",
-      title: "Corner below slot, white on front",
-      explanation: "Same corner, but white faces the front (the F face). F D F' slides it into place.",
+      title: "White corner facing you",
+      explanation: "Same idea, but the white sticker faces toward you instead of right. This mirror set of moves drops it into place.",
+      howToSpot: "Find a bottom corner with white facing you, under the spot it belongs in.",
       algorithm: "F D F'",
       initialState: "x2 F D' F'",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
@@ -34,8 +36,9 @@ export const corners: TutorialStep = {
     },
     {
       id: "co-white-down",
-      title: "Corner below slot, white facing down",
-      explanation: "White is facing straight down — neither algorithm fits directly. First use R' D R to kick the corner sideways, then F D2 F' inserts it cleanly.",
+      title: "White corner facing down",
+      explanation: "The trickiest one — the white sticker points straight down. It takes a few extra moves to spin it around and seat it correctly.",
+      howToSpot: "Find a bottom corner where you can't see white from the side — it's hiding on the bottom face.",
       algorithm: "R' D R F D2 F'",
       initialState: "x2 F D2 F' R' D' R",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
@@ -47,8 +50,9 @@ export const corners: TutorialStep = {
     },
     {
       id: "co-twisted",
-      title: "Corner in slot but twisted",
-      explanation: "The corner is already in the right slot but rotated incorrectly. Extract it with R' D R, then F D F' reinserts it with the correct orientation.",
+      title: "Corner stuck in the wrong way",
+      explanation: "The corner is already up top but twisted the wrong direction. Pop it out first, then put it back correctly.",
+      howToSpot: "Look for a top corner that's in the right place but has its colors turned the wrong way.",
       algorithm: "R' D R F D F'",
       initialState: "x2 F D' F' R' D' R",
       highlightPieces: ["white-green-red", "white-center", "green-center", "red-center"],
