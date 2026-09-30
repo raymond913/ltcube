@@ -2,187 +2,89 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import { BEGINNER_STEPS } from "@/data/beginner";
+import { LESSON_COPY } from "@/lib/lessonCopy";
+
+const CUBE_SIZE = 300;
+
+function CubePlaceholder() {
+  return (
+    <div
+      role="status"
+      style={{ width: CUBE_SIZE, height: CUBE_SIZE }}
+      className="flex max-w-full items-center justify-center rounded-3xl border border-border bg-surface"
+    >
+      <p className="animate-pulse text-sm text-muted">Loading the 3D cube…</p>
+    </div>
+  );
+}
 
 const HeroCube = dynamic(
   () => import("@/components/landing/HeroCube").then((m) => m.HeroCube),
-  {
-    ssr: false,
-    loading: () => (
-      <div style={{ width: 320, height: 320 }} className="flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <CubePlaceholder /> }
 );
 
-const STEPS = [
-  { label: "White Cross",   color: "#2563EB", num: 1 },
-  { label: "Corners",       color: "#15803D", num: 2 },
-  { label: "Second Layer",  color: "#C2410C", num: 3 },
-  { label: "OLL",           color: "#B45309", num: 4 },
-  { label: "PLL",           color: "#7C3AED", num: 5 },
-];
-
 export default function HomePage() {
+  const totalMinutes = BEGINNER_STEPS.reduce((sum, s) => sum + s.estimatedMinutes, 0);
+
   return (
-    <div
-      className="min-h-screen w-full flex flex-col relative overflow-hidden"
-      style={{
-        background: `
-          radial-gradient(ellipse 80% 60% at 15% -5%, rgba(37,99,235,0.10) 0%, transparent 65%),
-          radial-gradient(ellipse 60% 50% at 90% 110%, rgba(124,58,237,0.07) 0%, transparent 65%),
-          radial-gradient(ellipse 40% 30% at 50% 50%, rgba(234,179,8,0.025) 0%, transparent 70%),
-          var(--color-background)
-        `,
-      }}
-    >
-      {/* Subtle dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, oklch(82% 0.010 250) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          opacity: 0.55,
-        }}
-      />
-
-      {/* Main content — vertically centered */}
-      <div className="flex-1 flex items-center justify-center px-6 py-16 relative z-10">
-        <div className="w-full max-w-5xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-
-            {/* LEFT: Text content */}
-            <div className="flex flex-col gap-7 text-center lg:text-left lg:flex-1 ltc-page">
-              {/* Eyebrow */}
-              <div className="flex justify-center lg:justify-start">
-                <span
-                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest"
-                  style={{
-                    color: "#2563EB",
-                    background: "rgba(37,99,235,0.08)",
-                    border: "1px solid rgba(37,99,235,0.18)",
-                    letterSpacing: "0.12em",
-                  }}
-                >
-                  <span style={{ fontSize: "8px" }}>●</span>
-                  Beginner Method
-                </span>
-              </div>
-
-              {/* Headline */}
-              <div className="flex flex-col gap-3">
-                <h1
-                  className="font-display text-5xl md:text-6xl lg:text-[64px] font-bold leading-[1.05] tracking-tight"
-                  style={{ color: "var(--color-text)", letterSpacing: "-0.03em" }}
-                >
-                  Learn to solve<br />
-                  <span className="ltc-gradient-text">the Rubik&apos;s Cube</span>
-                </h1>
-                <p
-                  className="text-base md:text-lg leading-relaxed max-w-md mx-auto lg:mx-0"
-                  style={{ color: "var(--color-muted)" }}
-                >
-                  Step through every algorithm on a live 3D cube.
-                  Beginner-friendly — done in an afternoon.
-                </p>
-              </div>
-
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row items-center lg:items-start gap-3 justify-center lg:justify-start">
-                <Link
-                  href="/learn"
-                  className="ltc-hover-primary inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-base font-bold text-white transition-all duration-150 hover:scale-[1.03] active:scale-[0.97]"
-                  style={{
-                    background: "linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.12), 0 6px 24px rgba(37,99,235,0.32), inset 0 1px 0 rgba(255,255,255,0.12)",
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  Start Learning
-                  <span style={{ opacity: 0.85 }}>→</span>
-                </Link>
-                <Link
-                  href="/reference"
-                  className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-base font-semibold transition-all duration-150 hover:opacity-80"
-                  style={{
-                    color: "var(--color-muted)",
-                    background: "rgba(255,255,255,0.7)",
-                    border: "1px solid var(--color-border)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                >
-                  Algorithm Reference
-                </Link>
-              </div>
-
-              {/* 5-step roadmap */}
-              <div className="flex flex-col gap-2.5">
-                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--color-dim)", letterSpacing: "0.10em" }}>
-                  5-step method
-                </p>
-                <div className="flex items-center gap-1 flex-wrap justify-center lg:justify-start">
-                  {STEPS.map((step, i) => (
-                    <div key={step.label} className="flex items-center gap-1">
-                      <span
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold rounded-full px-3 py-1.5 transition-all duration-150 hover:opacity-80"
-                        style={{
-                          color: step.color,
-                          background: `${step.color}0e`,
-                          border: `1px solid ${step.color}28`,
-                        }}
-                      >
-                        <span
-                          className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-white flex-shrink-0"
-                          style={{ background: step.color }}
-                        >
-                          {step.num}
-                        </span>
-                        {step.label}
-                      </span>
-                      {i < STEPS.length - 1 && (
-                        <span style={{ color: "var(--color-border-bright)", fontSize: "10px" }}>→</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+    <div className="flex min-h-screen w-full flex-col bg-background">
+      <main className="flex flex-1 items-center px-6 py-12 lg:py-16">
+        <div className="mx-auto grid w-full max-w-5xl gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="ltc-page flex flex-col gap-6 lg:col-start-1 lg:row-start-1">
+            <p className="text-sm font-semibold text-muted">LTCube</p>
+            <h1 className="font-display text-balance text-4xl font-bold leading-[1.1] tracking-tight text-text lg:text-[56px]">
+              Solve your Rubik&apos;s Cube, one step at a time.
+            </h1>
+            <p className="max-w-[30rem] text-xl leading-relaxed text-muted">
+              Watch each move on a 3D cube you can rotate and replay. No experience needed.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+              <Link
+                href="/learn"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-hover active:scale-[0.98] active:bg-primary-hover sm:w-auto"
+              >
+                Start learning
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </Link>
+              <Link
+                href="/reference"
+                className="inline-flex min-h-11 items-center text-base font-semibold text-muted underline-offset-4 transition-colors duration-150 hover:text-text hover:underline"
+              >
+                Move reference
+              </Link>
             </div>
-
-            {/* RIGHT: 3D Cube */}
-            <div className="flex-shrink-0 lg:flex-shrink relative">
-              {/* Glow behind cube */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(37,99,235,0.12) 0%, transparent 70%)",
-                  filter: "blur(20px)",
-                  transform: "scale(1.2)",
-                }}
-              />
-              <div className="relative ltc-cube-float">
-                <Suspense
-                  fallback={
-                    <div style={{ width: 300, height: 300 }} className="flex items-center justify-center">
-                      <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                    </div>
-                  }
-                >
-                  <HeroCube size={300} />
-                </Suspense>
-              </div>
-            </div>
-
           </div>
-        </div>
-      </div>
 
-      {/* Footer */}
-      <div className="relative z-10 pb-6 flex justify-center">
-        <p className="text-xs" style={{ color: "var(--color-dim)" }}>
-          Built by Ray
-        </p>
-      </div>
+          <div className="flex justify-center overflow-hidden lg:col-start-2 lg:row-span-2 lg:row-start-1">
+            <HeroCube size={CUBE_SIZE} />
+          </div>
+
+          <section aria-labelledby="steps-heading" className="ltc-page lg:col-start-1 lg:row-start-2">
+            <h2 id="steps-heading" className="text-xl font-semibold text-text">
+              What you&apos;ll learn
+            </h2>
+            <ol className="mt-3 flex max-w-xs flex-col gap-1">
+              {BEGINNER_STEPS.map((step) => (
+                <li key={step.id} className="flex items-baseline gap-3 text-base text-text">
+                  <span className="w-4 font-semibold tabular-nums text-muted">{step.stepNumber}</span>
+                  <span>{LESSON_COPY[step.id].name}</span>
+                  <span className="ml-auto text-sm text-muted">{step.estimatedMinutes} min</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-4 text-sm text-muted">
+              About {totalMinutes} minutes in all. Go at your own pace.
+            </p>
+          </section>
+        </div>
+      </main>
+
+      <footer className="px-6 pb-6">
+        <p className="mx-auto max-w-5xl text-sm text-muted">Built by Ray</p>
+      </footer>
     </div>
   );
 }

@@ -323,7 +323,7 @@ export function AlgorithmPlayer({
         {spotView && (
           <button
             onClick={showAgain}
-            className="rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
+            className="min-h-11 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
             style={{
               background: "oklch(97% 0.003 250)",
               border: "1px solid var(--color-border)",
@@ -336,7 +336,7 @@ export function AlgorithmPlayer({
         {showViewToggle && (
           <button
             onClick={() => setViewMode((v) => v === "white-up" ? "default" : "white-up")}
-            className="rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
+            className="min-h-11 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
             style={{
               background: viewMode === "white-up" ? "var(--color-primary-light)" : "oklch(97% 0.003 250)",
               border: `1px solid ${viewMode === "white-up" ? "var(--color-primary-light-border)" : "var(--color-border)"}`,
@@ -376,8 +376,8 @@ export function AlgorithmPlayer({
           border: "1px solid var(--color-border)",
         }}
       >
-        {/* Dot navigator — each button has padding for 44px touch target */}
-        <div className="flex flex-wrap items-center" style={{ gap: "0 2px", margin: "0 -4px" }}>
+        {/* Dot navigator — each button is a 44×44 touch target around a small dot */}
+        <div className="flex flex-wrap items-center">
           {Array.from({ length: moves.length + 1 }, (_, i) => (
             <button
               key={i}
@@ -385,9 +385,8 @@ export function AlgorithmPlayer({
               disabled={isAnimating}
               title={i === 0 ? "Start" : moves[i - 1]?.notation}
               aria-label={i === 0 ? "Go to start" : `Go to move ${i}: ${moves[i - 1]?.notation}`}
-              className="flex items-center justify-center transition-all duration-150 disabled:cursor-not-allowed"
+              className="flex h-11 w-11 items-center justify-center transition-all duration-150 disabled:cursor-not-allowed"
               style={{
-                padding: "22px 4px",
                 background: "transparent",
                 border: "none",
               }}
@@ -412,7 +411,7 @@ export function AlgorithmPlayer({
         {/* Algorithm tokens + counter */}
         <div className="flex items-start justify-between gap-2">
           <div
-            className="font-mono flex flex-wrap gap-x-1.5 gap-y-0.5 text-sm leading-relaxed"
+            className="font-mono flex flex-wrap text-sm leading-relaxed"
           >
             {moves.map((m, i) => {
               const isPast    = i < currentStep;
@@ -431,7 +430,7 @@ export function AlgorithmPlayer({
                     fontWeight: isCurrent ? 700 : 400,
                     transition: "all 0.15s ease",
                   }}
-                  className="hover:opacity-70 disabled:cursor-not-allowed px-0.5 py-0.5 rounded"
+                  className="hover:opacity-70 disabled:cursor-not-allowed min-h-11 min-w-11 px-1 rounded"
                 >
                   {m.notation}
                 </button>
@@ -462,8 +461,8 @@ export function AlgorithmPlayer({
             title="Step back (←)"
             className="ltc-hover-transport flex items-center justify-center rounded-xl transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
-              width: "40px",
-              height: "40px",
+              width: "44px",
+              height: "44px",
               background: "oklch(97% 0.003 250)",
               border: "1px solid var(--color-border)",
               color: "var(--color-muted)",
@@ -510,8 +509,8 @@ export function AlgorithmPlayer({
             title="Step forward (→)"
             className="ltc-hover-transport flex items-center justify-center rounded-xl transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{
-              width: "40px",
-              height: "40px",
+              width: "44px",
+              height: "44px",
               background: "oklch(97% 0.003 250)",
               border: "1px solid var(--color-border)",
               color: "var(--color-muted)",
@@ -529,8 +528,8 @@ export function AlgorithmPlayer({
             title="Reset (R)"
             className="ltc-hover-transport flex items-center justify-center rounded-xl transition-all duration-150"
             style={{
-              width: "40px",
-              height: "40px",
+              width: "44px",
+              height: "44px",
               background: "oklch(97% 0.003 250)",
               border: "1px solid var(--color-border)",
               color: "oklch(62% 0.01 250)",
@@ -557,7 +556,7 @@ export function AlgorithmPlayer({
               <button
                 key={s}
                 onClick={() => setSpeed(s)}
-                className="font-mono px-2.5 py-2.5 text-xs font-semibold transition-all duration-150"
+                className="font-mono min-h-11 min-w-11 px-2.5 text-xs font-semibold transition-all duration-150"
                 style={{
                   background: speed === s ? "#2563EB" : "transparent",
                   color: speed === s ? "#fff" : "oklch(52% 0.012 250)",
@@ -572,7 +571,8 @@ export function AlgorithmPlayer({
           <button
             onClick={() => setCubeStyle(cubeStyle === "stickered" ? "stickerless" : "stickered")}
             title={cubeStyle === "stickered" ? "Switch to stickerless" : "Switch to stickered"}
-            className="flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150"
+            aria-label={cubeStyle === "stickered" ? "Switch to stickerless cube" : "Switch to stickered cube"}
+            className="flex min-h-11 min-w-11 items-center justify-center gap-1 px-2.5 rounded-xl text-xs font-semibold transition-all duration-150"
             style={{
               background: "oklch(97% 0.003 250)",
               border: "1px solid var(--color-border)",

@@ -222,6 +222,7 @@ code, kbd, samp, pre {
 ====================================================== */
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .ltc-page { animation: none; }
   .ltc-cube-float { animation: none; }
   .ltc-dropdown-in { animation: none; }
@@ -239,5 +240,4 @@ code, kbd, samp, pre {
 *:focus-visible {
   outline: 2px solid #2563EB;
   outline-offset: 2px;
-  border-radius: 4px;
 }

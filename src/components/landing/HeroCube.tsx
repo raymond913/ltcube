@@ -96,6 +96,15 @@ function HeroCubeScene() {
   const orbitRef = useRef<any>(null);
   const lastInteractRef = useRef(0);
   const autoRotYRef = useRef(0);
+  const reducedMotionRef = useRef(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => { reducedMotionRef.current = mq.matches; };
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   // Build cubies once
   useEffect(() => {
@@ -126,7 +135,7 @@ function HeroCubeScene() {
 
   // Auto-rotate + bob, pause during user interaction
   useFrame(({ clock }) => {
-    if (!groupRef.current) return;
+    if (!groupRef.current || reducedMotionRef.current) return;
 
     const t = clock.getElapsedTime();
     const sinceInteract = Date.now() - lastInteractRef.current;

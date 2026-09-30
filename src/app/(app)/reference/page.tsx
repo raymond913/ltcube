@@ -274,7 +274,7 @@ export default function ReferencePage() {
                 <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
                 <Link
                   href={group.route}
-                  className="ltc-hover-primary-color text-xs font-medium transition-colors duration-150"
+                  className="ltc-hover-primary-color inline-flex min-h-11 min-w-11 items-center justify-end text-xs font-medium transition-colors duration-150"
                   style={{ color: "#2563EB" }}
                 >
                   Open tutorial →

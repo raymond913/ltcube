@@ -3,271 +3,119 @@
 import Link from "next/link";
 import { useProgressStore } from "@/stores/progressStore";
 import { BEGINNER_STEPS } from "@/data/beginner";
+import { LESSON_COPY } from "@/lib/lessonCopy";
 
-const STEP_META: Record<string, {
-  description: string;
-  icon: string;
-  color: string;
-  bg: string;
-  border: string;
-  label: string;
-}> = {
-  "cross": {
-    description: "Place all four white edge pieces to form the white cross on the bottom.",
-    icon: "✛",
-    color: "#2563EB",
-    bg: "rgba(37,99,235,0.07)",
-    border: "rgba(37,99,235,0.18)",
-    label: "Bottom Layer",
-  },
-  "corners": {
-    description: "Insert the four white corners to complete the entire first layer.",
-    icon: "◼",
-    color: "#15803D",
-    bg: "rgba(21,128,61,0.07)",
-    border: "rgba(21,128,61,0.18)",
-    label: "Bottom Layer",
-  },
-  "second-layer": {
-    description: "Solve the four middle-layer edges using right or left insert sequences.",
-    icon: "▣",
-    color: "#C2410C",
-    bg: "rgba(194,65,12,0.07)",
-    border: "rgba(194,65,12,0.18)",
-    label: "Middle Layer",
-  },
-  "two-look-oll": {
-    description: "Orient all last-layer pieces so the entire top face shows yellow.",
-    icon: "✦",
-    color: "#B45309",
-    bg: "rgba(180,83,9,0.07)",
-    border: "rgba(180,83,9,0.18)",
-    label: "Last Layer",
-  },
-  "two-look-pll": {
-    description: "Permute the last layer pieces into their solved positions to finish.",
-    icon: "★",
-    color: "#7C3AED",
-    bg: "rgba(124,58,237,0.07)",
-    border: "rgba(124,58,237,0.18)",
-    label: "Last Layer",
-  },
-};
+function CheckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3.5 8.5l3 3 6-7" />
+    </svg>
+  );
+}
 
-const GROUPS = [
-  { label: "Bottom Layer", ids: ["cross", "corners"] },
-  { label: "Middle Layer", ids: ["second-layer"] },
-  { label: "Last Layer",   ids: ["two-look-oll", "two-look-pll"] },
-];
-
-const LAYER_COLORS: Record<string, string> = {
-  "Bottom Layer": "#2563EB",
-  "Middle Layer": "#C2410C",
-  "Last Layer":   "#7C3AED",
-};
+function ChevronIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 3.5l4.5 4.5L6 12.5" />
+    </svg>
+  );
+}
 
 export default function LearnPage() {
   const { completedSteps } = useProgressStore();
+  const total = BEGINNER_STEPS.length;
   const completedCount = BEGINNER_STEPS.filter((s) => completedSteps.includes(s.id)).length;
+  const nextId = BEGINNER_STEPS.find((s) => !completedSteps.includes(s.id))?.id;
 
   return (
-    <div className="ltc-page flex flex-col gap-8 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col gap-1">
-        <p
-          className="text-xs font-semibold tracking-widest uppercase mb-1"
-          style={{ color: "#2563EB" }}
-        >
-          Beginner Method
+    <div className="ltc-page mx-auto flex max-w-2xl flex-col gap-10">
+      <header className="flex flex-col gap-3">
+        <h1 className="text-4xl font-bold text-text">Five steps to a solved cube</h1>
+        <p className="max-w-[34rem] text-pretty text-base leading-relaxed text-muted">
+          Go in order. Each lesson builds on the one before. Your progress saves on this device.
         </p>
-        <h1
-          className="text-3xl font-bold tracking-tight"
-          style={{ color: "var(--color-text)" }}
-        >
-          Layer by Layer
-        </h1>
-        <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
-          Five steps to solve the cube. Work through them in order — each builds on the last.
-        </p>
-      </div>
+      </header>
 
-      {/* Progress card */}
-      <div
-        className="rounded-2xl p-5"
-        style={{
-          background: "var(--color-surface-elevated)",
-          border: "1px solid var(--color-border)",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-        }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-            Your Progress
-          </span>
-          <span
-            className="text-xs font-semibold rounded-full px-2.5 py-1"
-            style={{
-              color: "#2563EB",
-              background: "var(--color-primary-light)",
-              border: "1px solid var(--color-primary-light-border)",
-            }}
-          >
-            {completedCount} of {BEGINNER_STEPS.length} steps
-          </span>
+      <section aria-label="Your progress" className="flex flex-col gap-3">
+        <p className="text-base text-text">
+          <span className="font-semibold">{completedCount} of {total}</span> lessons done
+        </p>
+        <div
+          role="progressbar"
+          aria-label="Lessons done"
+          aria-valuemin={0}
+          aria-valuemax={total}
+          aria-valuenow={completedCount}
+          className="flex gap-2"
+        >
+          {BEGINNER_STEPS.map((step) => (
+            <span
+              key={step.id}
+              className={`h-2 flex-1 rounded-full ${completedSteps.includes(step.id) ? "bg-text" : "bg-border-subtle"}`}
+            />
+          ))}
         </div>
+        {completedCount === total && (
+          <>
+            <p className="text-base text-text">You finished every lesson. You can solve the cube!</p>
+            <Link
+              href="/trainer"
+              className="inline-flex min-h-11 items-center self-start text-base font-semibold text-primary underline-offset-4 hover:text-primary-hover hover:underline"
+            >
+              Practice in the trainer
+            </Link>
+          </>
+        )}
+      </section>
 
-        {/* Segmented step bar */}
-        <div className="flex gap-1.5">
-          {BEGINNER_STEPS.map((step) => {
-            const done = completedSteps.includes(step.id);
-            const meta = STEP_META[step.id];
-            return (
+      <ol className="flex flex-col divide-y divide-border">
+        {BEGINNER_STEPS.map((step) => {
+          const copy = LESSON_COPY[step.id];
+          const isDone = completedSteps.includes(step.id);
+          const isNext = step.id === nextId;
+
+          return (
+            <li key={step.id}>
               <Link
-                key={step.id}
                 href={step.route}
-                title={step.title}
-                className="flex-1 flex items-center py-3 -my-3 hover:opacity-75 transition-opacity duration-200"
+                className="group -mx-3 flex items-center gap-4 rounded-xl px-3 py-4 transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
               >
                 <span
-                  className="block w-full h-2 rounded-full transition-colors duration-300"
-                  style={{ backgroundColor: done ? meta.color : "var(--color-border-subtle)" }}
-                />
+                  aria-hidden="true"
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-full text-base font-semibold ${
+                    isDone ? "bg-text text-white" : "border border-border-bright text-text"
+                  }`}
+                >
+                  {isDone ? <CheckIcon /> : step.stepNumber}
+                </span>
+
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="flex flex-wrap items-baseline gap-x-3">
+                    <span className="text-base font-semibold text-text">
+                      <span className="sr-only">Lesson {step.stepNumber}: </span>
+                      {copy.name}
+                    </span>
+                    <span className="text-sm text-muted">
+                      {isDone ? "Done" : `${step.estimatedMinutes} min`}
+                    </span>
+                  </span>
+                  <span className="text-sm leading-relaxed text-muted">{copy.summary}</span>
+                </span>
+
+                {isNext ? (
+                  <span className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 group-hover:bg-primary-hover">
+                    {completedCount === 0 ? "Start" : "Continue"}
+                  </span>
+                ) : (
+                  <span className="shrink-0 text-muted">
+                    <ChevronIcon />
+                  </span>
+                )}
               </Link>
-            );
-          })}
-        </div>
-
-        {completedCount === BEGINNER_STEPS.length && (
-          <p className="mt-3 text-xs font-semibold flex items-center gap-1.5" style={{ color: "#15803D" }}>
-            <span
-              className="inline-flex w-4 h-4 rounded-full items-center justify-center text-2xs text-white"
-              style={{ background: "#15803D" }}
-            >✓</span>
-            All steps complete — you can solve the cube!
-          </p>
-        )}
-      </div>
-
-      {/* Step groups */}
-      {GROUPS.map((group) => {
-        const groupSteps = BEGINNER_STEPS.filter((s) => group.ids.includes(s.id));
-        const layerColor = LAYER_COLORS[group.label];
-
-        return (
-          <div key={group.label} className="flex flex-col gap-3">
-            {/* Group label */}
-            <div className="flex items-center gap-3">
-              <span
-                className="text-2xs font-bold uppercase tracking-[0.12em] px-2.5 py-1 rounded-full"
-                style={{
-                  color: layerColor,
-                  background: `${layerColor}10`,
-                  border: `1px solid ${layerColor}25`,
-                }}
-              >
-                {group.label}
-              </span>
-              <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
-            </div>
-
-            <ol className="flex flex-col gap-2">
-              {groupSteps.map((step) => {
-                const isDone = completedSteps.includes(step.id);
-                const meta = STEP_META[step.id];
-
-                return (
-                  <li key={step.id}>
-                    <Link
-                      href={step.route}
-                      className="ltc-hover-lift group flex items-center gap-4 rounded-xl p-4 transition-all duration-200"
-                      style={{
-                        background: isDone ? meta.bg : "var(--color-surface-elevated)",
-                        border: `1px solid ${isDone ? meta.border : "var(--color-border)"}`,
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-                      }}
-                    >
-                      {/* Step number badge */}
-                      <span
-                        className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all"
-                        style={{
-                          background: isDone ? meta.color : meta.bg,
-                          color: isDone ? "#fff" : meta.color,
-                          border: `1.5px solid ${isDone ? meta.color : meta.border}`,
-                        }}
-                      >
-                        {isDone ? "✓" : meta.icon}
-                      </span>
-
-                      {/* Text */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span
-                            className="text-xs font-medium"
-                            style={{ color: "oklch(62% 0.01 250)" }}
-                          >
-                            Step {step.stepNumber}
-                          </span>
-                          <p
-                            className="font-semibold text-sm"
-                            style={{ color: "var(--color-text)" }}
-                          >
-                            {step.title}
-                          </p>
-                          {isDone && (
-                            <span
-                              className="text-2xs font-semibold rounded-full px-2 py-0.5"
-                              style={{ color: meta.color, background: meta.bg, border: `1px solid ${meta.border}` }}
-                            >
-                              Done
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Arrow */}
-                      <span
-                        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all"
-                        style={{
-                          background: "var(--color-primary-light)",
-                          border: "1px solid var(--color-primary-light-border)",
-                          color: "#2563EB",
-                        }}
-                      >
-                        →
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ol>
-          </div>
-        );
-      })}
-
-      {/* Bottom CTA */}
-      {completedCount === 0 && (
-        <div
-          className="rounded-2xl p-6 text-center"
-          style={{
-            background: "var(--color-primary-light)",
-            border: "1px dashed oklch(82% 0.08 255)",
-          }}
-        >
-          <p className="text-sm mb-4" style={{ color: "var(--color-muted)" }}>
-            Start with the White Cross — it&apos;s the foundation of everything.
-          </p>
-          <Link
-            href="/learn/cross"
-            className="ltc-hover-primary inline-flex items-center gap-2 rounded-full text-white text-sm font-semibold px-6 py-2.5 transition-all duration-150 hover:scale-[1.03] active:scale-[0.98]"
-            style={{
-              backgroundColor: "#2563EB",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(37,99,235,0.25)",
-            }}
-          >
-            Begin Step 1 →
-          </Link>
-        </div>
-      )}
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

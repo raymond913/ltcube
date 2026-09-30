@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useProgressStore } from "@/stores/progressStore";
+import { LESSON_COPY } from "@/lib/lessonCopy";
 
 const LEARN_STEPS = [
-  { href: "/learn/cross",        label: "White Cross",         stepNumber: 1, color: "#2563EB", id: "cross",        minutes: 15 },
-  { href: "/learn/corners",      label: "First Layer Corners", stepNumber: 2, color: "#15803D", id: "corners",      minutes: 20 },
-  { href: "/learn/second-layer", label: "Second Layer",        stepNumber: 3, color: "#C2410C", id: "second-layer", minutes: 20 },
-  { href: "/learn/oll",          label: "OLL",                 stepNumber: 4, color: "#B45309", id: "two-look-oll", minutes: 25 },
-  { href: "/learn/pll",          label: "PLL",                 stepNumber: 5, color: "#7C3AED", id: "two-look-pll", minutes: 20 },
+  { href: "/learn/cross",        label: LESSON_COPY["cross"].name,        stepNumber: 1, color: "#2563EB", id: "cross",        minutes: 15 },
+  { href: "/learn/corners",      label: LESSON_COPY["corners"].name,      stepNumber: 2, color: "#15803D", id: "corners",      minutes: 20 },
+  { href: "/learn/second-layer", label: LESSON_COPY["second-layer"].name, stepNumber: 3, color: "#C2410C", id: "second-layer", minutes: 20 },
+  { href: "/learn/oll",          label: LESSON_COPY["two-look-oll"].name, stepNumber: 4, color: "#B45309", id: "two-look-oll", minutes: 25 },
+  { href: "/learn/pll",          label: LESSON_COPY["two-look-pll"].name, stepNumber: 5, color: "#7C3AED", id: "two-look-pll", minutes: 20 },
 ];
 
 const NAV_ITEMS = [
@@ -65,29 +66,15 @@ export function Sidebar() {
   return (
     <>
       {/* ── Fixed top bar ── */}
-      <header
-        className="ltc-glass fixed top-0 left-0 right-0 z-30 flex items-center h-14 px-5 gap-2"
-        style={{
-          borderBottom: "1px solid rgba(0,0,0,0.07)",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.8), 0 2px 12px rgba(0,0,0,0.06)",
-        }}
-      >
+      <header className="fixed top-0 left-0 right-0 z-30 flex items-center h-14 px-5 gap-2 bg-white border-b border-border">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 mr-4 flex-shrink-0 group"
+          className="flex items-center gap-2.5 mr-4 flex-shrink-0 min-h-11 rounded-lg"
         >
-          <div
-            className="flex-shrink-0 rounded-lg p-1 transition-transform duration-200 group-hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(124,58,237,0.08) 100%)",
-              border: "1px solid rgba(37,99,235,0.2)",
-            }}
-          >
-            <CubeIcon />
-          </div>
+          <CubeIcon />
           <span
-            className="font-display text-[15px] font-bold tracking-tight"
+            className="font-display text-base font-bold tracking-tight"
             style={{ color: "var(--color-text)", letterSpacing: "-0.03em" }}
           >
             LTCube
@@ -102,10 +89,10 @@ export function Sidebar() {
               onClick={() => setLearnOpen((o) => !o)}
               aria-expanded={learnOpen}
               aria-haspopup="true"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150"
+              className="flex min-h-11 items-center gap-1.5 px-3 rounded-lg text-sm font-medium transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
               style={{
                 color: learnActive || learnOpen ? "#2563EB" : "var(--color-muted)",
-                background: learnActive || learnOpen ? "var(--color-primary-light)" : "transparent",
+                background: learnActive || learnOpen ? "var(--color-primary-light)" : undefined,
               }}
             >
               Learn
@@ -122,32 +109,24 @@ export function Sidebar() {
             {/* Dropdown panel */}
             {learnOpen && (
               <div
-                className="ltc-dropdown-in absolute top-full left-0 mt-2 w-[300px] rounded-2xl overflow-hidden"
-                style={{
-                  background: "rgba(255,255,255,0.97)",
-                  border: "1px solid var(--color-border)",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(255,255,255,0.5)",
-                  backdropFilter: "blur(16px)",
-                }}
+                className="ltc-dropdown-in absolute top-full left-0 mt-2 w-[300px] rounded-2xl overflow-hidden bg-white border border-border"
+                style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.10)" }}
               >
                 {/* Header row */}
                 <div
-                  className="flex items-center justify-between px-4 py-3"
+                  className="flex items-center justify-between pl-4 pr-2"
                   style={{ borderBottom: "1px solid var(--color-border-subtle)" }}
                 >
-                  <span
-                    className="text-[10px] font-bold uppercase tracking-[0.14em]"
-                    style={{ color: "var(--color-dim)" }}
-                  >
-                    5-Step Method
+                  <span className="text-sm font-semibold" style={{ color: "var(--color-muted)" }}>
+                    Five steps
                   </span>
                   <Link
                     href="/learn"
-                    className="text-xs font-semibold transition-opacity hover:opacity-70 flex items-center gap-1"
+                    className="flex min-h-11 items-center gap-1 px-2 text-sm font-semibold transition-colors duration-150 hover:text-[#1D4ED8]"
                     style={{ color: "#2563EB" }}
                   >
                     Overview
-                    <span style={{ opacity: 0.7 }}>→</span>
+                    <span aria-hidden="true">→</span>
                   </Link>
                 </div>
 
@@ -161,26 +140,17 @@ export function Sidebar() {
                       <Link
                         key={step.href}
                         href={step.href}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150"
+                        className="flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
                         style={{
-                          background: isActive ? `${step.color}0f` : "transparent",
-                        }}
-                        onMouseEnter={e => {
-                          if (!isActive) (e.currentTarget as HTMLElement).style.background = "var(--color-surface)";
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.background = isActive ? `${step.color}0f` : "transparent";
+                          background: isActive ? `${step.color}0f` : undefined,
                         }}
                       >
                         {/* Step circle */}
                         <span
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all duration-150"
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                           style={{
-                            background: isDone
-                              ? `linear-gradient(135deg, ${step.color} 0%, ${step.color}cc 100%)`
-                              : `${step.color}18`,
+                            background: isDone ? step.color : `${step.color}18`,
                             color: isDone ? "#fff" : step.color,
-                            boxShadow: isDone ? `0 2px 8px ${step.color}40` : "none",
                           }}
                         >
                           {isDone ? "✓" : step.stepNumber}
@@ -197,15 +167,10 @@ export function Sidebar() {
 
                         {isNext && (
                           <span
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                            style={{
-                              color: step.color,
-                              background: `${step.color}14`,
-                              border: `1px solid ${step.color}30`,
-                              letterSpacing: "0.04em",
-                            }}
+                            className="text-sm font-semibold flex-shrink-0"
+                            style={{ color: "var(--color-muted)" }}
                           >
-                            UP NEXT
+                            Up next
                           </span>
                         )}
                       </Link>
@@ -219,23 +184,17 @@ export function Sidebar() {
                   style={{ borderTop: "1px solid var(--color-border-subtle)" }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium" style={{ color: "var(--color-dim)" }}>
-                      {completedCount === 0 ? "Not started" : `${completedCount} of 5 complete`}
+                    <span className="text-sm" style={{ color: "var(--color-muted)" }}>
+                      {completedCount === 0 ? "Not started" : `${completedCount} of 5 done`}
                     </span>
-                    {completedCount > 0 && (
-                      <span className="text-xs font-bold" style={{ color: "#2563EB" }}>
-                        {Math.round((completedCount / 5) * 100)}%
-                      </span>
-                    )}
                   </div>
                   <div className="flex gap-1.5">
                     {LEARN_STEPS.map((s) => (
                       <div
                         key={s.id}
-                        className="flex-1 h-1.5 rounded-full transition-all duration-500"
+                        className="flex-1 h-1.5 rounded-full"
                         style={{
-                          background: completedSteps.includes(s.id) ? s.color : "var(--color-border-subtle)",
-                          boxShadow: completedSteps.includes(s.id) ? `0 0 6px ${s.color}50` : "none",
+                          background: completedSteps.includes(s.id) ? "var(--color-text)" : "var(--color-border-subtle)",
                         }}
                       />
                     ))}
@@ -253,10 +212,10 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150"
+                className="inline-flex min-h-11 items-center px-3 rounded-lg text-sm font-medium transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
                 style={{
                   color: isActive ? "#2563EB" : "var(--color-muted)",
-                  background: isActive ? "var(--color-primary-light)" : "transparent",
+                  background: isActive ? "var(--color-primary-light)" : undefined,
                 }}
               >
                 {item.label}
@@ -270,27 +229,11 @@ export function Sidebar() {
           {completedCount > 0 && (
             <Link
               href="/progress"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-150 hover:opacity-80"
-              style={{
-                background: "linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(124,58,237,0.06) 100%)",
-                border: "1px solid rgba(37,99,235,0.18)",
-              }}
+              className="flex min-h-11 items-center gap-2 px-3 rounded-full border border-border transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
             >
-              <span className="text-xs font-bold" style={{ color: "#2563EB" }}>
-                {completedCount}/5
+              <span className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+                {completedCount} of 5 done
               </span>
-              <div className="flex gap-0.5">
-                {LEARN_STEPS.map((s) => (
-                  <div
-                    key={s.id}
-                    className="w-1.5 h-1.5 rounded-full transition-all duration-300"
-                    style={{
-                      background: completedSteps.includes(s.id) ? s.color : "oklch(84% 0.01 250)",
-                      boxShadow: completedSteps.includes(s.id) ? `0 0 4px ${s.color}70` : "none",
-                    }}
-                  />
-                ))}
-              </div>
             </Link>
           )}
         </div>
@@ -300,7 +243,7 @@ export function Sidebar() {
           onClick={() => setMobileOpen((o) => !o)}
           aria-label="Toggle navigation"
           aria-expanded={mobileOpen}
-          className="md:hidden ml-auto flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-150"
+          className="md:hidden ml-auto flex items-center justify-center w-11 h-11 rounded-xl transition-colors duration-150 active:bg-border-subtle"
           style={{
             color: "var(--color-muted)",
             border: "1px solid var(--color-border)",
@@ -322,24 +265,21 @@ export function Sidebar() {
       {/* ── Mobile menu panel ── */}
       {mobileOpen && (
         <div
-          className="ltc-dropdown-in md:hidden fixed top-14 left-0 right-0 z-20 overflow-y-auto"
+          className="ltc-dropdown-in md:hidden fixed top-14 left-0 right-0 z-20 overflow-y-auto bg-white border-b border-border"
           style={{
-            background: "rgba(255,255,255,0.97)",
-            backdropFilter: "blur(20px)",
-            borderBottom: "1px solid var(--color-border)",
             boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
             maxHeight: "calc(100vh - 56px)",
           }}
         >
           <div className="p-3 flex flex-col gap-0.5">
             {/* Learn section */}
-            <div className="px-3 py-2 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--color-dim)" }}>
+            <div className="pl-3 flex items-center justify-between">
+              <span className="text-sm font-semibold" style={{ color: "var(--color-muted)" }}>
                 Learn
               </span>
               <Link
                 href="/learn"
-                className="text-xs font-semibold"
+                className="inline-flex min-h-11 items-center px-3 text-sm font-semibold"
                 style={{ color: "#2563EB" }}
                 onClick={() => setMobileOpen(false)}
               >
@@ -356,17 +296,14 @@ export function Sidebar() {
                   key={step.href}
                   href={step.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-150"
-                  style={{ background: isActive ? `${step.color}0f` : "transparent" }}
+                  className="flex min-h-11 items-center gap-3 px-3 py-3 rounded-xl transition-colors duration-150 active:bg-border-subtle"
+                  style={{ background: isActive ? `${step.color}0f` : undefined }}
                 >
                   <span
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                     style={{
-                      background: isDone
-                        ? `linear-gradient(135deg, ${step.color} 0%, ${step.color}cc 100%)`
-                        : `${step.color}18`,
+                      background: isDone ? step.color : `${step.color}18`,
                       color: isDone ? "#fff" : step.color,
-                      boxShadow: isDone ? `0 2px 8px ${step.color}40` : "none",
                     }}
                   >
                     {isDone ? "✓" : step.stepNumber}
@@ -377,11 +314,8 @@ export function Sidebar() {
                     </span>
                   </span>
                   {isNext && (
-                    <span
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                      style={{ color: step.color, background: `${step.color}14`, border: `1px solid ${step.color}30` }}
-                    >
-                      UP NEXT
+                    <span className="text-sm font-semibold" style={{ color: "var(--color-muted)" }}>
+                      Up next
                     </span>
                   )}
                 </Link>
@@ -397,10 +331,10 @@ export function Sidebar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center px-3 py-3 rounded-xl text-sm font-semibold transition-all duration-150"
+                  className="flex min-h-11 items-center px-3 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 active:bg-border-subtle"
                   style={{
                     color: isActive ? "#2563EB" : "var(--color-muted)",
-                    background: isActive ? "var(--color-primary-light)" : "transparent",
+                    background: isActive ? "var(--color-primary-light)" : undefined,
                   }}
                 >
                   {item.label}
@@ -409,28 +343,19 @@ export function Sidebar() {
             })}
 
             {/* Progress strip (mobile) */}
-            <div
-              className="mx-3 mt-2 mb-1 px-4 py-3 rounded-xl"
-              style={{ background: "var(--color-surface)", border: "1px solid var(--color-border)" }}
-            >
+            <div className="mt-2 mb-1 px-3 py-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium" style={{ color: "var(--color-dim)" }}>
-                  {completedCount === 0 ? "Start your journey" : `${completedCount} of 5 steps complete`}
+                <span className="text-sm" style={{ color: "var(--color-muted)" }}>
+                  {completedCount === 0 ? "Not started" : `${completedCount} of 5 done`}
                 </span>
-                {completedCount > 0 && (
-                  <span className="text-xs font-bold" style={{ color: "#2563EB" }}>
-                    {Math.round((completedCount / 5) * 100)}%
-                  </span>
-                )}
               </div>
               <div className="flex gap-1.5">
                 {LEARN_STEPS.map((s) => (
                   <div
                     key={s.id}
-                    className="flex-1 h-1.5 rounded-full transition-all duration-500"
+                    className="flex-1 h-1.5 rounded-full"
                     style={{
-                      background: completedSteps.includes(s.id) ? s.color : "var(--color-border-subtle)",
-                      boxShadow: completedSteps.includes(s.id) ? `0 0 6px ${s.color}50` : "none",
+                      background: completedSteps.includes(s.id) ? "var(--color-text)" : "var(--color-border-subtle)",
                     }}
                   />
                 ))}

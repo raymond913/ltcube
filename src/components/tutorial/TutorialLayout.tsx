@@ -261,7 +261,7 @@ export function TutorialLayout({
               {activeIdx > 0 ? (
                 <button
                   onClick={() => goToSubstep(activeIdx - 1)}
-                  className="ltc-hover-prev rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
+                  className="ltc-hover-prev min-h-11 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
                   style={{
                     background: "var(--color-surface-elevated)",
                     border: "1px solid var(--color-border)",
@@ -273,7 +273,7 @@ export function TutorialLayout({
               ) : prevStep ? (
                 <Link
                   href={prevStep.route}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
+                  className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-150"
                   style={{
                     background: "var(--color-surface-elevated)",
                     border: "1px solid var(--color-border)",
@@ -291,7 +291,7 @@ export function TutorialLayout({
               {activeIdx < totalSubsteps - 1 ? (
                 <button
                   onClick={() => goToSubstep(activeIdx + 1)}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
+                  className="min-h-11 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
                   style={{
                     backgroundColor: accentColor,
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
@@ -302,7 +302,7 @@ export function TutorialLayout({
               ) : nextStep ? (
                 <Link
                   href={nextStep.route}
-                  className="rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
+                  className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
                   style={{
                     backgroundColor: accentColor,
                     boxShadow: "0 1px 3px rgba(0,0,0,0.1)",

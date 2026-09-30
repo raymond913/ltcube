@@ -84,7 +84,7 @@ export function HowToSpotTip({ text, label, color, hold, note }: HowToSpotTipPro
         onClick={() => setPinned((p) => !p)}
         onFocus={(e) => { if (e.currentTarget.matches(":focus-visible")) setFocused(true); }}
         onBlur={() => setFocused(false)}
-        className="flex h-8 w-8 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px]"
+        className="flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px]"
         style={{ outlineColor: color }}
       >
         <span
