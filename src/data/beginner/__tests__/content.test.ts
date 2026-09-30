@@ -378,3 +378,53 @@ describe("BEGINNER_STEPS — structure", () => {
     expect(twoLookPll.substeps.length).toBe(6);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Recognition glow — spotStickers
+// ---------------------------------------------------------------------------
+
+/** "x,y,z" identity key -> engine cubie ID ("UFR", "UF", "U", ...). */
+function cubieIdForKey(key: string): string {
+  const [x, y, z] = key.split(",").map(Number);
+  return `${y > 0 ? "U" : y < 0 ? "D" : ""}${z > 0 ? "F" : z < 0 ? "B" : ""}${x > 0 ? "R" : x < 0 ? "L" : ""}`;
+}
+
+// H needs a left and a right face, T needs a front and a back face: no single
+// camera shows both, so those two cases are only required to show one of them.
+const SPOT_PARTLY_HIDDEN = new Set(["oll-h", "oll-t"]);
+
+describe("spotStickers — glow targets", () => {
+  const cases = [...twoLookOll.substeps, ...twoLookPll.substeps].filter(
+    (s) => s.spotStickers && s.spotStickers.length > 0,
+  );
+
+  it("every OLL case and the 4 PLL cases that name stickers have spotStickers", () => {
+    const ids = cases.map((s) => s.id).sort();
+    expect(ids).toEqual(
+      [...twoLookOll.substeps.map((s) => s.id), "pll-headlights", "pll-no-headlights", "pll-ua", "pll-ub", "pll-h", "pll-z"].sort(),
+    );
+  });
+
+  cases.forEach((substep) => {
+    it(`${substep.id}: each sticker is a real top-layer sticker and has a how-to-spot hint`, () => {
+      expect((substep.howToSpot ?? "").length).toBeGreaterThan(0);
+      const engine = applySetup(substep.initialState);
+      const state = engine.getState();
+      const cam = substep.cameraPosition ?? [4, 3, 4];
+      const visibleFaces = new Set(["U", cam[0] > 0 ? "R" : "L", cam[2] > 0 ? "F" : "B"]);
+      let visibleCount = 0;
+
+      for (const spot of substep.spotStickers!) {
+        const matches = engine
+          .getStickersForCubie(cubieIdForKey(spot.piece))
+          .filter((st) => state[st.face][st.row][st.col] === spot.color);
+        expect(matches).toHaveLength(1);
+        const st = matches[0];
+        expect(st.face === "U" || st.row === 0).toBe(true);
+        if (visibleFaces.has(st.face)) visibleCount++;
+        else expect(SPOT_PARTLY_HIDDEN.has(substep.id)).toBe(true);
+      }
+      expect(visibleCount).toBeGreaterThan(0);
+    });
+  });
+});

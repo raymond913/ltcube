@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { CubeFaces } from "@/lib/cubeEngine";
-import type { Arrow, StickerMask } from "@/lib/tutorialTypes";
+import type { Arrow, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 import { canUseWebGL } from "@/lib/webgl";
 
@@ -47,6 +47,10 @@ interface CubeViewerProps {
   cameraPosition?: [number, number, number];
   /** Bump to animate the camera back to cameraPosition */
   cameraResetKey?: number;
+  /** Stickers that glow to show what to look for */
+  spotStickers?: SpotSticker[];
+  /** Glow is on only while true */
+  glowActive?: boolean;
 }
 
 const cubeUnavailableFallback = (
@@ -74,6 +78,8 @@ export function CubeViewer({
   stickerMask,
   cameraPosition,
   cameraResetKey,
+  spotStickers,
+  glowActive,
 }: CubeViewerProps) {
   const [webglOk, setWebglOk] = useState<boolean | null>(null);
 
@@ -101,6 +107,8 @@ export function CubeViewer({
             stickerMask={stickerMask}
             cameraPosition={cameraPosition}
             cameraResetKey={cameraResetKey}
+            spotStickers={spotStickers}
+            glowActive={glowActive}
           />
         </WebGLErrorBoundary>
       )}

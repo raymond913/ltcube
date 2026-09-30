@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from "three";
@@ -17,7 +17,7 @@ import {
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
-import type { Arrow, StickerMask } from "@/lib/tutorialTypes";
+import type { Arrow, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
 import { MoveArrow, TargetSlot } from "./MoveArrow";
 
 // ---------------------------------------------------------------------------
@@ -48,6 +48,41 @@ const FACE_COLORS: Record<string, string> = {
   F: "#2563EB",
   B: "#16A34A",
 };
+
+/** Sticker color names (as used by SpotSticker) -> original sticker hex. */
+const COLOR_NAME_HEX: Record<string, string> = {
+  red:    FACE_COLORS.R,
+  orange: FACE_COLORS.L,
+  yellow: FACE_COLORS.U,
+  white:  FACE_COLORS.D,
+  blue:   FACE_COLORS.F,
+  green:  FACE_COLORS.B,
+};
+
+const GLOW_MIN = 0.25;
+const GLOW_MAX = 0.6;
+const GLOW_STEADY = 0.45;
+const GLOW_PERIOD_S = 1.2;
+const GLOW_PEAK_SCALE = 1.06;
+
+/** Lookup keys ("x,y,z|#HEX") for the stickers that must stay colored and glow. */
+export function spotKeySet(spots?: SpotSticker[]): Set<string> {
+  const keys = new Set<string>();
+  for (const s of spots ?? []) {
+    const hex = COLOR_NAME_HEX[s.color];
+    if (hex) keys.add(`${s.piece}|${hex.toUpperCase()}`);
+  }
+  return keys;
+}
+
+function resetGlow(meshes: THREE.Mesh[]): void {
+  meshes.forEach((m) => {
+    const mat = m.material as THREE.MeshPhysicalMaterial;
+    mat.emissive.set(0x000000);
+    mat.emissiveIntensity = 0;
+    m.scale.setScalar(1);
+  });
+}
 
 const BODY_COLOR    = "#111111";
 const GHOST_BODY    = "#3A3A3A";
@@ -357,6 +392,7 @@ export function applyAppearance(
   visibleKeys: Set<string>,
   style: "stickered" | "stickerless",
   stickerMask?: StickerMask,
+  spotKeys?: Set<string>,
 ): void {
   cubies.forEach((cubie, idx) => {
     const [x, y, z] = CUBIE_POSITIONS[idx];
@@ -366,6 +402,18 @@ export function applyAppearance(
     cubie.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
       const mat = obj.material as THREE.MeshPhysicalMaterial;
+      // Recognition stickers keep their own color: never grayed by the mask or visibleCubies.
+      if (
+        spotKeys?.size &&
+        obj.userData.isSticker &&
+        spotKeys.has(`${key}|${String(obj.userData.originalColor).toUpperCase()}`)
+      ) {
+        mat.color.set(obj.userData.originalColor as string);
+        mat.opacity = 1;
+        mat.transparent = false;
+        mat.needsUpdate = true;
+        return;
+      }
       if (!isVisible) {
         mat.color.set(obj.userData.isSticker ? "#52525B" : "#3F3F46");
         mat.opacity = 1;
@@ -400,11 +448,14 @@ interface CubeSceneProps {
   stickerMask?: StickerMask;
   cameraPosition?: [number, number, number];
   cameraResetKey?: number;
+  spotStickers?: SpotSticker[];
+  /** Glow is on only while true (player at move 0, not playing) */
+  glowActive?: boolean;
 }
 
 const DEFAULT_CAMERA: [number, number, number] = [4, 3, 4];
 
-function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMask, cameraPosition, cameraResetKey }: CubeSceneProps) {
+function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMask, cameraPosition, cameraResetKey, spotStickers, glowActive }: CubeSceneProps) {
   const { scene, camera } = useThree();
   const orbitRef = useRef<any>(null);
 
@@ -418,6 +469,15 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
 
   const stickerMaskRef = useRef<StickerMask | undefined>(stickerMask);
   stickerMaskRef.current = stickerMask;
+
+  const spotKeys = useMemo(() => spotKeySet(spotStickers), [spotStickers]);
+  const spotKeysRef = useRef(spotKeys);
+  spotKeysRef.current = spotKeys;
+  const glowMeshesRef = useRef<THREE.Mesh[]>([]);
+  const glowActiveRef = useRef(!!glowActive);
+  glowActiveRef.current = !!glowActive;
+  const glowWasOnRef = useRef(false);
+  const reducedMotionRef = useRef(false);
 
   const cubeStyle = usePreferencesStore((s) => s.cubeStyle);
   const cubeStyleRef = useRef(cubeStyle);
@@ -455,7 +515,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
     cubeStyleRef.current = cubeStyle;
     if (cubiesRef.current.length) {
       applyCubeStyle(cubiesRef.current, cubeStyle);
-      applyAppearance(cubiesRef.current, new Set(visibleCubiesRef.current), cubeStyle, stickerMaskRef.current);
+      applyAppearance(cubiesRef.current, new Set(visibleCubiesRef.current), cubeStyle, stickerMaskRef.current, spotKeysRef.current);
     }
   }, [cubeStyle]);
 
@@ -558,7 +618,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
         moveLogRef.current = [];
       }
 
-      applyAppearance(cubies, new Set(visibleCubiesRef.current), cubeStyleRef.current, stickerMaskRef.current);
+      applyAppearance(cubies, new Set(visibleCubiesRef.current), cubeStyleRef.current, stickerMaskRef.current, spotKeysRef.current);
     };
 
     const hadPending = useCubeStore.getState().pendingInstantAlg !== null;
@@ -614,9 +674,72 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
   // ---- Appearance: visibleCubies changes ----------------------------------
   useEffect(() => {
     if (cubiesRef.current.length) {
-      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []), cubeStyleRef.current, stickerMask);
+      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []), cubeStyleRef.current, stickerMask, spotKeys);
     }
-  }, [visibleCubies, stickerMask]);
+  }, [visibleCubies, stickerMask, spotKeys]);
+
+  // ---- Recognition glow -----------------------------------------------------
+  // Find the sticker meshes named by spotStickers; reset them when the set
+  // changes or the scene unmounts so a glow never carries into the next case.
+  useEffect(() => {
+    const meshes: THREE.Mesh[] = [];
+    cubiesRef.current.forEach((cubie, idx) => {
+      const [x, y, z] = CUBIE_POSITIONS[idx];
+      const pieceKey = `${x},${y},${z}`;
+      cubie.traverse((obj) => {
+        if (
+          obj instanceof THREE.Mesh &&
+          obj.userData.isSticker &&
+          spotKeys.has(`${pieceKey}|${String(obj.userData.originalColor).toUpperCase()}`)
+        ) {
+          meshes.push(obj);
+        }
+      });
+    });
+    glowMeshesRef.current = meshes;
+    glowWasOnRef.current = false;
+    return () => {
+      resetGlow(meshes);
+      glowMeshesRef.current = [];
+      glowWasOnRef.current = false;
+    };
+  }, [scene, spotKeys]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reducedMotionRef.current = mq.matches;
+    const onChange = (e: MediaQueryListEvent) => { reducedMotionRef.current = e.matches; };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useFrame(({ clock }) => {
+    const meshes = glowMeshesRef.current;
+    if (meshes.length === 0) return;
+
+    if (!glowActiveRef.current) {
+      if (glowWasOnRef.current) {
+        resetGlow(meshes);
+        glowWasOnRef.current = false;
+      }
+      return;
+    }
+    glowWasOnRef.current = true;
+
+    let intensity = GLOW_STEADY;
+    let scale = 1;
+    if (!reducedMotionRef.current) {
+      const t = (Math.sin((clock.elapsedTime * 2 * Math.PI) / GLOW_PERIOD_S) + 1) / 2;
+      intensity = GLOW_MIN + (GLOW_MAX - GLOW_MIN) * t;
+      scale = 1 + (GLOW_PEAK_SCALE - 1) * t;
+    }
+    meshes.forEach((m) => {
+      const mat = m.material as THREE.MeshPhysicalMaterial;
+      mat.emissive.set(m.userData.originalColor as string);
+      mat.emissiveIntensity = intensity;
+      m.scale.setScalar(scale);
+    });
+  });
 
   // ---- Camera view mode ---------------------------------------------------
   const cameraKey = cameraPosition?.join(",") ?? "";
@@ -674,7 +797,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask, cameraPosition, cameraResetKey }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask, cameraPosition, cameraResetKey, spotStickers, glowActive }: CubeSceneProps) {
   return (
     <Canvas
       flat
@@ -693,6 +816,8 @@ export function CubeScene({ interactive, cubeState, visibleCubies, onReady, view
         stickerMask={stickerMask}
         cameraPosition={cameraPosition}
         cameraResetKey={cameraResetKey}
+        spotStickers={spotStickers}
+        glowActive={glowActive}
       />
     </Canvas>
   );

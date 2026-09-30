@@ -4,6 +4,12 @@ export interface Arrow {
   color?: string;
 }
 
+/** One sticker on the cube: `piece` is the cubie's identity key ("x,y,z", same as visibleCubies), `color` its original color name. */
+export interface SpotSticker {
+  piece: string;
+  color: string;
+}
+
 export interface Substep {
   id: string;
   title: string;
@@ -20,6 +26,8 @@ export interface Substep {
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
   cameraPosition?: [number, number, number];
+  /** Stickers that glow on the 3D cube to show what howToSpot refers to */
+  spotStickers?: SpotSticker[];
 }
 
 export type StickerMask = "oll" | "oll-edges";

@@ -81,6 +81,7 @@ export function TutorialLayout({
             whiteOnTop={activeSubstep.whiteOnTop}
             stickerMask={activeSubstep.stickerMask}
             cameraPosition={activeSubstep.cameraPosition}
+            spotStickers={activeSubstep.spotStickers}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
               ? { visibleCubies: activeSubstep.visibleCubies }
               : {})}

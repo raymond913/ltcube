@@ -12,6 +12,8 @@ interface HowToSpotTipProps {
   label: string;
   /** Accent color for the open state */
   color: string;
+  /** Optional second line, e.g. the glowing-stickers note */
+  note?: string;
 }
 
 /**
@@ -22,7 +24,7 @@ interface HowToSpotTipProps {
  * Closes on Escape, on a press outside, and when the mouse leaves.
  * Render it as a sibling of the card button (never inside it).
  */
-export function HowToSpotTip({ text, label, color }: HowToSpotTipProps) {
+export function HowToSpotTip({ text, label, color, note }: HowToSpotTipProps) {
   const tipId = useId();
   const wrapRef = useRef<HTMLSpanElement>(null);
   const [hovered, setHovered] = useState(false);
@@ -111,6 +113,11 @@ export function HowToSpotTip({ text, label, color }: HowToSpotTipProps) {
           }}
         >
           {text}
+          {note && (
+            <span className="mt-1.5 block font-medium" style={{ color }}>
+              {note}
+            </span>
+          )}
         </span>
       )}
     </span>

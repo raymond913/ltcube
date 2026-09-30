@@ -28,7 +28,9 @@ const TYPE_COLORS = {
   pll: { color: "#7C3AED", bg: "rgba(124,58,237,0.07)", border: "rgba(124,58,237,0.22)" },
 };
 
-function HowToSpotCallout({ text }: { text: string }) {
+const GLOW_NOTE = "The glowing stickers on the cube show what to look for.";
+
+function HowToSpotCallout({ text, note }: { text: string; note?: string }) {
   return (
     <div
       className="rounded-lg px-3 py-2.5"
@@ -43,6 +45,11 @@ function HowToSpotCallout({ text }: { text: string }) {
       <p className="text-sm leading-relaxed" style={{ color: "#1E3A8A" }}>
         {text}
       </p>
+      {note && (
+        <p className="mt-1.5 text-xs font-medium" style={{ color: "#2563EB" }}>
+          {note}
+        </p>
+      )}
     </div>
   );
 }
@@ -116,6 +123,7 @@ export function AlgorithmCasePage({
             stickerMask={activeSubstep.stickerMask}
             visibleCubies={activeSubstep.visibleCubies}
             cameraPosition={activeSubstep.cameraPosition}
+            spotStickers={activeSubstep.spotStickers}
           />
 
           {/* Active-case explanation */}
@@ -133,7 +141,12 @@ export function AlgorithmCasePage({
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
-            {activeSubstep.howToSpot && <HowToSpotCallout text={activeSubstep.howToSpot} />}
+            {activeSubstep.howToSpot && (
+              <HowToSpotCallout
+                text={activeSubstep.howToSpot}
+                note={activeSubstep.spotStickers?.length ? GLOW_NOTE : undefined}
+              />
+            )}
             {activeSubstep.algorithm && (
               <code
                 className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
@@ -247,6 +260,7 @@ export function AlgorithmCasePage({
                           text={sub.howToSpot}
                           label={`How to spot ${caseName}`}
                           color={typeTheme.color}
+                          note={sub.spotStickers?.length ? GLOW_NOTE : undefined}
                         />
                       )}
                       </div>
@@ -272,7 +286,12 @@ export function AlgorithmCasePage({
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
-            {activeSubstep.howToSpot && <HowToSpotCallout text={activeSubstep.howToSpot} />}
+            {activeSubstep.howToSpot && (
+              <HowToSpotCallout
+                text={activeSubstep.howToSpot}
+                note={activeSubstep.spotStickers?.length ? GLOW_NOTE : undefined}
+              />
+            )}
             {activeSubstep.algorithm && (
               <code
                 className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"

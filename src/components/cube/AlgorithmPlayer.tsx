@@ -11,7 +11,7 @@ import {
 } from "@/lib/cubeEngine";
 import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import type { Arrow, StickerMask } from "@/lib/tutorialTypes";
+import type { Arrow, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -57,6 +57,7 @@ interface AlgorithmPlayerProps {
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
   cameraPosition?: [number, number, number];
+  spotStickers?: SpotSticker[];
 }
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
@@ -74,6 +75,7 @@ export function AlgorithmPlayer({
   whiteOnTop,
   stickerMask,
   cameraPosition,
+  spotStickers,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const { cubeStyle, setCubeStyle } = usePreferencesStore();
@@ -94,6 +96,8 @@ export function AlgorithmPlayer({
   const { snapshots, moves } = playback;
 
   const showTeachingState = !isPlaying && (currentStep === 0 || currentStep >= moves.length);
+  // Recognition glow: only at move 0, and off as soon as play or a step starts.
+  const glowActive = currentStep === 0 && !isPlaying && !isAnimating;
 
   const stepFiredRef = useRef(false);
 
@@ -263,6 +267,8 @@ export function AlgorithmPlayer({
           stickerMask={stickerMask}
           cameraPosition={cameraPosition}
           cameraResetKey={cameraResetKey}
+          spotStickers={spotStickers}
+          glowActive={glowActive}
         />
         {showViewToggle && (
           <button
