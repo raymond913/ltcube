@@ -56,6 +56,7 @@ interface AlgorithmPlayerProps {
   arrows?: Arrow[];
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
+  cameraPosition?: [number, number, number];
 }
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
@@ -72,10 +73,12 @@ export function AlgorithmPlayer({
   arrows,
   whiteOnTop,
   stickerMask,
+  cameraPosition,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const { cubeStyle, setCubeStyle } = usePreferencesStore();
   const [viewMode, setViewMode] = useState<"default" | "white-up">(whiteOnTop ? "white-up" : "default");
+  const [cameraResetKey, setCameraResetKey] = useState(0);
 
   const [playback, setPlayback] = useState(() => {
     const initFaces = initialStateAlg !== undefined
@@ -167,6 +170,7 @@ export function AlgorithmPlayer({
     setIsPlaying(false);
     setCurrentStep(0);
     stepFiredRef.current = false;
+    setCameraResetKey((k) => k + 1);
     if (initialStateAlg !== undefined) {
       useCubeStore.getState().applyInstant(initialStateAlg);
     } else {
@@ -257,6 +261,8 @@ export function AlgorithmPlayer({
           viewMode={viewMode}
           arrows={showTeachingState ? arrows : undefined}
           stickerMask={stickerMask}
+          cameraPosition={cameraPosition}
+          cameraResetKey={cameraResetKey}
         />
         {showViewToggle && (
           <button

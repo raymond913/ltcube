@@ -43,6 +43,10 @@ interface CubeViewerProps {
   whiteOnTop?: boolean;
   /** OLL display mask: only yellow stickers stay coloured */
   stickerMask?: StickerMask;
+  /** Initial camera position; Reset / default view return here (default [4, 3, 4]) */
+  cameraPosition?: [number, number, number];
+  /** Bump to animate the camera back to cameraPosition */
+  cameraResetKey?: number;
 }
 
 const cubeUnavailableFallback = (
@@ -68,6 +72,8 @@ export function CubeViewer({
   arrows,
   whiteOnTop,
   stickerMask,
+  cameraPosition,
+  cameraResetKey,
 }: CubeViewerProps) {
   const [webglOk, setWebglOk] = useState<boolean | null>(null);
 
@@ -93,6 +99,8 @@ export function CubeViewer({
             arrows={arrows}
             whiteOnTop={whiteOnTop}
             stickerMask={stickerMask}
+            cameraPosition={cameraPosition}
+            cameraResetKey={cameraResetKey}
           />
         </WebGLErrorBoundary>
       )}

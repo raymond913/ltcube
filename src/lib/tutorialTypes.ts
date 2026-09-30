@@ -19,6 +19,7 @@ export interface Substep {
   arrows?: Arrow[];
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
+  cameraPosition?: [number, number, number];
 }
 
 export type StickerMask = "oll" | "oll-edges";

@@ -398,9 +398,13 @@ interface CubeSceneProps {
   arrows?: Arrow[];
   whiteOnTop?: boolean;
   stickerMask?: StickerMask;
+  cameraPosition?: [number, number, number];
+  cameraResetKey?: number;
 }
 
-function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTop, stickerMask }: CubeSceneProps) {
+const DEFAULT_CAMERA: [number, number, number] = [4, 3, 4];
+
+function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMask, cameraPosition, cameraResetKey }: CubeSceneProps) {
   const { scene, camera } = useThree();
   const orbitRef = useRef<any>(null);
 
@@ -615,18 +619,18 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
   }, [visibleCubies, stickerMask]);
 
   // ---- Camera view mode ---------------------------------------------------
+  const cameraKey = cameraPosition?.join(",") ?? "";
   useEffect(() => {
-    const isWhiteUp = whiteOnTop || viewMode === "white-up";
-    const [tx, ty, tz] = isWhiteUp ? [4, 3, 4] : [4, 3, 4];
-    const [ux, uy, uz] = [0, 1, 0];
-    camera.up.set(ux, uy, uz);
+    const [tx, ty, tz] = cameraPosition ?? DEFAULT_CAMERA;
+    camera.up.set(0, 1, 0);
     gsap.to(camera.position, {
       x: tx, y: ty, z: tz,
       duration: 0.6,
       ease: "power2.inOut",
       onUpdate: () => { orbitRef.current?.update(); },
     });
-  }, [viewMode, camera]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode, camera, cameraKey, cameraResetKey]);
 
   return (
     <>
@@ -670,11 +674,11 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask, cameraPosition, cameraResetKey }: CubeSceneProps) {
   return (
     <Canvas
       flat
-      camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
+      camera={{ position: cameraPosition ?? DEFAULT_CAMERA, fov: 42, near: 0.1, far: 100 }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 2]}
       onCreated={() => onReady?.()}
@@ -687,6 +691,8 @@ export function CubeScene({ interactive, cubeState, visibleCubies, onReady, view
         arrows={arrows}
         whiteOnTop={whiteOnTop}
         stickerMask={stickerMask}
+        cameraPosition={cameraPosition}
+        cameraResetKey={cameraResetKey}
       />
     </Canvas>
   );

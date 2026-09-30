@@ -305,10 +305,34 @@ describe("twoLookPll — structure", () => {
     });
   });
 
-  it("highlightPieces is an array (PLL cases intentionally leave it empty — no visibleCubies ghosting)", () => {
+  it("highlightPieces is an array (PLL cases leave it empty; the gray mask uses visibleCubies)", () => {
     twoLookPll.substeps.forEach((s) => {
       expect(Array.isArray(s.highlightPieces)).toBe(true);
       s.highlightPieces.forEach((p) => expect(p.length).toBeGreaterThan(0));
+    });
+  });
+
+  it("visibleCubies keeps only the top layer and the 4 side centers in color", () => {
+    const expected = [
+      "-1,1,-1", "0,1,-1", "1,1,-1", "-1,1,0", "0,1,0", "1,1,0", "-1,1,1", "0,1,1", "1,1,1",
+      "-1,0,0", "1,0,0", "0,0,-1", "0,0,1",
+    ].sort();
+    twoLookPll.substeps.forEach((s) => {
+      expect([...(s.visibleCubies ?? [])].sort()).toEqual(expected);
+    });
+  });
+
+  it("cameraPosition is a view from above at the default distance", () => {
+    twoLookPll.substeps.forEach((s) => {
+      expect(s.cameraPosition).toBeDefined();
+      const [x, y, z] = s.cameraPosition!;
+      expect([Math.abs(x), y, Math.abs(z)]).toEqual([4, 3, 4]);
+    });
+  });
+
+  it("every substep has a how-to-spot hint", () => {
+    twoLookPll.substeps.forEach((s) => {
+      expect((s.howToSpot ?? "").length).toBeGreaterThan(0);
     });
   });
 });

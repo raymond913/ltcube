@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AlgorithmPlayer } from "@/components/cube/AlgorithmPlayer";
 import { CaseRecognition } from "./CaseRecognition";
+import { HowToSpotTip } from "./HowToSpotTip";
 import { useProgressStore } from "@/stores/progressStore";
 import { BEGINNER_STEPS } from "@/data/beginner";
 import type { TutorialStep, StepMeta, Substep } from "@/lib/tutorialTypes";
@@ -26,6 +27,25 @@ const TYPE_COLORS = {
   oll: { color: "#B45309", bg: "rgba(180,83,9,0.07)", border: "rgba(180,83,9,0.22)" },
   pll: { color: "#7C3AED", bg: "rgba(124,58,237,0.07)", border: "rgba(124,58,237,0.22)" },
 };
+
+function HowToSpotCallout({ text }: { text: string }) {
+  return (
+    <div
+      className="rounded-lg px-3 py-2.5"
+      style={{
+        background: "rgba(37,99,235,0.06)",
+        border: "1px solid rgba(37,99,235,0.18)",
+      }}
+    >
+      <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "#2563EB" }}>
+        How to spot this
+      </p>
+      <p className="text-sm leading-relaxed" style={{ color: "#1E3A8A" }}>
+        {text}
+      </p>
+    </div>
+  );
+}
 
 export function AlgorithmCasePage({
   stepData,
@@ -94,6 +114,8 @@ export function AlgorithmCasePage({
             initialStateAlg={activeSubstep.initialState}
             title={activeSubstep.algorithmName ?? activeSubstep.title}
             stickerMask={activeSubstep.stickerMask}
+            visibleCubies={activeSubstep.visibleCubies}
+            cameraPosition={activeSubstep.cameraPosition}
           />
 
           {/* Active-case explanation */}
@@ -111,6 +133,7 @@ export function AlgorithmCasePage({
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
+            {activeSubstep.howToSpot && <HowToSpotCallout text={activeSubstep.howToSpot} />}
             {activeSubstep.algorithm && (
               <code
                 className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
@@ -178,11 +201,12 @@ export function AlgorithmCasePage({
                 >
                   {sectionSubsteps.map((sub) => {
                     const isActive = sub.id === activeId;
+                    const caseName = sub.algorithmName ?? sub.title;
                     return (
+                      <div key={sub.id} className="relative">
                       <button
-                        key={sub.id}
                         onClick={() => setActiveId(sub.id)}
-                        className={`flex flex-col items-center gap-2 rounded-xl p-3 text-left transition-[transform,box-shadow,border-color,background] duration-150 ${!isActive ? "ltc-hover-lift-bordered" : ""}`}
+                        className={`flex h-full w-full flex-col items-center gap-2 rounded-xl p-3 text-left transition-[transform,box-shadow,border-color,background] duration-150 ${!isActive ? "ltc-hover-lift-bordered" : ""}`}
                         style={{
                           background: isActive ? typeTheme.bg : "var(--color-surface-elevated)",
                           border: `1px solid ${isActive ? typeTheme.border : "var(--color-border)"}`,
@@ -203,7 +227,7 @@ export function AlgorithmCasePage({
                           className="text-xs font-semibold leading-tight text-center"
                           style={{ color: isActive ? typeTheme.color : "oklch(40% 0.01 250)" }}
                         >
-                          {sub.algorithmName ?? sub.title}
+                          {caseName}
                         </span>
 
                         {/* Algorithm preview */}
@@ -218,6 +242,14 @@ export function AlgorithmCasePage({
                           </code>
                         )}
                       </button>
+                      {sub.howToSpot && (
+                        <HowToSpotTip
+                          text={sub.howToSpot}
+                          label={`How to spot ${caseName}`}
+                          color={typeTheme.color}
+                        />
+                      )}
+                      </div>
                     );
                   })}
                 </div>
@@ -240,6 +272,7 @@ export function AlgorithmCasePage({
             <p className="text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {activeSubstep.explanation}
             </p>
+            {activeSubstep.howToSpot && <HowToSpotCallout text={activeSubstep.howToSpot} />}
             {activeSubstep.algorithm && (
               <code
                 className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
