@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useProgressStore } from "@/stores/progressStore";
+import { twoLookOll, twoLookPll } from "@/data/beginner";
 
 const STEPS = [
   { id: "cross",          title: "White Cross",         route: "/learn/cross",        color: "#2563EB",  bg: "rgba(37,99,235,0.07)"   },
@@ -11,27 +12,8 @@ const STEPS = [
   { id: "two-look-pll",   title: "2-Look PLL",          route: "/learn/pll",          color: "#7C3AED",  bg: "rgba(124,58,237,0.07)"  },
 ];
 
-const OLL_CASES = [
-  { id: "oll-dot",      title: "Dot"       },
-  { id: "oll-l-shape",  title: "L Shape"   },
-  { id: "oll-line",     title: "Line"      },
-  { id: "oll-sune",     title: "Sune"      },
-  { id: "oll-antisune", title: "Anti-Sune" },
-  { id: "oll-h",        title: "H"         },
-  { id: "oll-pi",       title: "Pi"        },
-  { id: "oll-u",        title: "U"         },
-  { id: "oll-t",        title: "T"         },
-  { id: "oll-l",        title: "L"         },
-];
-
-const PLL_CASES = [
-  { id: "pll-adjacent", title: "Adjacent" },
-  { id: "pll-diagonal", title: "Diagonal" },
-  { id: "pll-ua",       title: "Ua"       },
-  { id: "pll-ub",       title: "Ub"       },
-  { id: "pll-h",        title: "H"        },
-  { id: "pll-z",        title: "Z"        },
-];
+const OLL_CASES = twoLookOll.substeps.map((s) => ({ id: s.id, title: s.algorithmName ?? s.title }));
+const PLL_CASES = twoLookPll.substeps.map((s) => ({ id: s.id, title: s.algorithmName ?? s.title }));
 
 function AccuracyChart({ sessions }: { sessions: { date: string; accuracy: number }[] }) {
   if (sessions.length < 2) return null;

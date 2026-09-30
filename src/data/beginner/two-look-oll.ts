@@ -31,7 +31,7 @@ export const twoLookOll: TutorialStep = {
       algorithm: "F U R U' R' F'",
       algorithmName: "L-Shape",
       initialState: "F R U R' U' F'",
-      highlightPieces: ["UF", "UR"],
+      highlightPieces: ["UB", "UL"],
       stickerMask: "oll-edges",
     },
     {

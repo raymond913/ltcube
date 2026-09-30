@@ -68,8 +68,8 @@ interface ArrowDef {
 }
 
 const PLL_ARROWS: Record<string, ArrowDef[]> = {
-  "pll-adj":  [{ from: [0, 2], to: [2, 2], swap: true }],
-  "pll-diag": [{ from: [0, 0], to: [2, 2], swap: true }],
+  "pll-headlights":    [{ from: [0, 2], to: [2, 2], swap: true }],
+  "pll-no-headlights": [{ from: [0, 0], to: [2, 2], swap: true }],
   "pll-ua":   [
     { from: [2, 1], to: [1, 0] },
     { from: [1, 0], to: [1, 2] },
