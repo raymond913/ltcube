@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { CubeFaces } from "@/lib/cubeEngine";
-import type { Arrow } from "@/lib/tutorialTypes";
+import type { Arrow, StickerMask } from "@/lib/tutorialTypes";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
 import { canUseWebGL } from "@/lib/webgl";
 
@@ -41,6 +41,8 @@ interface CubeViewerProps {
   arrows?: Arrow[];
   /** When true, orient the scene so white is on top */
   whiteOnTop?: boolean;
+  /** OLL display mask: only yellow stickers stay coloured */
+  stickerMask?: StickerMask;
 }
 
 const cubeUnavailableFallback = (
@@ -65,6 +67,7 @@ export function CubeViewer({
   viewMode,
   arrows,
   whiteOnTop,
+  stickerMask,
 }: CubeViewerProps) {
   const [webglOk, setWebglOk] = useState<boolean | null>(null);
 
@@ -89,6 +92,7 @@ export function CubeViewer({
             viewMode={viewMode}
             arrows={arrows}
             whiteOnTop={whiteOnTop}
+            stickerMask={stickerMask}
           />
         </WebGLErrorBoundary>
       )}

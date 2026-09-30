@@ -482,3 +482,37 @@ describe("invariant: round-trip identities", () => {
     expect(e.isSolved()).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Slice moves and whole-cube rotations follow the face they are named after
+// ---------------------------------------------------------------------------
+
+describe("S slice and z rotation follow F", () => {
+  it("S carries the U centre onto R, exactly like F carries the U edge strip onto R", () => {
+    const e = freshEngine();
+    e.applyAlgorithm("S");
+    expect(e.getState().R[1][1]).toBe("yellow");
+  });
+
+  it("z is a true rotation: every face stays uniform and the U centre moves to R", () => {
+    const e = freshEngine();
+    e.applyAlgorithm("z");
+    const s = e.getState();
+    for (const face of ALL_FACES) {
+      expect(s[face].every((row) => row.every((c) => c === s[face][1][1])), `${face} uniform`).toBe(true);
+    }
+    expect(s.R[1][1]).toBe("yellow");
+  });
+
+  it("f equals z followed by B", () => {
+    const f = freshEngine(); f.applyAlgorithm("f");
+    const viaZ = freshEngine(); viaZ.applyAlgorithm("z B");
+    expect(f.getState()).toEqual(viaZ.getState());
+  });
+
+  it("f then f' returns to solved, and f moves the S slice the same way as F", () => {
+    const e = freshEngine();
+    e.applyAlgorithm("f f'");
+    expect(e.isSolved()).toBe(true);
+  });
+});

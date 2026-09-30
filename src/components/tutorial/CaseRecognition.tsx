@@ -1,5 +1,8 @@
 "use client";
 
+import { CubeEngine } from "@/lib/cubeEngine";
+import { twoLookOll } from "@/data/beginner/two-look-oll";
+
 // 80×80 SVG top-face diagram
 // Layout: padding=6, cellSize=20, gap=4  →  6+(20+4)×3−4+6 = 80 ✓
 const S = 80;
@@ -20,23 +23,42 @@ function gy(row: number) { return PAD + row * (CELL + GAP); }
 function gcx(col: number) { return gx(col) + CELL / 2; }
 function gcy(row: number) { return gy(row) + CELL / 2; }
 
-// OLL: [row][col] = true means that sticker faces yellow up
-// Row 0 = back (UBL, UB, UBR)
-// Row 1 = mid  (UL,  U,  UR)
-// Row 2 = front(UFL, UF, UFR)
-const Y = true, N = false;
-const OLL_PATTERNS: Record<string, boolean[][]> = {
-  "oll-dot":      [[N,N,N],[N,Y,N],[N,N,N]],
-  "oll-l-shape":  [[N,N,N],[N,Y,Y],[N,Y,N]], // center + UR + UF
-  "oll-line":     [[N,N,N],[Y,Y,Y],[N,N,N]], // center + UL + UR
-  "oll-h":        [[N,Y,N],[Y,Y,Y],[N,Y,N]], // cross only
-  "oll-sune":     [[N,Y,N],[Y,Y,Y],[N,Y,Y]], // cross + UFR
-  "oll-antisune": [[N,Y,N],[Y,Y,Y],[Y,Y,N]], // cross + UFL (mirror of sune)
-  "oll-pi":       [[Y,Y,Y],[Y,Y,Y],[N,Y,N]], // cross + UBL + UBR
-  "oll-u":        [[N,Y,Y],[Y,Y,Y],[Y,Y,N]], // cross + UBR + UFL diagonal
-  "oll-t":        [[Y,Y,N],[Y,Y,Y],[N,Y,Y]], // cross + UBL + UFR diagonal
-  "oll-l":        [[N,Y,N],[Y,Y,Y],[Y,Y,Y]], // cross + UFL + UFR (front pair)
-};
+// OLL diagrams are derived from the real cube state: apply the case's
+// initialState in the engine, then read the top face and the four rows of
+// side stickers that belong to the top layer.
+interface OllDiagram {
+  top: boolean[][];   // [row][col], row 0 = back, col 0 = left
+  back: boolean[];    // left -> right
+  front: boolean[];   // left -> right
+  left: boolean[];    // back -> front
+  right: boolean[];   // back -> front
+}
+
+const ollDiagramCache = new Map<string, OllDiagram | null>();
+
+function buildOllDiagram(substepId: string): OllDiagram | null {
+  if (ollDiagramCache.has(substepId)) return ollDiagramCache.get(substepId)!;
+  const sub = twoLookOll.substeps.find((s) => s.id === substepId);
+  if (!sub) { ollDiagramCache.set(substepId, null); return null; }
+
+  const engine = new CubeEngine();
+  engine.applyAlgorithm(sub.initialState);
+  const st = engine.getState();
+  const isY = (c: string) => c === "yellow";
+  const edgesOnly = sub.stickerMask === "oll-edges";
+  const corner = (r: number, c: number) => (r === 0 || r === 2) && (c === 0 || c === 2);
+  const along = (i: number) => i === 0 || i === 2; // corner position along a side strip
+
+  const diagram: OllDiagram = {
+    top: [0, 1, 2].map((r) => [0, 1, 2].map((c) => isY(st.U[r][c]) && !(edgesOnly && corner(r, c)))),
+    back:  [st.B[0][2], st.B[0][1], st.B[0][0]].map((c, i) => isY(c) && !(edgesOnly && along(i))),
+    front: [st.F[0][0], st.F[0][1], st.F[0][2]].map((c, i) => isY(c) && !(edgesOnly && along(i))),
+    left:  [st.L[0][0], st.L[0][1], st.L[0][2]].map((c, i) => isY(c) && !(edgesOnly && along(i))),
+    right: [st.R[0][2], st.R[0][1], st.R[0][0]].map((c, i) => isY(c) && !(edgesOnly && along(i))),
+  };
+  ollDiagramCache.set(substepId, diagram);
+  return diagram;
+}
 
 // PLL arrows: from/to in [row, col] grid coordinates
 interface ArrowDef {
@@ -95,23 +117,37 @@ interface Props {
 }
 
 export function CaseRecognition({ substepId, type, size = 80 }: Props) {
-  // OLL: color cells yellow or gray based on the pattern
+  // OLL: top-face cells plus a thin bar per side sticker, all read from the engine state
   if (type === "oll") {
-    const pattern = OLL_PATTERNS[substepId];
-    if (!pattern) return null;
+    const d = buildOllDiagram(substepId);
+    if (!d) return null;
+    const BAR = 3.5;
+    const fill = (yellow: boolean) => (yellow ? YELLOW : GRAY);
     return (
       <svg width={size} height={size} viewBox={`0 0 ${S} ${S}`} style={{ display: "block" }}>
-        {pattern.flatMap((row, r) =>
+        {d.top.flatMap((row, r) =>
           row.map((yellow, c) => (
             <rect
               key={`${r}-${c}`}
               x={gx(c)} y={gy(r)}
               width={CELL} height={CELL}
               rx={3}
-              fill={yellow ? YELLOW : GRAY}
+              fill={fill(yellow)}
             />
           )),
         )}
+        {d.back.map((y, c) => (
+          <rect key={`b${c}`} x={gx(c) + 2} y={1} width={CELL - 4} height={BAR} rx={1.2} fill={fill(y)} />
+        ))}
+        {d.front.map((y, c) => (
+          <rect key={`f${c}`} x={gx(c) + 2} y={S - 1 - BAR} width={CELL - 4} height={BAR} rx={1.2} fill={fill(y)} />
+        ))}
+        {d.left.map((y, r) => (
+          <rect key={`l${r}`} x={1} y={gy(r) + 2} width={BAR} height={CELL - 4} rx={1.2} fill={fill(y)} />
+        ))}
+        {d.right.map((y, r) => (
+          <rect key={`r${r}`} x={S - 1 - BAR} y={gy(r) + 2} width={BAR} height={CELL - 4} rx={1.2} fill={fill(y)} />
+        ))}
       </svg>
     );
   }

@@ -11,7 +11,7 @@ import {
 } from "@/lib/cubeEngine";
 import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
-import type { Arrow } from "@/lib/tutorialTypes";
+import type { Arrow, StickerMask } from "@/lib/tutorialTypes";
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -55,6 +55,7 @@ interface AlgorithmPlayerProps {
   showViewToggle?: boolean;
   arrows?: Arrow[];
   whiteOnTop?: boolean;
+  stickerMask?: StickerMask;
 }
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const;
@@ -70,6 +71,7 @@ export function AlgorithmPlayer({
   showViewToggle,
   arrows,
   whiteOnTop,
+  stickerMask,
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const { cubeStyle, setCubeStyle } = usePreferencesStore();
@@ -254,6 +256,7 @@ export function AlgorithmPlayer({
           visibleCubies={visibleCubies}
           viewMode={viewMode}
           arrows={showTeachingState ? arrows : undefined}
+          stickerMask={stickerMask}
         />
         {showViewToggle && (
           <button

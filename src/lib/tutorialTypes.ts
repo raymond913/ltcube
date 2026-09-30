@@ -18,7 +18,10 @@ export interface Substep {
   solutionMoves?: string;
   arrows?: Arrow[];
   whiteOnTop?: boolean;
+  stickerMask?: StickerMask;
 }
+
+export type StickerMask = "oll" | "oll-edges";
 
 export interface TutorialStep {
   id: string;

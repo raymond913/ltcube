@@ -17,7 +17,7 @@ import {
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import { CubeEngine, parseAlgorithm } from "@/lib/cubeEngine";
 import type { CubeFaces } from "@/lib/cubeEngine";
-import type { Arrow } from "@/lib/tutorialTypes";
+import type { Arrow, StickerMask } from "@/lib/tutorialTypes";
 import { MoveArrow, TargetSlot } from "./MoveArrow";
 
 // ---------------------------------------------------------------------------
@@ -51,6 +51,7 @@ const FACE_COLORS: Record<string, string> = {
 
 const BODY_COLOR    = "#111111";
 const GHOST_BODY    = "#3A3A3A";
+const MASK_GRAY     = "#52525B";
 
 /** All 26 visible cubie positions (every {-1,0,1}³ excluding origin). */
 export const CUBIE_POSITIONS: Vec3[] = [];
@@ -355,11 +356,13 @@ export function applyAppearance(
   cubies: THREE.Group[],
   visibleKeys: Set<string>,
   style: "stickered" | "stickerless",
+  stickerMask?: StickerMask,
 ): void {
   cubies.forEach((cubie, idx) => {
     const [x, y, z] = CUBIE_POSITIONS[idx];
     const key = `${x},${y},${z}`;
     const isVisible = visibleKeys.size === 0 || visibleKeys.has(key);
+    const isTopCorner = y === 1 && x !== 0 && z !== 0;
     cubie.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
       const mat = obj.material as THREE.MeshPhysicalMaterial;
@@ -368,7 +371,12 @@ export function applyAppearance(
         mat.opacity = 1;
         mat.transparent = false;
       } else {
-        mat.color.set((obj.userData.originalColor as string) ?? BODY_COLOR);
+        let color = (obj.userData.originalColor as string) ?? BODY_COLOR;
+        if (stickerMask && obj.userData.isSticker) {
+          const isYellow = color.toUpperCase() === FACE_COLORS.U.toUpperCase();
+          if (!isYellow || (stickerMask === "oll-edges" && isTopCorner)) color = MASK_GRAY;
+        }
+        mat.color.set(color);
         mat.opacity = 1;
         mat.transparent = false;
       }
@@ -389,9 +397,10 @@ interface CubeSceneProps {
   viewMode?: "default" | "white-up";
   arrows?: Arrow[];
   whiteOnTop?: boolean;
+  stickerMask?: StickerMask;
 }
 
-function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTop }: CubeSceneProps) {
+function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTop, stickerMask }: CubeSceneProps) {
   const { scene, camera } = useThree();
   const orbitRef = useRef<any>(null);
 
@@ -402,6 +411,9 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
 
   const visibleCubiesRef = useRef<string[]>([]);
   visibleCubiesRef.current = visibleCubies ?? [];
+
+  const stickerMaskRef = useRef<StickerMask | undefined>(stickerMask);
+  stickerMaskRef.current = stickerMask;
 
   const cubeStyle = usePreferencesStore((s) => s.cubeStyle);
   const cubeStyleRef = useRef(cubeStyle);
@@ -439,7 +451,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
     cubeStyleRef.current = cubeStyle;
     if (cubiesRef.current.length) {
       applyCubeStyle(cubiesRef.current, cubeStyle);
-      applyAppearance(cubiesRef.current, new Set(visibleCubiesRef.current), cubeStyle);
+      applyAppearance(cubiesRef.current, new Set(visibleCubiesRef.current), cubeStyle, stickerMaskRef.current);
     }
   }, [cubeStyle]);
 
@@ -542,7 +554,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
         moveLogRef.current = [];
       }
 
-      applyAppearance(cubies, new Set(visibleCubiesRef.current), cubeStyleRef.current);
+      applyAppearance(cubies, new Set(visibleCubiesRef.current), cubeStyleRef.current, stickerMaskRef.current);
     };
 
     const hadPending = useCubeStore.getState().pendingInstantAlg !== null;
@@ -598,9 +610,9 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
   // ---- Appearance: visibleCubies changes ----------------------------------
   useEffect(() => {
     if (cubiesRef.current.length) {
-      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []), cubeStyleRef.current);
+      applyAppearance(cubiesRef.current, new Set(visibleCubies ?? []), cubeStyleRef.current, stickerMask);
     }
-  }, [visibleCubies]);
+  }, [visibleCubies, stickerMask]);
 
   // ---- Camera view mode ---------------------------------------------------
   useEffect(() => {
@@ -658,7 +670,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, whiteOnTo
 // Public export
 // ---------------------------------------------------------------------------
 
-export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop }: CubeSceneProps) {
+export function CubeScene({ interactive, cubeState, visibleCubies, onReady, viewMode, arrows, whiteOnTop, stickerMask }: CubeSceneProps) {
   return (
     <Canvas
       flat
@@ -674,6 +686,7 @@ export function CubeScene({ interactive, cubeState, visibleCubies, onReady, view
         viewMode={viewMode}
         arrows={arrows}
         whiteOnTop={whiteOnTop}
+        stickerMask={stickerMask}
       />
     </Canvas>
   );

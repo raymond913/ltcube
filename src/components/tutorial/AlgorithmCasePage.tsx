@@ -93,6 +93,7 @@ export function AlgorithmCasePage({
             algorithm={algorithmToPlay}
             initialStateAlg={activeSubstep.initialState}
             title={activeSubstep.algorithmName ?? activeSubstep.title}
+            stickerMask={activeSubstep.stickerMask}
           />
 
           {/* Active-case explanation */}

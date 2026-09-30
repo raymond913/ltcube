@@ -511,9 +511,9 @@ export class CubeEngine {
   // S slice strips (between F and B): same direction as F
   private static S_STRIPS: Sticker[][] = [
     [["U", 1, 0], ["U", 1, 1], ["U", 1, 2]],
-    [["R", 0, 1], ["R", 1, 1], ["R", 2, 1]],
-    [["D", 1, 2], ["D", 1, 1], ["D", 1, 0]],
     [["L", 2, 1], ["L", 1, 1], ["L", 0, 1]],
+    [["D", 1, 2], ["D", 1, 1], ["D", 1, 0]],
+    [["R", 0, 1], ["R", 1, 1], ["R", 2, 1]],
   ];
 
   private applyMiddleSliceRaw(slice: "M" | "E" | "S", inverse: boolean): void {

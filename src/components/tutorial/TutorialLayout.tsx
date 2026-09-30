@@ -79,6 +79,7 @@ export function TutorialLayout({
             showViewToggle={showViewToggle}
             arrows={activeSubstep.arrows}
             whiteOnTop={activeSubstep.whiteOnTop}
+            stickerMask={activeSubstep.stickerMask}
             {...(!showAlgorithmGrid && activeSubstep.visibleCubies
               ? { visibleCubies: activeSubstep.visibleCubies }
               : {})}

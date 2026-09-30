@@ -21,6 +21,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "Dot",
       initialState: "f U R U' R' f' F U R U' R' F'",
       highlightPieces: ["UF", "UB", "UL", "UR"],
+      stickerMask: "oll-edges",
     },
     {
       id: "oll-l-shape",
@@ -31,6 +32,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "L-Shape",
       initialState: "f U R U' R' f'",
       highlightPieces: ["UF", "UR"],
+      stickerMask: "oll-edges",
     },
     {
       id: "oll-line",
@@ -41,6 +43,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "Line",
       initialState: "F U R U' R' F'",
       highlightPieces: ["UL", "UR"],
+      stickerMask: "oll-edges",
     },
     {
       id: "oll-sune",
@@ -51,6 +54,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "Sune",
       initialState: "R U2 R' U' R U' R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
+      stickerMask: "oll",
     },
     {
       id: "oll-antisune",
@@ -61,6 +65,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "Anti-Sune",
       initialState: "R U R' U R U2 R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
+      stickerMask: "oll",
     },
     {
       id: "oll-h",
@@ -71,6 +76,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "H",
       initialState: "R U2 R' U' R U R' U' R U' R'",
       highlightPieces: ["UFR", "UFL", "UBL", "UBR"],
+      stickerMask: "oll",
     },
     {
       id: "oll-pi",
@@ -81,6 +87,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "Pi",
       initialState: "R' U2 R2 U R2 U R2 U2 R'",
       highlightPieces: ["UFR", "UBR"],
+      stickerMask: "oll",
     },
     {
       id: "oll-u",
@@ -91,6 +98,7 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "U",
       initialState: "R' U2 R' D' R U2 R' D R2",
       highlightPieces: ["UFL", "UBR"],
+      stickerMask: "oll",
     },
     {
       id: "oll-t",
@@ -101,16 +109,18 @@ export const twoLookOll: TutorialStep = {
       algorithmName: "T",
       initialState: "F R' F' r U R U' r'",
       highlightPieces: ["UFL", "UBR"],
+      stickerMask: "oll",
     },
     {
       id: "oll-l",
       title: "L (corners)",
       explanation: "The last corner case — the yellow corners form an L. These moves complete the all-yellow top.",
       howToSpot: "Yellow cross done, two yellow corners up on diagonal, forming an L.",
-      algorithm: "r U2 R' U' R U' r'",
+      algorithm: "F' r U R' U' r' F R",
       algorithmName: "L",
-      initialState: "r U R' U R U2 r'",
+      initialState: "R' F' r U R U' r' F",
       highlightPieces: ["UFR", "UBR"],
+      stickerMask: "oll",
     },
   ],
 };
