@@ -19,6 +19,12 @@ const TABS: { id: Tab; label: string; description: string }[] = [
   },
 ];
 
+// Solve Along is hidden for v1 (its cube can't be moved, and its stage tips
+// contradict the lessons). The component is kept; flip this to bring it back.
+const SOLVE_ALONG_ENABLED = false;
+
+const VISIBLE_TABS = TABS.filter((t) => t.id !== "solve-along" || SOLVE_ALONG_ENABLED);
+
 export default function TrainerPage() {
   const [tab, setTab] = useState<Tab>("pattern");
 
@@ -39,11 +45,14 @@ export default function TrainerPage() {
           Trainer
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--color-muted)" }}>
-          Drill pattern recognition and build solve speed.
+          {VISIBLE_TABS.length > 1
+            ? "Drill pattern recognition and build solve speed."
+            : "Drill pattern recognition: identify OLL and PLL cases from the 3D cube."}
         </p>
       </div>
 
-      {/* Tab switcher */}
+      {/* Tab switcher (only when there is more than one tab to switch between) */}
+      {VISIBLE_TABS.length > 1 && (
       <div
         className="flex rounded-2xl p-1 gap-1"
         style={{
@@ -51,7 +60,7 @@ export default function TrainerPage() {
           border: "1px solid var(--color-border)",
         }}
       >
-        {TABS.map((t) => {
+        {VISIBLE_TABS.map((t) => {
           const isActive = tab === t.id;
           return (
             <button
@@ -77,12 +86,13 @@ export default function TrainerPage() {
           );
         })}
       </div>
+      )}
 
       {/* Divider */}
       <div className="h-px" style={{ background: "var(--color-border)" }} />
 
       {/* Content */}
-      {tab === "pattern" ? <PatternTrainer /> : <SolveAlong />}
+      {tab === "solve-along" && SOLVE_ALONG_ENABLED ? <SolveAlong /> : <PatternTrainer />}
     </div>
   );
 }

@@ -213,7 +213,9 @@ export function HeroCube({ size = 300 }: HeroCubeProps) {
     <div style={{ width: size, height: size }}>
       <WebGLErrorBoundary fallback={heroCubeFallback}>
         <Canvas
-          camera={{ position: [4, 3, 4], fov: 42, near: 0.1, far: 100 }}
+          // Far enough back that the rotating cube's bounding sphere (radius ~2.54)
+          // always fits the 300px canvas: asin(2.54 / 7.7) is under half the 42° fov.
+          camera={{ position: [4.8, 3.6, 4.8], fov: 42, near: 0.1, far: 100 }}
           gl={{ alpha: true, antialias: true }}
           dpr={[1, 2]}
         >
