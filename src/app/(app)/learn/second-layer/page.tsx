@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { TutorialLayout } from "@/components/tutorial/TutorialLayout";
 import { secondLayer, BEGINNER_STEPS } from "@/data/beginner";
+import { LESSON_COPY } from "@/lib/lessonCopy";
+import { parseStepIndex } from "@/lib/stepParam";
+
+export const metadata: Metadata = { title: LESSON_COPY["second-layer"].name };
 
 export default async function SecondLayerPage({
   searchParams,
@@ -7,7 +12,7 @@ export default async function SecondLayerPage({
   searchParams: Promise<{ step?: string }>;
 }) {
   const { step } = await searchParams;
-  const initialSubstepIndex = step ? Math.max(0, parseInt(step) - 1) : 0;
+  const initialSubstepIndex = parseStepIndex(step, secondLayer.substeps.length);
   const stepMeta = BEGINNER_STEPS.find((s) => s.id === "second-layer")!;
 
   return (

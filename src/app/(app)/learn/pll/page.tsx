@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { AlgorithmCasePage, type SectionDef } from "@/components/tutorial/AlgorithmCasePage";
 import { twoLookPll, BEGINNER_STEPS } from "@/data/beginner";
+import { LESSON_COPY } from "@/lib/lessonCopy";
+import { parseStepIndex } from "@/lib/stepParam";
+
+export const metadata: Metadata = { title: LESSON_COPY["two-look-pll"].name };
 
 const PLL_SECTIONS: SectionDef[] = [
   {
@@ -27,7 +32,7 @@ export default async function PllPage({
   const initialActiveId = caseId
     ? caseId
     : step
-    ? twoLookPll.substeps[Math.max(0, parseInt(step, 10) - 1)]?.id
+    ? twoLookPll.substeps[parseStepIndex(step, twoLookPll.substeps.length)]?.id
     : undefined;
 
   return (

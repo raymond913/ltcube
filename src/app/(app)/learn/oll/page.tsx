@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { AlgorithmCasePage, type SectionDef } from "@/components/tutorial/AlgorithmCasePage";
 import { twoLookOll, BEGINNER_STEPS } from "@/data/beginner";
+import { LESSON_COPY } from "@/lib/lessonCopy";
+import { parseStepIndex } from "@/lib/stepParam";
+
+export const metadata: Metadata = { title: LESSON_COPY["two-look-oll"].name };
 
 const OLL_SECTIONS: SectionDef[] = [
   {
@@ -35,7 +40,7 @@ export default async function OllPage({
   const initialActiveId = caseId
     ? caseId
     : step
-    ? twoLookOll.substeps[Math.max(0, parseInt(step) - 1)]?.id
+    ? twoLookOll.substeps[parseStepIndex(step, twoLookOll.substeps.length)]?.id
     : undefined;
 
   return (

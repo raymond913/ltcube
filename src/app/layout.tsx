@@ -24,7 +24,10 @@ const firaCode = Fira_Code({
 });
 
 export const metadata: Metadata = {
-  title: "LTCube — Learn to Solve the Rubik's Cube",
+  title: {
+    default: "LTCube — Learn to Solve the Rubik's Cube",
+    template: "%s | LTCube",
+  },
   description:
     "Interactive 3D tutorials that teach the beginner layer-by-layer method for solving a 3x3 Rubik's Cube — step through every algorithm on a live 3D cube.",
   openGraph: {
