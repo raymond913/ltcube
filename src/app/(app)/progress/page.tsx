@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useProgressStore } from "@/stores/progressStore";
+import { useProgressStore, getEffectiveStreak } from "@/stores/progressStore";
 import { twoLookOll, twoLookPll } from "@/data/beginner";
 
 const STEPS = [
@@ -113,11 +113,13 @@ export default function ProgressPage() {
     completedSteps,
     learnedCases,
     trainerStats,
-    streakCount,
+    streakCount: storedStreak,
+    lastStreakDate,
     bestStreak,
     sessionHistory,
     activityDates,
   } = useProgressStore();
+  const streakCount = getEffectiveStreak(storedStreak, lastStreakDate);
 
   const completedCount = completedSteps.length;
   const accuracy = trainerStats.totalAnswers > 0

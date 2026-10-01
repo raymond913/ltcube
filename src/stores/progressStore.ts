@@ -20,6 +20,7 @@ interface ProgressState {
   trainerStats: TrainerStats;
   streakCount: number;
   bestStreak: number;
+  lastStreakDate: string | null;
   sessionHistory: SessionRecord[];
   activityDates: string[];
 
@@ -27,7 +28,7 @@ interface ProgressState {
   completeStep: (id: string) => void;
   markCaseLearned: (id: string) => void;
   recordTrainerSession: (correct: number, total: number, avgTime: number) => void;
-  updateStreak: () => void;
+  updateStreak: (now?: Date) => void;
   resetProgress: () => void;
 }
 
@@ -39,8 +40,31 @@ const defaultStats: TrainerStats = {
   lastSessionDate: null,
 };
 
+export function localDateKey(d: Date = new Date()): string {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function dayBefore(d: Date): Date {
+  const prev = new Date(d);
+  prev.setDate(prev.getDate() - 1);
+  return prev;
+}
+
+/** The streak to show: a streak only stays alive through today or yesterday. */
+export function getEffectiveStreak(
+  streakCount: number,
+  lastStreakDate: string | null,
+  now: Date = new Date(),
+): number {
+  if (!lastStreakDate) return 0;
+  const alive = lastStreakDate === localDateKey(now) || lastStreakDate === localDateKey(dayBefore(now));
+  return alive ? streakCount : 0;
+}
+
 function todayStr() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey();
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -51,6 +75,7 @@ export const useProgressStore = create<ProgressState>()(
       trainerStats: defaultStats,
       streakCount: 0,
       bestStreak: 0,
+      lastStreakDate: null,
       sessionHistory: [],
       activityDates: [],
 
@@ -100,23 +125,18 @@ export const useProgressStore = create<ProgressState>()(
         });
       },
 
-      updateStreak: () => {
-        const { streakCount, bestStreak, trainerStats } = get();
-        const today = new Date().toDateString();
-        const lastSession = trainerStats.lastSessionDate
-          ? new Date(trainerStats.lastSessionDate).toDateString()
-          : null;
+      updateStreak: (now = new Date()) => {
+        const { streakCount, bestStreak, lastStreakDate } = get();
+        const today = localDateKey(now);
 
-        if (lastSession === today) return;
+        if (lastStreakDate === today) return;
 
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const isConsecutive = lastSession === yesterday.toDateString();
-
+        const isConsecutive = lastStreakDate === localDateKey(dayBefore(now));
         const newStreak = isConsecutive ? streakCount + 1 : 1;
         set({
           streakCount: newStreak,
           bestStreak: Math.max(bestStreak, newStreak),
+          lastStreakDate: today,
         });
       },
 
@@ -127,6 +147,7 @@ export const useProgressStore = create<ProgressState>()(
           trainerStats: defaultStats,
           streakCount: 0,
           bestStreak: 0,
+          lastStreakDate: null,
           sessionHistory: [],
           activityDates: [],
         });
@@ -134,7 +155,16 @@ export const useProgressStore = create<ProgressState>()(
     }),
     {
       name: "ltcube-progress",
+      version: 1,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persisted, version) => {
+        const state = (persisted ?? {}) as Partial<ProgressState>;
+        if (version < 1 && state.lastStreakDate === undefined) {
+          const last = state.trainerStats?.lastSessionDate;
+          state.lastStreakDate = last ? localDateKey(new Date(last)) : null;
+        }
+        return state as ProgressState;
+      },
     }
   )
 );
