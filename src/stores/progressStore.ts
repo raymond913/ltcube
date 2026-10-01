@@ -156,6 +156,7 @@ export const useProgressStore = create<ProgressState>()(
     {
       name: "ltcube-progress",
       version: 1,
+      skipHydration: true,
       storage: createJSONStorage(() => localStorage),
       migrate: (persisted, version) => {
         const state = (persisted ?? {}) as Partial<ProgressState>;

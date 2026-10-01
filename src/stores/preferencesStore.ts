@@ -14,6 +14,6 @@ export const usePreferencesStore = create<PreferencesState>()(
       cubeStyle: "stickered",
       setCubeStyle: (style) => set({ cubeStyle: style }),
     }),
-    { name: "ltcube-preferences" },
+    { name: "ltcube-preferences", skipHydration: true },
   ),
 );
