@@ -12,20 +12,20 @@ const CELL = 20;
 const GAP = 4;
 const BAR = 3.5;
 
-const YELLOW = "#EAB308";
-const GRAY = "#CBD5E1";
-const SWAP_COLOR = "#DC2626";
-const CYCLE_COLOR = "#2563EB";
+const YELLOW = "var(--color-cube-yellow)";
+const GRAY = "var(--color-sticker-gray)";
+const SWAP_COLOR = "var(--color-cube-red)";
+const CYCLE_COLOR = "var(--color-primary)";
 
 // Side-sticker colors, mirroring FACE_COLORS in CubeScene.tsx (not imported
 // here so this SVG component stays free of three.js).
 const STICKER_HEX: Record<string, string> = {
   yellow: YELLOW,
-  white:  "#FFFFFF",
-  blue:   "#2563EB",
-  green:  "#16A34A",
-  red:    "#DC2626",
-  orange: "#FF7A00",
+  white:  "var(--color-on-accent)",
+  blue:   "var(--color-primary)",
+  green:  "var(--color-cube-green)",
+  red:    "var(--color-cube-red)",
+  orange: "var(--color-cube-orange)",
 };
 
 // Grid coordinate helpers

@@ -89,10 +89,10 @@ export function HowToSpotTip({ text, label, color, hold, note }: HowToSpotTipPro
       >
         <span
           aria-hidden="true"
-          className="flex h-[18px] w-[18px] items-center justify-center rounded-full text-[11px] font-bold leading-none transition-colors duration-150"
+          className="flex h-[22px] w-[22px] items-center justify-center rounded-full text-sm font-bold leading-none transition-colors duration-150"
           style={{
             background: open ? color : "var(--color-surface)",
-            color: open ? "#fff" : "oklch(52% 0.012 250)",
+            color: open ? "var(--color-on-accent)" : "var(--color-muted)",
             border: `1px solid ${open ? color : "var(--color-border)"}`,
           }}
         >
@@ -104,14 +104,14 @@ export function HowToSpotTip({ text, label, color, hold, note }: HowToSpotTipPro
         <span
           id={tipId}
           role="tooltip"
-          className="pointer-events-none absolute top-full mt-1 block rounded-lg px-3 py-2 text-left text-xs font-normal leading-relaxed"
+          className="pointer-events-none absolute top-full mt-1 block rounded-lg px-3 py-2 text-left text-sm font-normal leading-relaxed"
           style={{
             left: offsetLeft,
             width: `min(${TIP_WIDTH}px, calc(100vw - ${VIEWPORT_GAP * 2}px))`,
             background: "var(--color-surface-elevated)",
             color: "var(--color-text)",
             border: "1px solid var(--color-border)",
-            boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+            boxShadow: "0 4px 16px var(--color-shadow-3)",
           }}
         >
           {text}

@@ -4,6 +4,13 @@ import { useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
+import {
+  ARROW_LIGHT,
+  BODY_COLOR,
+  FACE_COLORS,
+  MASK_BODY_COLOR,
+  MASK_STICKER_COLOR,
+} from "@/lib/sceneColors";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
 import {
@@ -41,15 +48,6 @@ const SL_DEPTH  = 0.012;
 const SL_OFFSET = BODY_SIZE / 2 - SL_DEPTH / 2 + 0.001;
 const SL_RADIUS = 0.10;
 
-const FACE_COLORS: Record<string, string> = {
-  R: "#DC2626",
-  L: "#FF7A00",
-  U: "#EAB308",
-  D: "#FFFFFF",
-  F: "#2563EB",
-  B: "#16A34A",
-};
-
 /** Sticker color names (as used by SpotSticker) -> original sticker hex. */
 const COLOR_NAME_HEX: Record<string, string> = {
   red:    FACE_COLORS.R,
@@ -85,8 +83,6 @@ function resetGlow(meshes: THREE.Mesh[]): void {
   });
 }
 
-const BODY_COLOR    = "#111111";
-const MASK_GRAY     = "#52525B";
 
 /** All 26 visible cubie positions (every {-1,0,1}³ excluding origin). */
 export const CUBIE_POSITIONS: Vec3[] = [];
@@ -145,11 +141,11 @@ function FaceArrow({ face, clockwise }: { face: string; clockwise: boolean }) {
       <group scale={[sx, 1, 1]}>
         <mesh>
           <torusGeometry args={[ARROW_R, ARROW_TUBE, 8, 64, ARROW_ARC]} />
-          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.92} depthTest={false} depthWrite={false} />
+          <meshBasicMaterial color={ARROW_LIGHT} transparent opacity={0.92} depthTest={false} depthWrite={false} />
         </mesh>
         <mesh position={[0, -ARROW_R, 0]} rotation={[0, 0, coneRotZ]}>
           <coneGeometry args={[0.13, 0.28, 8]} />
-          <meshBasicMaterial color="#FFFFFF" transparent opacity={0.92} depthTest={false} depthWrite={false} />
+          <meshBasicMaterial color={ARROW_LIGHT} transparent opacity={0.92} depthTest={false} depthWrite={false} />
         </mesh>
       </group>
     </group>
@@ -415,14 +411,14 @@ export function applyAppearance(
         return;
       }
       if (!isVisible) {
-        mat.color.set(obj.userData.isSticker ? "#52525B" : "#3F3F46");
+        mat.color.set(obj.userData.isSticker ? MASK_STICKER_COLOR : MASK_BODY_COLOR);
         mat.opacity = 1;
         mat.transparent = false;
       } else {
         let color = (obj.userData.originalColor as string) ?? BODY_COLOR;
         if (stickerMask && obj.userData.isSticker) {
           const isYellow = color.toUpperCase() === FACE_COLORS.U.toUpperCase();
-          if (!isYellow || (stickerMask === "oll-edges" && isTopCorner)) color = MASK_GRAY;
+          if (!isYellow || (stickerMask === "oll-edges" && isTopCorner)) color = MASK_STICKER_COLOR;
         }
         mat.color.set(color);
         mat.opacity = 1;
@@ -843,15 +839,15 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
             aria-hidden="true"
             style={{
               whiteSpace: "nowrap",
-              padding: "3px 9px",
+              padding: "4px 10px",
               borderRadius: 999,
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: 600,
               lineHeight: 1.3,
-              color: "#1E40AF",
-              background: "rgba(255,255,255,0.94)",
-              border: "1px solid rgba(37,99,235,0.35)",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+              color: "var(--color-primary-ink)",
+              background: "color-mix(in srgb, var(--color-surface-elevated) 94%, transparent)",
+              border: "1px solid color-mix(in srgb, var(--color-primary) 35%, transparent)",
+              boxShadow: "0 2px 8px var(--color-shadow-3)",
             }}
           >
             {label.text}
@@ -867,7 +863,7 @@ function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMa
         <TargetSlot
           key={`target-${i}`}
           position={[a.to[0], a.to[1] + 0.08, a.to[2]]}
-          color={a.color ?? "#FFFFFF"}
+          color={a.color ?? ARROW_LIGHT}
         />
       ))}
 

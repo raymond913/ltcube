@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useId, useState, useRef } from "react";
 import { CubeViewer } from "@/components/cube/CubeViewer";
 import {
   CubeEngine,
@@ -13,6 +13,7 @@ import { useCubeStore, cubeEngine } from "@/stores/cubeStore";
 import { usePreferencesStore } from "@/stores/preferencesStore";
 import type { Arrow, SpotLabel, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
 import type { Vec3 } from "@/lib/cameraViews";
+import { playerKeyAction } from "@/lib/playerKeys";
 
 // ---------------------------------------------------------------------------
 // Pure helpers
@@ -86,6 +87,7 @@ export function AlgorithmPlayer({
 }: AlgorithmPlayerProps) {
   const { animateMove, isAnimating, setAnimationSpeed } = useCubeStore();
   const { cubeStyle, setCubeStyle } = usePreferencesStore();
+  const keysHintId = useId();
   const [viewMode, setViewMode] = useState<"default" | "white-up">(whiteOnTop ? "white-up" : "default");
   const [cameraResetKey, setCameraResetKey] = useState(0);
   const [replayKey, setReplayKey] = useState(0);
@@ -242,21 +244,21 @@ export function AlgorithmPlayer({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      switch (e.key) {
-        case " ":
+      const onButton = (e.target as HTMLElement).closest("button") !== null;
+      switch (playerKeyAction(e, onButton)) {
+        case "toggle":
           e.preventDefault();
           setIsPlaying((p) => !p);
           break;
-        case "ArrowRight":
+        case "forward":
           e.preventDefault();
           void stepForward();
           break;
-        case "ArrowLeft":
+        case "back":
           e.preventDefault();
           stepBack();
           break;
-        case "r":
-        case "R":
+        case "reset":
           reset();
           break;
       }
@@ -270,17 +272,24 @@ export function AlgorithmPlayer({
 
   return (
     <div
-      className="w-full max-w-[500px] mx-auto flex flex-col gap-0 focus-visible:outline-none"
+      role="group"
+      aria-label={title ? `Algorithm player: ${title}` : "Algorithm player"}
+      aria-describedby={keysHintId}
+      aria-keyshortcuts="Space ArrowLeft ArrowRight R"
+      className="w-full max-w-[500px] mx-auto flex flex-col gap-0"
       style={{
         background: "var(--color-surface-elevated)",
         border: "1px solid var(--color-border)",
         borderRadius: "18px",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
+        boxShadow: "0 1px 4px var(--color-shadow-2), 0 4px 16px var(--color-shadow-1)",
         overflow: "hidden",
       }}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
+      <p id={keysHintId} className="sr-only">
+        Keyboard shortcuts: space plays or pauses, left and right arrow keys step through the moves, R resets.
+      </p>
       {/* ── Optional header ── */}
       {(title || description) && (
         <div
@@ -296,7 +305,7 @@ export function AlgorithmPlayer({
             </p>
           )}
           {description && (
-            <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "var(--color-muted)" }}>
+            <p className="mt-0.5 text-sm leading-relaxed" style={{ color: "var(--color-muted)" }}>
               {description}
             </p>
           )}
@@ -308,6 +317,7 @@ export function AlgorithmPlayer({
         <CubeViewer
           size={300}
           interactive
+          label={title ? `3D cube: ${title}` : undefined}
           visibleCubies={visibleCubies}
           viewMode={viewMode}
           arrows={showTeachingState ? arrows : undefined}
@@ -323,11 +333,11 @@ export function AlgorithmPlayer({
         {spotView && (
           <button
             onClick={showAgain}
-            className="min-h-11 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
+            className="min-h-11 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150"
             style={{
-              background: "oklch(97% 0.003 250)",
+              background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              color: "#2563EB",
+              color: "var(--color-primary)",
             }}
           >
             Show me again
@@ -336,11 +346,11 @@ export function AlgorithmPlayer({
         {showViewToggle && (
           <button
             onClick={() => setViewMode((v) => v === "white-up" ? "default" : "white-up")}
-            className="min-h-11 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-150"
+            className="min-h-11 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150"
             style={{
-              background: viewMode === "white-up" ? "var(--color-primary-light)" : "oklch(97% 0.003 250)",
+              background: viewMode === "white-up" ? "var(--color-primary-light)" : "var(--color-surface)",
               border: `1px solid ${viewMode === "white-up" ? "var(--color-primary-light-border)" : "var(--color-border)"}`,
-              color: viewMode === "white-up" ? "#2563EB" : "oklch(52% 0.012 250)",
+              color: viewMode === "white-up" ? "var(--color-primary)" : "var(--color-muted)",
             }}
           >
             {viewMode === "white-up" ? "Default view" : "View white face"}
@@ -354,7 +364,7 @@ export function AlgorithmPlayer({
           className="h-full w-full rounded-full transition-transform duration-300 origin-left"
           style={{
             transform: `scaleX(${progressPct / 100})`,
-            background: "#2563EB",
+            background: "var(--color-primary)",
           }}
         />
       </div>
@@ -385,6 +395,7 @@ export function AlgorithmPlayer({
               disabled={isAnimating}
               title={i === 0 ? "Start" : moves[i - 1]?.notation}
               aria-label={i === 0 ? "Go to start" : `Go to move ${i}: ${moves[i - 1]?.notation}`}
+              aria-current={i === currentStep ? "step" : undefined}
               className="flex h-11 w-11 items-center justify-center transition-all duration-150 disabled:cursor-not-allowed"
               style={{
                 background: "transparent",
@@ -397,10 +408,11 @@ export function AlgorithmPlayer({
                   width:  i === currentStep ? "12px" : "8px",
                   height: i === currentStep ? "12px" : "8px",
                   background: i === currentStep
-                    ? "#2563EB"
+                    ? "var(--color-primary)"
                     : i < currentStep
-                    ? "oklch(72% 0.01 250)"
-                    : "oklch(87% 0.008 250)",
+                    ? "var(--color-muted)"
+                    : "transparent",
+                  border: i === currentStep ? "none" : "1.5px solid var(--color-muted)",
                   transform: i === currentStep ? "scale(1.1)" : "scale(1)",
                 }}
               />
@@ -421,13 +433,16 @@ export function AlgorithmPlayer({
                   key={i}
                   onClick={() => jumpToStep(i)}
                   disabled={isAnimating}
+                  aria-current={isCurrent ? "step" : undefined}
                   style={{
                     color: isPast
-                      ? "oklch(75% 0.008 250)"
+                      ? "var(--color-muted)"
                       : isCurrent
-                      ? "#2563EB"
-                      : "oklch(40% 0.01 250)",
+                      ? "var(--color-primary)"
+                      : "var(--color-text)",
                     fontWeight: isCurrent ? 700 : 400,
+                    textDecoration: isCurrent ? "underline" : "none",
+                    textUnderlineOffset: "4px",
                     transition: "all 0.15s ease",
                   }}
                   className="hover:opacity-70 disabled:cursor-not-allowed min-h-11 min-w-11 px-1 rounded"
@@ -438,8 +453,8 @@ export function AlgorithmPlayer({
             })}
           </div>
           <span
-            className="font-mono shrink-0 text-xs whitespace-nowrap tabular-nums"
-            style={{ color: "oklch(60% 0.01 250)" }}
+            className="font-mono shrink-0 text-sm whitespace-nowrap tabular-nums"
+            style={{ color: "var(--color-muted)" }}
           >
             {currentStep}&nbsp;/&nbsp;{moves.length}
           </span>
@@ -463,7 +478,7 @@ export function AlgorithmPlayer({
             style={{
               width: "44px",
               height: "44px",
-              background: "oklch(97% 0.003 250)",
+              background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
               color: "var(--color-muted)",
             }}
@@ -483,10 +498,10 @@ export function AlgorithmPlayer({
             style={{
               width: "44px",
               height: "44px",
-              backgroundColor: isPlaying ? "var(--color-primary-light)" : "#2563EB",
+              backgroundColor: isPlaying ? "var(--color-primary-light)" : "var(--color-primary)",
               border: isPlaying ? "1px solid var(--color-primary-light-border)" : "none",
-              color: isPlaying ? "#2563EB" : "#fff",
-              boxShadow: !isPlaying && !isAtEnd ? "0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(37,99,235,0.3)" : "none",
+              color: isPlaying ? "var(--color-primary)" : "var(--color-on-accent)",
+              boxShadow: !isPlaying && !isAtEnd ? "0 1px 3px var(--color-shadow-3), 0 4px 12px color-mix(in srgb, var(--color-primary) 30%, transparent)" : "none",
             }}
           >
             {isPlaying ? (
@@ -511,7 +526,7 @@ export function AlgorithmPlayer({
             style={{
               width: "44px",
               height: "44px",
-              background: "oklch(97% 0.003 250)",
+              background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
               color: "var(--color-muted)",
             }}
@@ -530,9 +545,9 @@ export function AlgorithmPlayer({
             style={{
               width: "44px",
               height: "44px",
-              background: "oklch(97% 0.003 250)",
+              background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              color: "oklch(62% 0.01 250)",
+              color: "var(--color-muted)",
             }}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -546,9 +561,11 @@ export function AlgorithmPlayer({
         <div className="flex items-center gap-2">
           {/* Speed selector — pill group */}
           <div
+            role="group"
+            aria-label="Playback speed"
             className="flex items-center rounded-xl overflow-hidden"
             style={{
-              background: "oklch(97% 0.003 250)",
+              background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
             }}
           >
@@ -556,10 +573,11 @@ export function AlgorithmPlayer({
               <button
                 key={s}
                 onClick={() => setSpeed(s)}
-                className="font-mono min-h-11 min-w-11 px-2.5 text-xs font-semibold transition-all duration-150"
+                aria-pressed={speed === s}
+                className="font-mono min-h-11 min-w-11 px-2.5 text-sm font-semibold transition-all duration-150"
                 style={{
-                  background: speed === s ? "#2563EB" : "transparent",
-                  color: speed === s ? "#fff" : "oklch(52% 0.012 250)",
+                  background: speed === s ? "var(--color-primary)" : "transparent",
+                  color: speed === s ? "var(--color-on-accent)" : "var(--color-muted)",
                 }}
               >
                 {s}x
@@ -570,16 +588,16 @@ export function AlgorithmPlayer({
           {/* Stickered / Stickerless toggle */}
           <button
             onClick={() => setCubeStyle(cubeStyle === "stickered" ? "stickerless" : "stickered")}
-            title={cubeStyle === "stickered" ? "Switch to stickerless" : "Switch to stickered"}
-            aria-label={cubeStyle === "stickered" ? "Switch to stickerless cube" : "Switch to stickered cube"}
-            className="flex min-h-11 min-w-11 items-center justify-center gap-1 px-2.5 rounded-xl text-xs font-semibold transition-all duration-150"
+            aria-pressed={cubeStyle === "stickerless"}
+            title="Show the cube without stickers"
+            className="flex min-h-11 min-w-11 items-center justify-center gap-1 px-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
             style={{
-              background: "oklch(97% 0.003 250)",
+              background: "var(--color-surface)",
               border: "1px solid var(--color-border)",
-              color: "oklch(52% 0.012 250)",
+              color: "var(--color-muted)",
             }}
           >
-            <span style={{ fontSize: "11px" }}>{cubeStyle === "stickered" ? "S" : "SL"}</span>
+            Stickerless
           </button>
         </div>
       </div>

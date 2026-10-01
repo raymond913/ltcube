@@ -57,6 +57,8 @@ interface CubeViewerProps {
   spotLabels?: SpotLabel[];
   /** Glow and labels are on only while true */
   glowActive?: boolean;
+  /** Accessible description of the 3D view */
+  label?: string;
 }
 
 const cubeUnavailableFallback = (
@@ -65,7 +67,7 @@ const cubeUnavailableFallback = (
     style={{ background: "var(--color-surface)" }}
   >
     <span className="text-2xl" aria-hidden>🧊</span>
-    <span className="text-xs text-center px-2" style={{ color: "var(--color-muted)" }}>
+    <span className="text-sm text-center px-2" style={{ color: "var(--color-muted)" }}>
       3D view unavailable on this device
     </span>
   </div>
@@ -89,12 +91,15 @@ export function CubeViewer({
   spotStickers,
   spotLabels,
   glowActive,
+  label = "Interactive 3D Rubik's Cube. Drag to rotate it.",
 }: CubeViewerProps) {
   const webglOk = useWebGLSupport();
 
   return (
     <div
-      style={{ width: size, height: size }}
+      role={webglOk === false ? undefined : "img"}
+      aria-label={webglOk === false ? undefined : label}
+      style={{ width: size, maxWidth: "100%", aspectRatio: "1 / 1" }}
       className={`rounded-xl overflow-hidden ${className}`}
     >
       {webglOk === false ? (

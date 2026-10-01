@@ -1,6 +1,7 @@
 "use client";
 
 import { RoundedBox } from "@react-three/drei";
+import { BODY_COLOR, FACE_COLORS, GHOST_BODY_COLOR } from "@/lib/sceneColors";
 
 const BODY_SIZE      = 0.93;
 const STICKER_SIZE   = BODY_SIZE * 0.82;
@@ -11,12 +12,12 @@ type Vec3 = [number, number, number];
 export type FaceColorKey = `${number}_${number}`;
 
 const FACE_MAP = [
-  { axis: 0, sign:  1 as const, color: "#DC2626", pos: [ STICKER_OFFSET, 0,              0             ] as Vec3, rot: [0,            Math.PI / 2, 0] as Vec3 },
-  { axis: 0, sign: -1 as const, color: "#FF7A00", pos: [-STICKER_OFFSET, 0,              0             ] as Vec3, rot: [0,           -Math.PI / 2, 0] as Vec3 },
-  { axis: 1, sign:  1 as const, color: "#EAB308", pos: [0,               STICKER_OFFSET, 0             ] as Vec3, rot: [-Math.PI / 2, 0,           0] as Vec3 },
-  { axis: 1, sign: -1 as const, color: "#FFFFFF", pos: [0,              -STICKER_OFFSET, 0             ] as Vec3, rot: [ Math.PI / 2, 0,           0] as Vec3 },
-  { axis: 2, sign:  1 as const, color: "#2563EB", pos: [0,               0,              STICKER_OFFSET] as Vec3, rot: [0,            0,           0] as Vec3 },
-  { axis: 2, sign: -1 as const, color: "#16A34A", pos: [0,               0,             -STICKER_OFFSET] as Vec3, rot: [0,            Math.PI,     0] as Vec3 },
+  { axis: 0, sign:  1 as const, color: FACE_COLORS.R, pos: [ STICKER_OFFSET, 0,              0             ] as Vec3, rot: [0,            Math.PI / 2, 0] as Vec3 },
+  { axis: 0, sign: -1 as const, color: FACE_COLORS.L, pos: [-STICKER_OFFSET, 0,              0             ] as Vec3, rot: [0,           -Math.PI / 2, 0] as Vec3 },
+  { axis: 1, sign:  1 as const, color: FACE_COLORS.U, pos: [0,               STICKER_OFFSET, 0             ] as Vec3, rot: [-Math.PI / 2, 0,           0] as Vec3 },
+  { axis: 1, sign: -1 as const, color: FACE_COLORS.D, pos: [0,              -STICKER_OFFSET, 0             ] as Vec3, rot: [ Math.PI / 2, 0,           0] as Vec3 },
+  { axis: 2, sign:  1 as const, color: FACE_COLORS.F, pos: [0,               0,              STICKER_OFFSET] as Vec3, rot: [0,            0,           0] as Vec3 },
+  { axis: 2, sign: -1 as const, color: FACE_COLORS.B, pos: [0,               0,             -STICKER_OFFSET] as Vec3, rot: [0,            Math.PI,     0] as Vec3 },
 ];
 
 interface CubieProps {
@@ -26,7 +27,7 @@ interface CubieProps {
 }
 
 export function Cubie({ position, faceColors, grayedOut = false }: CubieProps) {
-  const bodyColor   = grayedOut ? "#3A3A3A" : "#111111";
+  const bodyColor   = grayedOut ? GHOST_BODY_COLOR : BODY_COLOR;
   const bodyOpacity = grayedOut ? 0.25 : 1;
 
   return (

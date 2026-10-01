@@ -269,7 +269,7 @@ export function PatternTrainer() {
             className="h-full rounded-full transition-none"
             style={{
               width: `${timerPct}%`,
-              backgroundColor: timerPct > 40 ? "#2563EB" : timerPct > 20 ? "#EAB308" : "#DC2626",
+              backgroundColor: timerPct > 40 ? "var(--color-primary)" : timerPct > 20 ? "var(--color-cube-yellow)" : "var(--color-cube-red)",
             }}
           />
         </div>
@@ -280,9 +280,9 @@ export function PatternTrainer() {
         className="rounded-xl overflow-hidden transition-all duration-300"
         style={
           phase === "feedback" && isCorrect === true
-            ? { outline: "4px solid #15803D", outlineOffset: "2px" }
+            ? { outline: "4px solid var(--color-step-corners)", outlineOffset: "2px" }
             : phase === "feedback" && isCorrect === false
-            ? { outline: "4px solid #DC2626", outlineOffset: "2px" }
+            ? { outline: "4px solid var(--color-cube-red)", outlineOffset: "2px" }
             : {}
         }
       >
@@ -313,14 +313,14 @@ export function PatternTrainer() {
           style={
             isCorrect
               ? {
-                  background: "rgba(21,128,61,0.07)",
-                  border: "1px solid rgba(21,128,61,0.22)",
-                  color: "#15803D",
+                  background: "color-mix(in srgb, var(--color-step-corners) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
+                  color: "var(--color-step-corners)",
                 }
               : {
-                  background: "rgba(220,38,38,0.07)",
-                  border: "1px solid rgba(220,38,38,0.22)",
-                  color: "#DC2626",
+                  background: "color-mix(in srgb, var(--color-cube-red) 7%, transparent)",
+                  border: "1px solid color-mix(in srgb, var(--color-cube-red) 22%, transparent)",
+                  color: "var(--color-cube-red)",
                 }
           }
         >
@@ -328,14 +328,14 @@ export function PatternTrainer() {
             <>
               Correct! <span className="font-semibold">{currentCase?.algorithmName}</span>
               {" — "}
-              <span className="font-mono text-xs">{currentCase?.algorithm}</span>
+              <span className="font-mono text-sm">{currentCase?.algorithm}</span>
             </>
           ) : (
             <>
               {selected === null ? "Time's up! " : "Incorrect. "}
               Answer: <span className="font-semibold">{currentCase?.title}</span>
               {" — "}
-              <span className="font-mono text-xs">{currentCase?.algorithm}</span>
+              <span className="font-mono text-sm">{currentCase?.algorithm}</span>
             </>
           )}
         </div>
@@ -369,16 +369,16 @@ export function PatternTrainer() {
             className="ltc-hover-blue flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-150"
             style={{
               background: "var(--color-surface-elevated)",
-              border: "1px solid #2563EB",
-              color: "#2563EB",
+              border: "1px solid var(--color-primary)",
+              color: "var(--color-primary)",
             }}
           >
             {showSolution ? "Hide Solution" : "Watch Solution"}
           </button>
           <button
             onClick={() => advanceRound(roundIndex + 1)}
-            className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
-            style={{ backgroundColor: "#2563EB" }}
+            className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-on-accent transition-all duration-150"
+            style={{ backgroundColor: "var(--color-primary)" }}
           >
             {roundIndex + 1 >= ROUNDS ? "See Results" : "Next"}
           </button>
@@ -426,8 +426,8 @@ function SetupScreen({
                 category === key
                   ? {
                       background: "var(--color-primary-light)",
-                      border: "1px solid #2563EB",
-                      color: "#2563EB",
+                      border: "1px solid var(--color-primary)",
+                      color: "var(--color-primary)",
                     }
                   : {
                       background: "var(--color-surface-elevated)",
@@ -461,8 +461,8 @@ function SetupScreen({
                 timed === val
                   ? {
                       background: "var(--color-primary-light)",
-                      border: "1px solid #2563EB",
-                      color: "#2563EB",
+                      border: "1px solid var(--color-primary)",
+                      color: "var(--color-primary)",
                     }
                   : {
                       background: "var(--color-surface-elevated)",
@@ -479,10 +479,10 @@ function SetupScreen({
 
       <button
         onClick={onStart}
-        className="ltc-hover-primary min-h-[44px] w-full rounded-lg px-4 py-3 text-base font-semibold text-white transition-colors"
+        className="ltc-hover-primary min-h-[44px] w-full rounded-lg px-4 py-3 text-base font-semibold text-on-accent transition-colors"
         style={{
-          backgroundColor: "#2563EB",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          backgroundColor: "var(--color-primary)",
+          boxShadow: "0 1px 3px var(--color-shadow-2)",
         }}
       >
         Start — {ROUNDS} rounds of {CATEGORY_LABELS[category]}
@@ -523,22 +523,22 @@ function ResultsScreen({
         <h2 className="text-xl font-bold" style={{ color: "var(--color-text)" }}>Results</h2>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="font-display text-3xl font-bold" style={{ color: "#2563EB" }}>
+            <p className="font-display text-3xl font-bold" style={{ color: "var(--color-primary)" }}>
               {correct}/{total}
             </p>
-            <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>Correct</p>
+            <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>Correct</p>
           </div>
           <div>
             <p className="font-display text-3xl font-bold" style={{ color: "var(--color-text)" }}>
               {pct}%
             </p>
-            <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>Accuracy</p>
+            <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>Accuracy</p>
           </div>
           <div>
             <p className="font-display text-3xl font-bold" style={{ color: "var(--color-text)" }}>
               {avgSec}s
             </p>
-            <p className="text-xs mt-1" style={{ color: "var(--color-muted)" }}>Avg time</p>
+            <p className="text-sm mt-1" style={{ color: "var(--color-muted)" }}>Avg time</p>
           </div>
         </div>
 
@@ -550,7 +550,7 @@ function ResultsScreen({
             <ul className="flex flex-col gap-1.5">
               {missedUniq.map((r) => (
                 <li key={r.caseId} className="flex items-center gap-2 text-sm" style={{ color: "var(--color-muted)" }}>
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "#DC2626" }} />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: "var(--color-cube-red)" }} />
                   {r.caseTitle}
                 </li>
               ))}
@@ -562,8 +562,8 @@ function ResultsScreen({
       <div className="flex gap-3">
         <button
           onClick={onTryAgain}
-          className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
-          style={{ backgroundColor: "#2563EB" }}
+          className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-on-accent transition-all duration-150"
+          style={{ backgroundColor: "var(--color-primary)" }}
         >
           Try Again
         </button>

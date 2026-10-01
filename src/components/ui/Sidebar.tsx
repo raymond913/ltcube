@@ -5,33 +5,34 @@ import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useProgressStore } from "@/stores/progressStore";
 import { LESSON_COPY } from "@/lib/lessonCopy";
+import { STEP_COLORS, tint } from "@/lib/theme";
 
 const LEARN_STEPS = [
-  { href: "/learn/cross",        label: LESSON_COPY["cross"].name,        stepNumber: 1, color: "#2563EB", id: "cross",        minutes: 15 },
-  { href: "/learn/corners",      label: LESSON_COPY["corners"].name,      stepNumber: 2, color: "#15803D", id: "corners",      minutes: 20 },
-  { href: "/learn/second-layer", label: LESSON_COPY["second-layer"].name, stepNumber: 3, color: "#C2410C", id: "second-layer", minutes: 20 },
-  { href: "/learn/oll",          label: LESSON_COPY["two-look-oll"].name, stepNumber: 4, color: "#B45309", id: "two-look-oll", minutes: 25 },
-  { href: "/learn/pll",          label: LESSON_COPY["two-look-pll"].name, stepNumber: 5, color: "#7C3AED", id: "two-look-pll", minutes: 20 },
-];
+  { href: "/learn/cross",        label: LESSON_COPY["cross"].name,        stepNumber: 1, id: "cross" },
+  { href: "/learn/corners",      label: LESSON_COPY["corners"].name,      stepNumber: 2, id: "corners" },
+  { href: "/learn/second-layer", label: LESSON_COPY["second-layer"].name, stepNumber: 3, id: "second-layer" },
+  { href: "/learn/oll",          label: LESSON_COPY["two-look-oll"].name, stepNumber: 4, id: "two-look-oll" },
+  { href: "/learn/pll",          label: LESSON_COPY["two-look-pll"].name, stepNumber: 5, id: "two-look-pll" },
+].map((step) => ({ ...step, color: STEP_COLORS[step.id] }));
 
 const NAV_ITEMS = [
-  { href: "/trainer",   label: "Trainer",   icon: "◈" },
-  { href: "/reference", label: "Reference", icon: "⊞" },
-  { href: "/progress",  label: "Progress",  icon: "◉" },
+  { href: "/trainer",   label: "Trainer" },
+  { href: "/reference", label: "Reference" },
+  { href: "/progress",  label: "Progress" },
 ];
 
 function CubeIcon() {
   return (
     <svg viewBox="0 0 28 28" width="22" height="22" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-      <rect x="1"  y="1"  width="8" height="8" rx="2" fill="#DC2626" />
-      <rect x="10" y="1"  width="8" height="8" rx="2" fill="#EAB308" />
-      <rect x="19" y="1"  width="8" height="8" rx="2" fill="#2563EB" />
-      <rect x="1"  y="10" width="8" height="8" rx="2" fill="#FF7A00" />
-      <rect x="10" y="10" width="8" height="8" rx="2" fill="#D1D5DB" opacity="0.9" />
-      <rect x="19" y="10" width="8" height="8" rx="2" fill="#16A34A" />
-      <rect x="1"  y="19" width="8" height="8" rx="2" fill="#2563EB" />
-      <rect x="10" y="19" width="8" height="8" rx="2" fill="#16A34A" />
-      <rect x="19" y="19" width="8" height="8" rx="2" fill="#DC2626" />
+      <rect x="1"  y="1"  width="8" height="8" rx="2" fill="var(--color-cube-red)" />
+      <rect x="10" y="1"  width="8" height="8" rx="2" fill="var(--color-cube-yellow)" />
+      <rect x="19" y="1"  width="8" height="8" rx="2" fill="var(--color-primary)" />
+      <rect x="1"  y="10" width="8" height="8" rx="2" fill="var(--color-cube-orange)" />
+      <rect x="10" y="10" width="8" height="8" rx="2" fill="var(--color-sticker-gray)" opacity="0.9" />
+      <rect x="19" y="10" width="8" height="8" rx="2" fill="var(--color-cube-green)" />
+      <rect x="1"  y="19" width="8" height="8" rx="2" fill="var(--color-primary)" />
+      <rect x="10" y="19" width="8" height="8" rx="2" fill="var(--color-cube-green)" />
+      <rect x="19" y="19" width="8" height="8" rx="2" fill="var(--color-cube-red)" />
     </svg>
   );
 }
@@ -41,6 +42,8 @@ export function Sidebar() {
   const [learnOpen, setLearnOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const learnRef = useRef<HTMLDivElement>(null);
+  const learnButtonRef = useRef<HTMLButtonElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
   const { completedSteps } = useProgressStore();
 
   const learnActive = pathname.startsWith("/learn");
@@ -56,6 +59,22 @@ export function Sidebar() {
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (learnOpen) {
+        setLearnOpen(false);
+        learnButtonRef.current?.focus();
+      }
+      if (mobileOpen) {
+        setMobileOpen(false);
+        hamburgerRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [learnOpen, mobileOpen]);
+
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
@@ -68,7 +87,7 @@ export function Sidebar() {
   return (
     <>
       {/* ── Fixed top bar ── */}
-      <header className="fixed top-0 left-0 right-0 z-30 flex items-center h-14 px-5 gap-2 bg-white border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-30 flex items-center h-14 px-5 gap-2 bg-surface-elevated border-b border-border">
         {/* Logo */}
         <Link
           href="/"
@@ -84,16 +103,17 @@ export function Sidebar() {
         </Link>
 
         {/* ── Desktop nav ── */}
-        <nav className="hidden md:flex items-center gap-0.5 flex-1">
+        <nav aria-label="Main" className="hidden md:flex items-center gap-0.5 flex-1">
           {/* Learn dropdown trigger */}
           <div ref={learnRef} className="relative">
             <button
               onClick={() => setLearnOpen((o) => !o)}
+              ref={learnButtonRef}
               aria-expanded={learnOpen}
-              aria-haspopup="true"
+              aria-controls="learn-menu"
               className="flex min-h-11 items-center gap-1.5 px-3 rounded-lg text-sm font-medium transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
               style={{
-                color: learnActive || learnOpen ? "#2563EB" : "var(--color-muted)",
+                color: learnActive || learnOpen ? "var(--color-primary)" : "var(--color-muted)",
                 background: learnActive || learnOpen ? "var(--color-primary-light)" : undefined,
               }}
             >
@@ -111,8 +131,9 @@ export function Sidebar() {
             {/* Dropdown panel */}
             {learnOpen && (
               <div
-                className="ltc-dropdown-in absolute top-full left-0 mt-2 w-[300px] rounded-2xl overflow-hidden bg-white border border-border"
-                style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.10)" }}
+                id="learn-menu"
+                className="ltc-dropdown-in absolute top-full left-0 mt-2 w-[300px] rounded-2xl overflow-hidden bg-surface-elevated border border-border"
+                style={{ boxShadow: "0 8px 24px var(--color-shadow-3)" }}
               >
                 {/* Header row */}
                 <div
@@ -124,8 +145,8 @@ export function Sidebar() {
                   </span>
                   <Link
                     href="/learn"
-                    className="flex min-h-11 items-center gap-1 px-2 text-sm font-semibold transition-colors duration-150 hover:text-[#1D4ED8]"
-                    style={{ color: "#2563EB" }}
+                    className="flex min-h-11 items-center gap-1 px-2 text-sm font-semibold transition-colors duration-150 hover:text-[var(--color-primary-hover)]"
+                    style={{ color: "var(--color-primary)" }}
                   >
                     Overview
                     <span aria-hidden="true">→</span>
@@ -142,17 +163,19 @@ export function Sidebar() {
                       <Link
                         key={step.href}
                         href={step.href}
+                        aria-current={isActive ? "page" : undefined}
                         className="flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
                         style={{
-                          background: isActive ? `${step.color}0f` : undefined,
+                          background: isActive ? tint(step.color, 6) : undefined,
                         }}
                       >
                         {/* Step circle */}
                         <span
+                          aria-hidden="true"
                           className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                           style={{
-                            background: isDone ? step.color : `${step.color}18`,
-                            color: isDone ? "#fff" : step.color,
+                            background: isDone ? step.color : tint(step.color, 9),
+                            color: isDone ? "var(--color-on-accent)" : step.color,
                           }}
                         >
                           {isDone ? "✓" : step.stepNumber}
@@ -164,6 +187,7 @@ export function Sidebar() {
                             style={{ color: isActive ? step.color : "var(--color-text)" }}
                           >
                             {step.label}
+                            {isDone && <span className="sr-only">, completed</span>}
                           </span>
                         </span>
 
@@ -190,7 +214,7 @@ export function Sidebar() {
                       {completedCount === 0 ? "Not started" : `${completedCount} of 5 done`}
                     </span>
                   </div>
-                  <div className="flex gap-1.5">
+                  <div aria-hidden="true" className="flex gap-1.5">
                     {LEARN_STEPS.map((s) => (
                       <div
                         key={s.id}
@@ -216,7 +240,7 @@ export function Sidebar() {
                 aria-current={isActive ? "page" : undefined}
                 className="inline-flex min-h-11 items-center px-3 rounded-lg text-sm font-medium transition-colors duration-150 hover:bg-surface active:bg-border-subtle"
                 style={{
-                  color: isActive ? "#2563EB" : "var(--color-muted)",
+                  color: isActive ? "var(--color-primary)" : "var(--color-muted)",
                   background: isActive ? "var(--color-primary-light)" : undefined,
                 }}
               >
@@ -242,9 +266,11 @@ export function Sidebar() {
 
         {/* ── Mobile hamburger ── */}
         <button
+          ref={hamburgerRef}
           onClick={() => setMobileOpen((o) => !o)}
-          aria-label="Toggle navigation"
+          aria-label="Menu"
           aria-expanded={mobileOpen}
+          aria-controls="mobile-menu"
           className="md:hidden ml-auto flex items-center justify-center w-11 h-11 rounded-xl transition-colors duration-150 active:bg-border-subtle"
           style={{
             color: "var(--color-muted)",
@@ -267,9 +293,12 @@ export function Sidebar() {
       {/* ── Mobile menu panel ── */}
       {mobileOpen && (
         <div
-          className="ltc-dropdown-in md:hidden fixed top-14 left-0 right-0 z-20 overflow-y-auto bg-white border-b border-border"
+          id="mobile-menu"
+          role="navigation"
+          aria-label="Main"
+          className="ltc-dropdown-in md:hidden fixed top-14 left-0 right-0 z-20 overflow-y-auto bg-surface-elevated border-b border-border"
           style={{
-            boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+            boxShadow: "0 8px 24px var(--color-shadow-3)",
             maxHeight: "calc(100vh - 56px)",
           }}
         >
@@ -282,7 +311,7 @@ export function Sidebar() {
               <Link
                 href="/learn"
                 className="inline-flex min-h-11 items-center px-3 text-sm font-semibold"
-                style={{ color: "#2563EB" }}
+                style={{ color: "var(--color-primary)" }}
                 onClick={() => setMobileOpen(false)}
               >
                 Overview →
@@ -297,15 +326,17 @@ export function Sidebar() {
                 <Link
                   key={step.href}
                   href={step.href}
+                        aria-current={isActive ? "page" : undefined}
                   onClick={() => setMobileOpen(false)}
                   className="flex min-h-11 items-center gap-3 px-3 py-3 rounded-xl transition-colors duration-150 active:bg-border-subtle"
-                  style={{ background: isActive ? `${step.color}0f` : undefined }}
+                  style={{ background: isActive ? tint(step.color, 6) : undefined }}
                 >
                   <span
+                    aria-hidden="true"
                     className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                     style={{
-                      background: isDone ? step.color : `${step.color}18`,
-                      color: isDone ? "#fff" : step.color,
+                      background: isDone ? step.color : tint(step.color, 9),
+                      color: isDone ? "var(--color-on-accent)" : step.color,
                     }}
                   >
                     {isDone ? "✓" : step.stepNumber}
@@ -313,6 +344,7 @@ export function Sidebar() {
                   <span className="flex-1">
                     <span className="block text-sm font-semibold" style={{ color: isActive ? step.color : "var(--color-text)" }}>
                       {step.label}
+                            {isDone && <span className="sr-only">, completed</span>}
                     </span>
                   </span>
                   {isNext && (
@@ -335,7 +367,7 @@ export function Sidebar() {
                   onClick={() => setMobileOpen(false)}
                   className="flex min-h-11 items-center px-3 py-3 rounded-xl text-sm font-semibold transition-colors duration-150 active:bg-border-subtle"
                   style={{
-                    color: isActive ? "#2563EB" : "var(--color-muted)",
+                    color: isActive ? "var(--color-primary)" : "var(--color-muted)",
                     background: isActive ? "var(--color-primary-light)" : undefined,
                   }}
                 >
@@ -351,7 +383,7 @@ export function Sidebar() {
                   {completedCount === 0 ? "Not started" : `${completedCount} of 5 done`}
                 </span>
               </div>
-              <div className="flex gap-1.5">
+              <div aria-hidden="true" className="flex gap-1.5">
                 {LEARN_STEPS.map((s) => (
                   <div
                     key={s.id}

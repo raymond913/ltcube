@@ -10,14 +10,7 @@ import { useProgressStore } from "@/stores/progressStore";
 import { BEGINNER_STEPS } from "@/data/beginner";
 import { HOLD_VIEW } from "@/lib/cameraViews";
 import type { TutorialStep, StepMeta } from "@/lib/tutorialTypes";
-
-const STEP_COLORS: Record<string, string> = {
-  "cross":         "#2563EB",
-  "corners":       "#15803D",
-  "second-layer":  "#C2410C",
-  "two-look-oll":  "#B45309",
-  "two-look-pll":  "#7C3AED",
-};
+import { STEP_COLORS, tint } from "@/lib/theme";
 
 interface TutorialLayoutProps {
   stepData: TutorialStep;
@@ -51,7 +44,7 @@ export function TutorialLayout({
   const prevStep = currentStepIdx > 0 ? BEGINNER_STEPS[currentStepIdx - 1] : null;
   const nextStep = currentStepIdx < BEGINNER_STEPS.length - 1 ? BEGINNER_STEPS[currentStepIdx + 1] : null;
 
-  const accentColor = STEP_COLORS[stepData.id] ?? "#2563EB";
+  const accentColor = STEP_COLORS[stepData.id] ?? "var(--color-primary)";
 
   function goToSubstep(idx: number) {
     setActiveIdx(idx);
@@ -99,27 +92,27 @@ export function TutorialLayout({
             style={{
               background: "var(--color-surface-elevated)",
               border: "1px solid var(--color-border)",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+              boxShadow: "0 1px 4px var(--color-shadow-1)",
             }}
           >
             <div className="flex items-center gap-2 mb-2">
               <span
-                className="text-xs font-bold px-2.5 py-0.5 rounded-full"
+                className="text-sm font-bold px-2.5 py-0.5 rounded-full"
                 style={{
                   color: accentColor,
-                  background: `${accentColor}10`,
-                  border: `1px solid ${accentColor}25`,
+                  background: tint(accentColor, 6),
+                  border: `1px solid ${tint(accentColor, 15)}`,
                 }}
               >
                 Step {stepMeta.stepNumber} of {BEGINNER_STEPS.length}
               </span>
               {isCompleted && (
                 <span
-                  className="text-xs font-bold px-2.5 py-0.5 rounded-full"
+                  className="text-sm font-bold px-2.5 py-0.5 rounded-full"
                   style={{
-                    color: "#15803D",
-                    background: "rgba(21,128,61,0.08)",
-                    border: "1px solid rgba(21,128,61,0.22)",
+                    color: "var(--color-step-corners)",
+                    background: "color-mix(in srgb, var(--color-step-corners) 8%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
                   }}
                 >
                   ✓ Complete
@@ -146,7 +139,7 @@ export function TutorialLayout({
             style={{
               background: "var(--color-surface-elevated)",
               border: "1px solid var(--color-border)",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+              boxShadow: "0 1px 4px var(--color-shadow-1)",
             }}
           >
             {showCaseThumbnails ? (
@@ -160,9 +153,9 @@ export function TutorialLayout({
                       aria-current={isActive ? "step" : undefined}
                       className="flex flex-col items-center gap-1.5 rounded-xl p-1.5 transition-all duration-150 w-full"
                       style={{
-                        background: isActive ? `${accentColor}08` : "var(--color-surface)",
-                        border: `2px solid ${isActive ? accentColor : isCompleted ? `${accentColor}55` : "var(--color-border)"}`,
-                        boxShadow: isActive ? `0 0 0 3px ${accentColor}18` : "none",
+                        background: isActive ? tint(accentColor, 3) : "var(--color-surface)",
+                        border: `2px solid ${isActive ? accentColor : isCompleted ? tint(accentColor, 33) : "var(--color-border)"}`,
+                        boxShadow: isActive ? `0 0 0 3px ${tint(accentColor, 9)}` : "none",
                       }}
                     >
                       <div className="relative rounded-lg overflow-hidden" style={{ width: 88, height: 88 }}>
@@ -173,11 +166,11 @@ export function TutorialLayout({
                           size={88}
                         />
                         <span
-                          className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center font-bold pointer-events-none"
+                          className="absolute top-1 left-1 w-6 h-6 rounded-full flex items-center justify-center font-bold pointer-events-none"
                           style={{
-                            background: isCompleted ? accentColor : isActive ? accentColor : "rgba(0,0,0,0.45)",
-                            color: "#fff",
-                            fontSize: "10px",
+                            background: isCompleted ? accentColor : isActive ? accentColor : "var(--color-scrim)",
+                            color: "var(--color-on-accent)",
+                            fontSize: "14px",
                           }}
                         >
                           {isCompleted ? "✓" : idx + 1}
@@ -188,7 +181,7 @@ export function TutorialLayout({
                         style={{
                           color: isActive ? accentColor : "var(--color-muted)",
                           fontWeight: isActive ? 600 : 400,
-                          fontSize: "11px",
+                          fontSize: "14px",
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical",
@@ -212,18 +205,18 @@ export function TutorialLayout({
                       aria-current={isActive ? "step" : undefined}
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left transition-[background,color,border-color,font-weight] duration-150 w-full"
                       style={{
-                        background: isActive ? `${accentColor}10` : "transparent",
+                        background: isActive ? tint(accentColor, 6) : "transparent",
                         color: isActive ? accentColor : "var(--color-muted)",
                         fontWeight: isActive ? 600 : 400,
-                        border: isActive ? `1px solid ${accentColor}22` : "1px solid transparent",
+                        border: isActive ? `1px solid ${tint(accentColor, 13)}` : "1px solid transparent",
                       }}
                     >
                       <span
-                        className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center font-bold text-2xs transition-all"
+                        className="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center font-bold text-sm transition-all"
                         style={{
                           borderColor: isCompleted ? accentColor : isActive ? accentColor : "var(--color-border-bright)",
-                          background: isCompleted ? accentColor : isActive ? `${accentColor}15` : "transparent",
-                          color: isCompleted ? "#fff" : isActive ? accentColor : "oklch(65% 0.01 250)",
+                          background: isCompleted ? accentColor : isActive ? tint(accentColor, 8) : "transparent",
+                          color: isCompleted ? "var(--color-on-accent)" : isActive ? accentColor : "var(--color-muted)",
                         }}
                       >
                         {isCompleted ? "✓" : idx + 1}
@@ -242,7 +235,7 @@ export function TutorialLayout({
             style={{
               background: "var(--color-surface-elevated)",
               border: "1px solid var(--color-border)",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+              boxShadow: "0 1px 4px var(--color-shadow-1)",
             }}
           >
             <StepContent
@@ -291,10 +284,10 @@ export function TutorialLayout({
               {activeIdx < totalSubsteps - 1 ? (
                 <button
                   onClick={() => goToSubstep(activeIdx + 1)}
-                  className="min-h-11 rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
+                  className="min-h-11 rounded-xl px-4 py-2 text-sm font-semibold text-on-accent transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
                   style={{
                     backgroundColor: accentColor,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    boxShadow: "0 1px 3px var(--color-shadow-3)",
                   }}
                 >
                   Next →
@@ -302,10 +295,10 @@ export function TutorialLayout({
               ) : nextStep ? (
                 <Link
                   href={nextStep.route}
-                  className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
+                  className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold text-on-accent transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
                   style={{
                     backgroundColor: accentColor,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    boxShadow: "0 1px 3px var(--color-shadow-3)",
                   }}
                 >
                   Next: {nextStep.title} →
@@ -324,16 +317,16 @@ export function TutorialLayout({
             style={
               isCompleted
                 ? {
-                    background: "rgba(21,128,61,0.07)",
-                    color: "#15803D",
-                    border: "2px solid rgba(21,128,61,0.22)",
+                    background: "color-mix(in srgb, var(--color-step-corners) 7%, transparent)",
+                    color: "var(--color-step-corners)",
+                    border: "2px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
                     cursor: "default",
                   }
                 : {
-                    backgroundColor: "#2563EB",
-                    color: "#fff",
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-on-accent)",
                     border: "2px solid transparent",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(37,99,235,0.25)",
+                    boxShadow: "0 1px 3px var(--color-shadow-3), 0 4px 16px color-mix(in srgb, var(--color-primary) 25%, transparent)",
                   }
             }
           >

@@ -24,7 +24,7 @@ export default function AppError({
         <button
           type="button"
           onClick={() => unstable_retry()}
-          className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-6 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-hover"
+          className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-6 text-base font-semibold text-on-accent transition-colors duration-150 hover:bg-primary-hover"
         >
           Try again
         </button>

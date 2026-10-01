@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { ARROW_LIGHT } from "@/lib/sceneColors";
 
 interface MoveArrowProps {
   from: [number, number, number];
@@ -12,7 +13,7 @@ interface MoveArrowProps {
 
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
-export function MoveArrow({ from, to, color = "#FFFFFF" }: MoveArrowProps) {
+export function MoveArrow({ from, to, color = ARROW_LIGHT }: MoveArrowProps) {
   const groupRef = useRef<THREE.Group>(null);
 
   const { length, euler } = useMemo(() => {
@@ -79,7 +80,7 @@ export function MoveArrow({ from, to, color = "#FFFFFF" }: MoveArrowProps) {
 /** Pulsing glowing ring rendered at the target destination slot. */
 export function TargetSlot({
   position,
-  color = "#FFFFFF",
+  color = ARROW_LIGHT,
 }: {
   position: [number, number, number];
   color?: string;

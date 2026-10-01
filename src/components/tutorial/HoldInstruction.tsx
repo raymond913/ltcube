@@ -8,7 +8,7 @@ export function HoldInstruction({ text }: { text: string }) {
         height="16"
         viewBox="0 0 16 16"
         fill="none"
-        stroke="#2563EB"
+        stroke="var(--color-primary)"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"

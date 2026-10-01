@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import * as THREE from "three";
+import { ARROW_BLUE } from "@/lib/sceneColors";
 
 interface DirectionArrowProps {
   from: [number, number, number];
@@ -11,7 +12,7 @@ interface DirectionArrowProps {
 
 const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
-export function DirectionArrow({ from, to, color = "#2563EB" }: DirectionArrowProps) {
+export function DirectionArrow({ from, to, color = ARROW_BLUE }: DirectionArrowProps) {
   const { length, euler } = useMemo(() => {
     const a = new THREE.Vector3(...from);
     const b = new THREE.Vector3(...to);

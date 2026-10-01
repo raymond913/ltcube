@@ -160,7 +160,7 @@ export function SolveAlong() {
           <div className="flex flex-col gap-2">
             {STAGES.map((s) => (
               <div key={s.id} className="flex items-center gap-3 text-sm">
-                <span className="font-bold" style={{ color: "#15803D" }}>✓</span>
+                <span className="font-bold" style={{ color: "var(--color-step-corners)" }}>✓</span>
                 <span style={{ color: "var(--color-text)" }}>{s.name}</span>
               </div>
             ))}
@@ -168,8 +168,8 @@ export function SolveAlong() {
         </div>
         <button
           onClick={handleStartOver}
-          className="ltc-hover-primary w-full min-h-[44px] rounded-lg px-4 py-3 text-sm font-semibold text-white transition-colors"
-          style={{ backgroundColor: "#2563EB" }}
+          className="ltc-hover-primary w-full min-h-[44px] rounded-lg px-4 py-3 text-sm font-semibold text-on-accent transition-colors"
+          style={{ backgroundColor: "var(--color-primary)" }}
         >
           Solve Again
         </button>
@@ -194,7 +194,7 @@ export function SolveAlong() {
             <button
               onClick={handleGenerateNew}
               className="ltc-hover-primary-color text-sm font-medium transition-colors"
-              style={{ color: "#2563EB" }}
+              style={{ color: "var(--color-primary)" }}
             >
               Generate new
             </button>
@@ -214,7 +214,7 @@ export function SolveAlong() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--color-muted)" }}>
+            <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--color-muted)" }}>
               Paste custom scramble (optional)
             </label>
             <input
@@ -222,7 +222,7 @@ export function SolveAlong() {
               value={customInput}
               onChange={(e) => { setCustomInput(e.target.value); setUsingCustom(e.target.value.trim().length > 0); }}
               placeholder="R U R' U' R' F R2 U' R' U' R U R' F'…"
-              className="w-full rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent"
+              className="w-full rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               style={{
                 background: "var(--color-surface-elevated)",
                 border: "1px solid var(--color-border)",
@@ -237,8 +237,8 @@ export function SolveAlong() {
             className="ltc-hover-blue min-h-[44px] w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50"
             style={{
               background: "var(--color-surface-elevated)",
-              border: "1px solid #2563EB",
-              color: "#2563EB",
+              border: "1px solid var(--color-primary)",
+              color: "var(--color-primary)",
             }}
           >
             Apply to Cube
@@ -254,10 +254,10 @@ export function SolveAlong() {
 
         <button
           onClick={handleReady}
-          className="ltc-hover-primary min-h-[44px] w-full rounded-lg px-4 py-3 text-base font-semibold text-white transition-colors"
+          className="ltc-hover-primary min-h-[44px] w-full rounded-lg px-4 py-3 text-base font-semibold text-on-accent transition-colors"
           style={{
-            backgroundColor: "#2563EB",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+            backgroundColor: "var(--color-primary)",
+            boxShadow: "0 1px 3px var(--color-shadow-2)",
           }}
         >
           I&apos;m Ready
@@ -280,9 +280,9 @@ export function SolveAlong() {
             style={{
               backgroundColor:
                 i < stageIndex
-                  ? "#15803D"
+                  ? "var(--color-step-corners)"
                   : i === stageIndex
-                  ? "#2563EB"
+                  ? "var(--color-primary)"
                   : "var(--color-border-subtle)",
             }}
           />
@@ -305,7 +305,7 @@ export function SolveAlong() {
       >
         <div className="flex items-start justify-between gap-3 mb-2">
           <div>
-            <p className="text-xs font-medium mb-0.5" style={{ color: "var(--color-muted)" }}>
+            <p className="text-sm font-medium mb-0.5" style={{ color: "var(--color-muted)" }}>
               Stage {stageIndex + 1} of {STAGES.length}
             </p>
             <h2 className="text-lg font-bold" style={{ color: "var(--color-text)" }}>
@@ -314,11 +314,11 @@ export function SolveAlong() {
           </div>
           {stagePassed && (
             <span
-              className="shrink-0 rounded-full px-3 py-1 text-xs font-semibold"
+              className="shrink-0 rounded-full px-3 py-1 text-sm font-semibold"
               style={{
-                background: "rgba(21,128,61,0.07)",
-                border: "1px solid rgba(21,128,61,0.22)",
-                color: "#15803D",
+                background: "color-mix(in srgb, var(--color-step-corners) 7%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
+                color: "var(--color-step-corners)",
               }}
             >
               Done ✓
@@ -335,8 +335,8 @@ export function SolveAlong() {
             border: "1px solid var(--color-primary-light-border)",
           }}
         >
-          <p className="text-xs font-semibold mb-1" style={{ color: "#2563EB" }}>Tip</p>
-          <p className="text-sm" style={{ color: "#2563EB" }}>{stage.tip}</p>
+          <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-primary)" }}>Tip</p>
+          <p className="text-sm" style={{ color: "var(--color-primary)" }}>{stage.tip}</p>
         </div>
       </div>
 
@@ -354,9 +354,9 @@ export function SolveAlong() {
         style={
           stagePassed
             ? {
-                background: "rgba(21,128,61,0.07)",
-                border: "1px solid rgba(21,128,61,0.22)",
-                color: "#15803D",
+                background: "color-mix(in srgb, var(--color-step-corners) 7%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
+                color: "var(--color-step-corners)",
               }
             : {
                 background: "var(--color-surface)",
@@ -385,8 +385,8 @@ export function SolveAlong() {
         </button>
         <button
           onClick={handleManualAdvance}
-          className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-colors"
-          style={{ backgroundColor: "#2563EB" }}
+          className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-on-accent transition-colors"
+          style={{ backgroundColor: "var(--color-primary)" }}
         >
           {stageIndex + 1 >= STAGES.length ? "Finish" : "I solved this stage"}
         </button>

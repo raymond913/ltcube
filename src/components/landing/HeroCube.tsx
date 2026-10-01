@@ -7,6 +7,13 @@ import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
 import { WebGLErrorBoundary } from "@/components/cube/WebGLErrorBoundary";
 import { useWebGLSupport } from "@/lib/webgl";
+import {
+  HERO_BODY_COLOR,
+  HERO_FACE_COLORS,
+  HERO_LIGHT_FILL,
+  HERO_LIGHT_KEY,
+  HERO_LIGHT_RIM,
+} from "@/lib/sceneColors";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -17,17 +24,6 @@ type Vec3 = [number, number, number];
 const BODY_SIZE      = 0.93;
 const STICKER_SIZE   = 0.80;
 const STICKER_OFFSET = 0.472;  // slightly more raised: BODY_SIZE/2 + 0.007
-
-const HERO_BODY_COLOR = "#0a0a0a";
-
-const HERO_FACE_COLORS: Record<string, { color: string; emissive: string; emissiveIntensity: number }> = {
-  R: { color: "#FF3B3B", emissive: "#FF0000", emissiveIntensity: 0.3 },
-  L: { color: "#FF8B1F", emissive: "#FF6600", emissiveIntensity: 0.3 },
-  U: { color: "#FFD93D", emissive: "#FFD700", emissiveIntensity: 0.3 },
-  D: { color: "#FFFFFF", emissive: "#FFFFFF", emissiveIntensity: 0.2 },
-  F: { color: "#3B82F6", emissive: "#2563EB", emissiveIntensity: 0.4 },
-  B: { color: "#10B981", emissive: "#059669", emissiveIntensity: 0.3 },
-};
 
 const CUBIE_POSITIONS: Vec3[] = [];
 for (let x = -1; x <= 1; x++) {
@@ -162,21 +158,21 @@ function HeroCubeScene() {
       <directionalLight
         position={[3, 4, 5]}
         intensity={0.8}
-        color="#E0E8FF"
+        color={HERO_LIGHT_KEY}
       />
 
       {/* Rim / backlight — purple */}
       <pointLight
         position={[0, 5, -5]}
         intensity={1.5}
-        color="#9333EA"
+        color={HERO_LIGHT_RIM}
       />
 
       {/* Subtle bottom fill */}
       <directionalLight
         position={[0, -4, 2]}
         intensity={0.2}
-        color="#FFFFFF"
+        color={HERO_LIGHT_FILL}
       />
 
       <group ref={groupRef} />

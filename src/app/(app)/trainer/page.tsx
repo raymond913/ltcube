@@ -33,8 +33,8 @@ export default function TrainerPage() {
       {/* Header */}
       <div>
         <p
-          className="text-xs font-semibold tracking-widest uppercase mb-1"
-          style={{ color: "#2563EB" }}
+          className="text-sm font-semibold tracking-widest uppercase mb-1"
+          style={{ color: "var(--color-primary)" }}
         >
           Practice Mode
         </p>
@@ -70,16 +70,16 @@ export default function TrainerPage() {
               style={{
                 background: isActive ? "var(--color-surface-elevated)" : "transparent",
                 border: isActive ? "1px solid var(--color-border)" : "1px solid transparent",
-                boxShadow: isActive ? "0 1px 4px rgba(0,0,0,0.06)" : "none",
+                boxShadow: isActive ? "0 1px 4px var(--color-shadow-2)" : "none",
               }}
             >
               <span
                 className="text-sm font-semibold"
-                style={{ color: isActive ? "#2563EB" : "oklch(52% 0.012 250)" }}
+                style={{ color: isActive ? "var(--color-primary)" : "var(--color-muted)" }}
               >
                 {t.label}
               </span>
-              <p className="text-xs" style={{ color: "oklch(60% 0.01 250)" }}>
+              <p className="text-sm" style={{ color: "var(--color-muted)" }}>
                 {t.description}
               </p>
             </button>

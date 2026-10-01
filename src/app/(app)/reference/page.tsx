@@ -6,6 +6,7 @@ import { CaseRecognition } from "@/components/tutorial/CaseRecognition";
 import { CaseThumbnail } from "@/components/cube/CaseThumbnail";
 import { BEGINNER_STEPS, cross, corners, secondLayer, twoLookOll, twoLookPll } from "@/data/beginner";
 import type { TutorialStep } from "@/lib/tutorialTypes";
+import { tint } from "@/lib/theme";
 
 type CaseType = "oll" | "pll" | "beginner";
 
@@ -64,16 +65,16 @@ const countOf = (type: CaseType) =>
   GROUPS.filter((g) => g.filter === type).reduce((n, g) => n + g.entries.length, 0);
 
 const FILTER_TABS: { id: Filter; label: string; color: string }[] = [
-  { id: "all",      label: "All Cases", color: "#2563EB" },
-  { id: "oll",      label: "OLL",       color: "#B45309" },
-  { id: "pll",      label: "PLL",       color: "#7C3AED" },
-  { id: "beginner", label: "Beginner",  color: "#2563EB" },
+  { id: "all",      label: "All Cases", color: "var(--color-primary)" },
+  { id: "oll",      label: "OLL",       color: "var(--color-step-oll)" },
+  { id: "pll",      label: "PLL",       color: "var(--color-step-pll)" },
+  { id: "beginner", label: "Beginner",  color: "var(--color-primary)" },
 ];
 
 const TYPE_COLORS = {
-  oll:      { color: "#B45309", bg: "rgba(180,83,9,0.07)",    border: "rgba(180,83,9,0.22)"    },
-  pll:      { color: "#7C3AED", bg: "rgba(124,58,237,0.07)",  border: "rgba(124,58,237,0.22)"  },
-  beginner: { color: "#2563EB", bg: "rgba(37,99,235,0.07)",   border: "rgba(37,99,235,0.22)"   },
+  oll:      { color: "var(--color-step-oll)", bg: "color-mix(in srgb, var(--color-step-oll) 7%, transparent)",    border: "color-mix(in srgb, var(--color-step-oll) 22%, transparent)"    },
+  pll:      { color: "var(--color-step-pll)", bg: "color-mix(in srgb, var(--color-step-pll) 7%, transparent)",  border: "color-mix(in srgb, var(--color-step-pll) 22%, transparent)"  },
+  beginner: { color: "var(--color-primary)", bg: "color-mix(in srgb, var(--color-primary) 7%, transparent)",   border: "color-mix(in srgb, var(--color-primary) 22%, transparent)"   },
 };
 
 function CaseCard({ entry }: { entry: CaseEntry }) {
@@ -86,7 +87,7 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
         style={{
           background: "var(--color-surface-elevated)",
           border: "1px solid var(--color-border)",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          boxShadow: "0 1px 3px var(--color-shadow-1)",
           ["--ltc-hover-border" as string]: theme.border,
         }}
       >
@@ -111,7 +112,7 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
         <div className="flex flex-col gap-2 px-4 py-3">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span
-              className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+              className="text-sm font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
               style={{ color: theme.color, background: theme.bg, border: `1px solid ${theme.border}` }}
             >
               {entry.badge}
@@ -125,9 +126,9 @@ function CaseCard({ entry }: { entry: CaseEntry }) {
           </div>
 
           <code
-            className="font-mono block text-xs break-all leading-relaxed rounded-lg px-2.5 py-1.5"
+            className="font-mono block text-sm break-all leading-relaxed rounded-lg px-2.5 py-1.5"
             style={{
-              color: "#2563EB",
+              color: "var(--color-primary)",
               background: "var(--color-primary-light)",
               border: "1px solid var(--color-primary-light-border)",
             }}
@@ -167,8 +168,8 @@ export default function ReferencePage() {
       {/* Header */}
       <div>
         <p
-          className="text-xs font-semibold tracking-widest uppercase mb-1"
-          style={{ color: "#2563EB" }}
+          className="text-sm font-semibold tracking-widest uppercase mb-1"
+          style={{ color: "var(--color-primary)" }}
         >
           Cheat Sheet
         </p>
@@ -202,9 +203,9 @@ export default function ReferencePage() {
                 className="rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-all duration-150"
                 style={{
                   background: isActive ? "var(--color-surface-elevated)" : "transparent",
-                  color: isActive ? t.color : "oklch(55% 0.01 250)",
-                  border: isActive ? `1px solid ${t.color}22` : "1px solid transparent",
-                  boxShadow: isActive ? "0 1px 4px rgba(0,0,0,0.06)" : "none",
+                  color: isActive ? t.color : "var(--color-muted)",
+                  border: isActive ? `1px solid ${tint(t.color, 13)}` : "1px solid transparent",
+                  boxShadow: isActive ? "0 1px 4px var(--color-shadow-2)" : "none",
                 }}
               >
                 {t.label}
@@ -217,7 +218,7 @@ export default function ReferencePage() {
         <div className="relative w-full sm:w-72">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: "oklch(62% 0.01 250)" }}
+            style={{ color: "var(--color-muted)" }}
             width="14" height="14" viewBox="0 0 16 16" fill="none"
             stroke="currentColor" strokeWidth="1.5"
             aria-hidden="true"
@@ -240,8 +241,8 @@ export default function ReferencePage() {
               fontFamily: "inherit",
             }}
             onFocus={(e) => {
-              (e.target as HTMLInputElement).style.borderColor = "#2563EB";
-              (e.target as HTMLInputElement).style.boxShadow = "0 0 0 3px rgba(37,99,235,0.12)";
+              (e.target as HTMLInputElement).style.borderColor = "var(--color-primary)";
+              (e.target as HTMLInputElement).style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent)";
             }}
             onBlur={(e) => {
               (e.target as HTMLInputElement).style.borderColor = "var(--color-border)";
@@ -268,14 +269,14 @@ export default function ReferencePage() {
                 >
                   {group.label}
                 </span>
-                <span className="text-xs" style={{ color: "oklch(60% 0.01 250)" }}>
+                <span className="text-sm" style={{ color: "var(--color-muted)" }}>
                   {entries.length} case{entries.length !== 1 ? "s" : ""}
                 </span>
                 <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
                 <Link
                   href={group.route}
-                  className="ltc-hover-primary-color inline-flex min-h-11 min-w-11 items-center justify-end text-xs font-medium transition-colors duration-150"
-                  style={{ color: "#2563EB" }}
+                  className="ltc-hover-primary-color inline-flex min-h-11 min-w-11 items-center justify-end text-sm font-medium transition-colors duration-150"
+                  style={{ color: "var(--color-primary)" }}
                 >
                   Open tutorial →
                 </Link>
@@ -298,11 +299,11 @@ export default function ReferencePage() {
             >
               🔍
             </div>
-            <p style={{ color: "oklch(55% 0.01 250)" }}>No cases match &ldquo;{search}&rdquo;</p>
+            <p style={{ color: "var(--color-muted)" }}>No cases match &ldquo;{search}&rdquo;</p>
             <button
               onClick={() => setSearch("")}
               className="ltc-hover-primary-color text-sm font-medium transition-colors duration-150"
-              style={{ color: "#2563EB" }}
+              style={{ color: "var(--color-primary)" }}
             >
               Clear search
             </button>

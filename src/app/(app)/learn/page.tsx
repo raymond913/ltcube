@@ -83,7 +83,7 @@ export default function LearnPage() {
                 <span
                   aria-hidden="true"
                   className={`flex size-10 shrink-0 items-center justify-center rounded-full text-base font-semibold ${
-                    isDone ? "bg-text text-white" : "border border-border-bright text-text"
+                    isDone ? "bg-text text-on-accent" : "border border-border-bright text-text"
                   }`}
                 >
                   {isDone ? <CheckIcon /> : step.stepNumber}
@@ -103,7 +103,7 @@ export default function LearnPage() {
                 </span>
 
                 {isNext ? (
-                  <span className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors duration-150 group-hover:bg-primary-hover">
+                  <span className="shrink-0 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-on-accent transition-colors duration-150 group-hover:bg-primary-hover">
                     {completedCount === 0 ? "Start" : "Continue"}
                   </span>
                 ) : (

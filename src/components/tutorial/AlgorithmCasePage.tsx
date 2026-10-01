@@ -26,8 +26,8 @@ interface AlgorithmCasePageProps {
 }
 
 const TYPE_COLORS = {
-  oll: { color: "#B45309", bg: "rgba(180,83,9,0.07)", border: "rgba(180,83,9,0.22)" },
-  pll: { color: "#7C3AED", bg: "rgba(124,58,237,0.07)", border: "rgba(124,58,237,0.22)" },
+  oll: { color: "var(--color-step-oll)", bg: "color-mix(in srgb, var(--color-step-oll) 7%, transparent)", border: "color-mix(in srgb, var(--color-step-oll) 22%, transparent)" },
+  pll: { color: "var(--color-step-pll)", bg: "color-mix(in srgb, var(--color-step-pll) 7%, transparent)", border: "color-mix(in srgb, var(--color-step-pll) 22%, transparent)" },
 };
 
 const GLOW_NOTE = "The glowing stickers on the cube show what to look for.";
@@ -37,18 +37,18 @@ function HowToSpotCallout({ text, note }: { text: string; note?: string }) {
     <div
       className="rounded-lg px-3 py-2.5"
       style={{
-        background: "rgba(37,99,235,0.06)",
-        border: "1px solid rgba(37,99,235,0.18)",
+        background: "color-mix(in srgb, var(--color-primary) 6%, transparent)",
+        border: "1px solid color-mix(in srgb, var(--color-primary) 18%, transparent)",
       }}
     >
-      <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "#2563EB" }}>
+      <p className="text-sm font-bold uppercase tracking-wider mb-1" style={{ color: "var(--color-primary)" }}>
         How to spot this
       </p>
-      <p className="text-sm leading-relaxed" style={{ color: "#1E3A8A" }}>
+      <p className="text-sm leading-relaxed" style={{ color: "var(--color-primary-ink)" }}>
         {text}
       </p>
       {note && (
-        <p className="mt-1.5 text-xs font-medium" style={{ color: "#2563EB" }}>
+        <p className="mt-1.5 text-sm font-medium" style={{ color: "var(--color-primary)" }}>
           {note}
         </p>
       )}
@@ -88,8 +88,8 @@ export function AlgorithmCasePage({
       {/* Page header */}
       <div>
         <p
-          className="text-xs font-semibold tracking-widest uppercase mb-1"
-          style={{ color: "#2563EB" }}
+          className="text-sm font-semibold tracking-widest uppercase mb-1"
+          style={{ color: "var(--color-primary)" }}
         >
           Step {stepMeta.stepNumber} of {BEGINNER_STEPS.length}
         </p>
@@ -136,7 +136,7 @@ export function AlgorithmCasePage({
             style={{
               background: "var(--color-surface-elevated)",
               border: `1px solid ${typeTheme.border}`,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+              boxShadow: "0 1px 4px var(--color-shadow-1)",
             }}
           >
             <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
@@ -154,9 +154,9 @@ export function AlgorithmCasePage({
             )}
             {activeSubstep.algorithm && (
               <code
-                className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
+                className="mt-1 text-sm tracking-wide break-all rounded-lg px-2.5 py-1.5"
                 style={{
-                  color: "#2563EB",
+                  color: "var(--color-primary)",
                   background: "var(--color-primary-light)",
                   border: "1px solid var(--color-primary-light-border)",
                 }}
@@ -174,16 +174,16 @@ export function AlgorithmCasePage({
             style={
               isCompleted
                 ? {
-                    background: "rgba(21,128,61,0.07)",
-                    color: "#15803D",
-                    border: "2px solid rgba(21,128,61,0.22)",
+                    background: "color-mix(in srgb, var(--color-step-corners) 7%, transparent)",
+                    color: "var(--color-step-corners)",
+                    border: "2px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
                     cursor: "default",
                   }
                 : {
-                    backgroundColor: "#2563EB",
-                    color: "#fff",
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-on-accent)",
                     border: "2px solid transparent",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(37,99,235,0.25)",
+                    boxShadow: "0 1px 3px var(--color-shadow-3), 0 4px 16px color-mix(in srgb, var(--color-primary) 25%, transparent)",
                   }
             }
           >
@@ -228,7 +228,7 @@ export function AlgorithmCasePage({
                         style={{
                           background: isActive ? typeTheme.bg : "var(--color-surface-elevated)",
                           border: `1px solid ${isActive ? typeTheme.border : "var(--color-border)"}`,
-                          boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.08)" : "0 1px 3px rgba(0,0,0,0.04)",
+                          boxShadow: isActive ? "0 2px 8px var(--color-shadow-2)" : "0 1px 3px var(--color-shadow-1)",
                           transform: isActive ? "translateY(-1px)" : "translateY(0)",
                           ["--ltc-hover-border" as string]: typeTheme.border,
                         }}
@@ -242,8 +242,8 @@ export function AlgorithmCasePage({
 
                         {/* Case name */}
                         <span
-                          className="text-xs font-semibold leading-tight text-center"
-                          style={{ color: isActive ? typeTheme.color : "oklch(40% 0.01 250)" }}
+                          className="text-sm font-semibold leading-tight text-center"
+                          style={{ color: isActive ? typeTheme.color : "var(--color-text)" }}
                         >
                           {caseName}
                         </span>
@@ -251,9 +251,9 @@ export function AlgorithmCasePage({
                         {/* Algorithm preview */}
                         {sub.algorithm && (
                           <code
-                            className="font-mono w-full text-xs leading-relaxed line-clamp-2 break-all text-center"
+                            className="font-mono w-full text-sm leading-relaxed line-clamp-2 break-all text-center"
                             style={{
-                                          color: isActive ? typeTheme.color : "oklch(55% 0.01 250)",
+                                          color: isActive ? typeTheme.color : "var(--color-muted)",
                             }}
                           >
                             {sub.algorithm}
@@ -283,7 +283,7 @@ export function AlgorithmCasePage({
             style={{
               background: "var(--color-surface-elevated)",
               border: `1px solid ${typeTheme.border}`,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+              boxShadow: "0 1px 4px var(--color-shadow-1)",
             }}
           >
             <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
@@ -301,9 +301,9 @@ export function AlgorithmCasePage({
             )}
             {activeSubstep.algorithm && (
               <code
-                className="mt-1 text-xs tracking-wide break-all rounded-lg px-2.5 py-1.5"
+                className="mt-1 text-sm tracking-wide break-all rounded-lg px-2.5 py-1.5"
                 style={{
-                  color: "#2563EB",
+                  color: "var(--color-primary)",
                   background: "var(--color-primary-light)",
                   border: "1px solid var(--color-primary-light-border)",
                 }}
@@ -339,10 +339,10 @@ export function AlgorithmCasePage({
               {nextStep ? (
                 <Link
                   href={nextStep.route}
-                  className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
+                  className="inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-semibold text-on-accent transition-all duration-150 hover:scale-[1.02] active:scale-[0.97]"
                   style={{
-                    backgroundColor: "#2563EB",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    backgroundColor: "var(--color-primary)",
+                    boxShadow: "0 1px 3px var(--color-shadow-3)",
                   }}
                 >
                   Next: {nextStep.title} →
@@ -361,16 +361,16 @@ export function AlgorithmCasePage({
             style={
               isCompleted
                 ? {
-                    background: "rgba(21,128,61,0.07)",
-                    color: "#15803D",
-                    border: "2px solid rgba(21,128,61,0.22)",
+                    background: "color-mix(in srgb, var(--color-step-corners) 7%, transparent)",
+                    color: "var(--color-step-corners)",
+                    border: "2px solid color-mix(in srgb, var(--color-step-corners) 22%, transparent)",
                     cursor: "default",
                   }
                 : {
-                    backgroundColor: "#2563EB",
-                    color: "#fff",
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-on-accent)",
                     border: "2px solid transparent",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(37,99,235,0.25)",
+                    boxShadow: "0 1px 3px var(--color-shadow-3), 0 4px 16px color-mix(in srgb, var(--color-primary) 25%, transparent)",
                   }
             }
           >

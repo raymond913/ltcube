@@ -30,8 +30,8 @@ export function CaseThumbnail({
       style={{ background: "var(--color-surface)" }}
     >
       <span
-        className="text-center px-1 leading-tight"
-        style={{ color: "var(--color-muted)", fontSize: "10px" }}
+        className="text-center px-1 text-sm leading-tight"
+        style={{ color: "var(--color-muted)" }}
       >
         {title}
       </span>

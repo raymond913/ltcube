@@ -42,7 +42,7 @@ export default function HomePage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
               <Link
                 href="/learn"
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-hover active:scale-[0.98] active:bg-primary-hover sm:w-auto"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-semibold text-on-accent transition-colors duration-150 hover:bg-primary-hover active:scale-[0.98] active:bg-primary-hover sm:w-auto"
               >
                 Start learning
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -18,8 +18,8 @@ export function AlgorithmCard({ substep, isActive, onPlay }: AlgorithmCardProps)
           ? "1px solid var(--color-primary)"
           : "1px solid var(--color-border)",
         boxShadow: isActive
-          ? "0 2px 8px rgba(37,99,235,0.12)"
-          : "0 1px 3px rgba(0,0,0,0.04)",
+          ? "0 2px 8px color-mix(in srgb, var(--color-primary) 12%, transparent)"
+          : "0 1px 3px var(--color-shadow-1)",
         ["--ltc-hover-border" as string]: "var(--color-primary-light-border)",
       }}
     >
@@ -27,7 +27,7 @@ export function AlgorithmCard({ substep, isActive, onPlay }: AlgorithmCardProps)
         {substep.algorithmName ?? substep.title}
       </p>
       <code
-        className="font-mono text-xs leading-relaxed line-clamp-3 break-all"
+        className="font-mono text-sm leading-relaxed line-clamp-3 break-all"
         style={{ color: "var(--color-muted)" }}
       >
         {substep.algorithm}
@@ -35,7 +35,7 @@ export function AlgorithmCard({ substep, isActive, onPlay }: AlgorithmCardProps)
       <button
         onClick={onPlay}
         aria-label={`Play ${substep.algorithmName ?? substep.title}`}
-        className="ltc-hover-primary mt-auto self-start rounded-md px-3 py-2 text-xs font-semibold text-white transition-colors min-h-[32px]"
+        className="ltc-hover-primary mt-auto self-start rounded-md px-3 py-2 text-sm font-semibold text-on-accent transition-colors min-h-11"
         style={{ backgroundColor: "var(--color-primary)" }}
       >
         Play ▶
