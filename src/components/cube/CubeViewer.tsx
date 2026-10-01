@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import type { CubeFaces } from "@/lib/cubeEngine";
 import type { Arrow, SpotLabel, SpotSticker, StickerMask } from "@/lib/tutorialTypes";
 import type { Vec3 } from "@/lib/cameraViews";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
-import { canUseWebGL } from "@/lib/webgl";
+import { useWebGLSupport } from "@/lib/webgl";
 
 const CubeScene = dynamic(
   () => import("./CubeScene").then((m) => m.CubeScene),
@@ -91,11 +90,7 @@ export function CubeViewer({
   spotLabels,
   glowActive,
 }: CubeViewerProps) {
-  const [webglOk, setWebglOk] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setWebglOk(canUseWebGL());
-  }, []);
+  const webglOk = useWebGLSupport();
 
   return (
     <div

@@ -56,10 +56,12 @@ export function Sidebar() {
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
     setLearnOpen(false);
     setMobileOpen(false);
-  }, [pathname]);
+  }
 
   const nextStep = LEARN_STEPS.find((s) => !completedSteps.includes(s.id));
 

@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, type ComponentRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
 import { WebGLErrorBoundary } from "@/components/cube/WebGLErrorBoundary";
-import { canUseWebGL } from "@/lib/webgl";
+import { useWebGLSupport } from "@/lib/webgl";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -93,7 +93,7 @@ function createHeroCubieGroup(x: number, y: number, z: number): THREE.Group {
 function HeroCubeScene() {
   const { scene } = useThree();
   const groupRef = useRef<THREE.Group>(null);
-  const orbitRef = useRef<any>(null);
+  const orbitRef = useRef<ComponentRef<typeof OrbitControls>>(null);
   const lastInteractRef = useRef(0);
   const autoRotYRef = useRef(0);
   const reducedMotionRef = useRef(false);
@@ -210,11 +210,7 @@ const heroCubeFallback = (
 );
 
 export function HeroCube({ size = 300 }: HeroCubeProps) {
-  const [webglOk, setWebglOk] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setWebglOk(canUseWebGL());
-  }, []);
+  const webglOk = useWebGLSupport();
 
   if (webglOk === null || !webglOk) return <div style={{ width: size, height: size }} />;
 

@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { WebGLErrorBoundary } from "./WebGLErrorBoundary";
-import { canUseWebGL } from "@/lib/webgl";
+import { useWebGLSupport } from "@/lib/webgl";
 
 const CaseThumbnailScene = dynamic(
   () => import("./CaseThumbnailScene").then((m) => m.CaseThumbnailScene),
@@ -23,11 +22,7 @@ export function CaseThumbnail({
   title,
   size = 88,
 }: CaseThumbnailProps) {
-  const [webglOk, setWebglOk] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setWebglOk(canUseWebGL());
-  }, []);
+  const webglOk = useWebGLSupport();
 
   const fallback = (
     <div

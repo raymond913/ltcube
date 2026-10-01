@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import gsap from "gsap";
@@ -86,7 +86,6 @@ function resetGlow(meshes: THREE.Mesh[]): void {
 }
 
 const BODY_COLOR    = "#111111";
-const GHOST_BODY    = "#3A3A3A";
 const MASK_GRAY     = "#52525B";
 
 /** All 26 visible cubie positions (every {-1,0,1}³ excluding origin). */
@@ -475,7 +474,7 @@ const LABEL_ANCHOR: Record<SpotLabel["side"], CameraVec3> = {
 
 function AnimatedScene({ interactive, visibleCubies, viewMode, arrows, stickerMask, holdView, spotView, replayKey, cameraResetKey, spotStickers, spotLabels, glowActive }: CubeSceneProps) {
   const { scene, camera } = useThree();
-  const orbitRef = useRef<any>(null);
+  const orbitRef = useRef<ComponentRef<typeof OrbitControls>>(null);
 
   const cubiesRef      = useRef<THREE.Group[]>([]);
   const pivotRef       = useRef(new THREE.Group());

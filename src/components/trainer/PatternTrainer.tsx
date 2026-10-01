@@ -177,7 +177,7 @@ export function PatternTrainer() {
 
       if (isRight) {
         advanceRef.current = setTimeout(() => {
-          advanceRound(rIdx + 1, roundList);
+          advanceRound(rIdx + 1);
         }, 1500);
       }
     },
@@ -186,7 +186,7 @@ export function PatternTrainer() {
   );
 
   const advanceRound = useCallback(
-    (nextIdx: number, roundList: QuizCase[]) => {
+    (nextIdx: number) => {
       if (nextIdx >= ROUNDS) {
         setPhase("results");
         return;
@@ -376,7 +376,7 @@ export function PatternTrainer() {
             {showSolution ? "Hide Solution" : "Watch Solution"}
           </button>
           <button
-            onClick={() => advanceRound(roundIndex + 1, rounds)}
+            onClick={() => advanceRound(roundIndex + 1)}
             className="ltc-hover-primary flex-1 min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150"
             style={{ backgroundColor: "#2563EB" }}
           >
