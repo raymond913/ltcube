@@ -60,9 +60,9 @@ As a recruiter, I want to understand the project in 30 seconds from the GitHub r
 
 As the project owner, I want machine-specific files out of the repo, so that nothing private or confusing is public.
 
-- [ ] `.claude/settings.local.json` is untracked and in `.gitignore`
-- [ ] `docs/superpowers` is either kept on purpose or removed
-- [ ] A search of the repo history finds no `.env` files or API keys
+- [x] `.claude/settings.local.json` is untracked and in `.gitignore`
+- [x] `docs/superpowers` is either kept on purpose or removed
+- [x] A search of the repo history finds no `.env` files or API keys
 
 ### N4. Page titles name the site (S)
 
