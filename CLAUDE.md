@@ -65,3 +65,9 @@ Light/clean theme. White/#F8FAFC backgrounds, blue #2563EB accent, Inter font.
 ## Build Status
 Phases 1-5: ✅ (tutorial data, ghost system, visibleCubies wiring complete)
 Phase 6-7: pending
+
+## Backlog
+- docs/BACKLOG.md is the source of truth for what to build next. Read it before starting any feature work.
+- Work stories in order: all Must (N1–N6) before any Should.
+- When you finish a story, tick its acceptance criteria checkboxes in docs/BACKLOG.md, and only tick a box you actually verified.
+- Every story must also meet the Definition of Done in that file.
